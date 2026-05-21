@@ -6,6 +6,7 @@ import checklistReducer   from './slices/checklistSlice';
 import budgetReducer      from './slices/budgetSlice';
 import guestsReducer      from './slices/guestsSlice';
 import vendorsReducer     from './slices/vendorsSlice';
+import seatingReducer     from './slices/seatingSlice';
 import settingsReducer    from './slices/settingsSlice';
 import dashboardReducer      from './slices/dashboardSlice';
 import notificationsReducer from './slices/notificationsSlice';
@@ -19,6 +20,7 @@ export const store = configureStore({
     budget:      budgetReducer,
     guests:      guestsReducer,
     vendors:     vendorsReducer,
+    seating:     seatingReducer,
     settings:    settingsReducer,
     dashboard:     dashboardReducer,
     notifications: notificationsReducer,

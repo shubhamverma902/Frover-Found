@@ -30,6 +30,7 @@ export const SIDEBAR_NAV: NavGroup[] = [
       { icon: '₹', label: 'Budget',     href: PATH.dashboard.budget    },
       { icon: '✉', label: 'Guest List', href: PATH.dashboard.guests    },
       { icon: '◈', label: 'Vendors',    href: PATH.dashboard.vendors   },
+      { icon: '⬡', label: 'Seating',    href: PATH.dashboard.seating   },
     ],
   },
   {

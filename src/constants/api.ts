@@ -50,6 +50,12 @@ export const API = {
     attachment:  (id: string, fileId: string) => `/vendors/${id}/attachments/${fileId}`,
   },
 
+  seating: {
+    base:   '/seating',
+    byId:   (id: string) => `/seating/${id}`,
+    assign: '/seating/assign',
+  },
+
   settings: {
     base:          '/settings',
     profile:       '/settings/profile',
