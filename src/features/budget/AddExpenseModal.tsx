@@ -17,10 +17,11 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
   const categories = useAppSelector(selectBudgetCategories);
   const mutating   = useAppSelector(selectBudgetMutating);
 
-  const [category,  setCategory]  = useState(categories[0]?.category ?? '');
-  const [amount,    setAmount]    = useState('');
-  const [note,      setNote]      = useState('');
-  const [submitErr, setSubmitErr] = useState('');
+  const [category,     setCategory]     = useState(categories[0]?.category ?? '');
+  const [amount,       setAmount]       = useState('');
+  const [amountError,  setAmountError]  = useState('');
+  const [note,         setNote]         = useState('');
+  const [submitErr,    setSubmitErr]    = useState('');
 
   const selectedCat = categories.find(c => c.category === category);
   const remaining   = selectedCat ? selectedCat.allocated - selectedCat.spent : 0;
@@ -28,7 +29,8 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const amt = Number(amount);
-    if (!selectedCat || !amt || amt <= 0) return;
+    if (!amt || amt <= 0) { setAmountError('Enter a value greater than 0'); return; }
+    if (!selectedCat) return;
     setSubmitErr('');
     const result = await dispatch(addExpense({ categoryId: selectedCat._id, amount: amt, note: note.trim() }));
     if (addExpense.fulfilled.match(result)) {
@@ -118,9 +120,15 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
               min={1}
               placeholder="e.g. 50000"
               value={amount}
-              onChange={e => setAmount(e.target.value)}
-              required
+              onChange={e => {
+                const v = e.target.value;
+                setAmount(v);
+                if (amountError) setAmountError(!v || Number(v) <= 0 ? 'Enter a value greater than 0' : '');
+              }}
+              onBlur={() => { if (!amount || Number(amount) <= 0) setAmountError('Enter a value greater than 0'); }}
+              error={!!amountError}
             />
+            {amountError && <p className="text-xs text-red-400 mt-1">{amountError}</p>}
             {selectedCat && (
               <p className={`text-[10px] mt-1.5 ${Number(amount) > remaining ? 'text-[#DFB3AE]' : 'text-[#DDDED9]/35'}`}>
                 {Number(amount) > remaining

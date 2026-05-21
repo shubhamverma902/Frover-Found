@@ -21,14 +21,28 @@ interface AddEventModalProps {
 const AddEventModal = ({ onClose }: AddEventModalProps) => {
   const dispatch = useAppDispatch();
   const status   = useAppSelector(selectEventsStatus);
-  const [form, setForm] = useState<FormData>({ ...EMPTY });
+  const [form,   setForm]   = useState<FormData>({ ...EMPTY });
+  const [errors, setErrors] = useState<{ name?: string; date?: string; venue?: string }>({});
 
-  const set = (k: keyof FormData, v: string | number) =>
+  const setErr = (k: keyof typeof errors, msg: string | undefined) =>
+    setErrors(prev => ({ ...prev, [k]: msg }));
+
+  const set = (k: keyof FormData, v: string | number) => {
     setForm(prev => ({ ...prev, [k]: v }));
+    if (k === 'name')  setErr('name',  String(v).trim() ? undefined : 'Required');
+    if (k === 'date')  setErr('date',  v ? undefined : 'Required');
+    if (k === 'venue') setErr('venue', String(v).trim() ? undefined : 'Required');
+  };
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.date || !form.venue.trim()) return;
+    const nameErr  = !form.name.trim()  ? 'Required' : '';
+    const dateErr  = !form.date         ? 'Required' : '';
+    const venueErr = !form.venue.trim() ? 'Required' : '';
+    if (nameErr || dateErr || venueErr) {
+      setErrors({ name: nameErr || undefined, date: dateErr || undefined, venue: venueErr || undefined });
+      return;
+    }
     const result = await dispatch(createEvent({ ...form, guests: Number(form.guests) }));
     if (createEvent.fulfilled.match(result)) onClose();
   };
@@ -67,14 +81,20 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
           <div>
             <FieldLabel>Event Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Mehendi Ceremony"
-              value={form.name} onChange={e => set('name', e.target.value)} required />
+              value={form.name} onChange={e => set('name', e.target.value)}
+              onBlur={() => { if (!form.name.trim()) setErr('name', 'Required'); }}
+              error={!!errors.name} />
+            {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FieldLabel>Date <span className="text-[#DFB3AE]">*</span></FieldLabel>
               <Input variant="dark" type="date" className="[color-scheme:dark]"
-                value={form.date} onChange={e => set('date', e.target.value)} required />
+                value={form.date} onChange={e => set('date', e.target.value)}
+                onBlur={() => { if (!form.date) setErr('date', 'Required'); }}
+                error={!!errors.date} />
+              {errors.date && <p className="text-xs text-red-400 mt-1">{errors.date}</p>}
             </div>
             <div>
               <FieldLabel>Time</FieldLabel>
@@ -86,7 +106,10 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
           <div>
             <FieldLabel>Venue <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Leela Palace, New Delhi"
-              value={form.venue} onChange={e => set('venue', e.target.value)} required />
+              value={form.venue} onChange={e => set('venue', e.target.value)}
+              onBlur={() => { if (!form.venue.trim()) setErr('venue', 'Required'); }}
+              error={!!errors.venue} />
+            {errors.venue && <p className="text-xs text-red-400 mt-1">{errors.venue}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

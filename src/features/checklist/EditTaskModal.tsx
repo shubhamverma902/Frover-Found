@@ -20,6 +20,7 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
   const mutating   = useAppSelector(selectMutating);
 
   const [label,         setLabel]         = useState(task.label);
+  const [labelError,    setLabelError]    = useState('');
   const [due,           setDue]           = useState(task.due);
   const [category,      setCategory]      = useState(initialCategory);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -31,7 +32,8 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!label.trim() || !category) return;
+    if (!label.trim()) { setLabelError('Required'); return; }
+    if (!category) return;
     const result = await dispatch(updateTask({
       taskId: task._id,
       label: label.trim(),
@@ -91,9 +93,11 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
               variant="dark"
               placeholder="e.g. Book florist for mandap"
               value={label}
-              onChange={e => setLabel(e.target.value)}
-              required
+              onChange={e => { const v = e.target.value; setLabel(v); if (labelError) setLabelError(v.trim() ? '' : 'Required'); }}
+              onBlur={() => { if (!label.trim()) setLabelError('Required'); }}
+              error={!!labelError}
             />
+            {labelError && <p className="text-xs text-red-400 mt-1">{labelError}</p>}
           </div>
 
           {/* Due */}

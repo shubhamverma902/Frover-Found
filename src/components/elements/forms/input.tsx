@@ -7,6 +7,7 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   height?: string | number;
   className?: string;
   variant?: "light" | "dark";
+  error?: boolean;
 };
 
 const variantBase: Record<NonNullable<InputProps["variant"]>, string> = {
@@ -25,6 +26,7 @@ export function Input({
   variant = "light",
   className,
   style,
+  error,
   ...props
 }: InputProps) {
   const sizeStyle: CSSProperties = {
@@ -37,7 +39,11 @@ export function Input({
     <input
       {...props}
       style={sizeStyle}
-      className={[variantBase[variant], className]
+      className={[
+        variantBase[variant],
+        error ? "!border-red-500 focus:!border-red-500" : "",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     />

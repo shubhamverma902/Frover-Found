@@ -28,9 +28,10 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
   const dispatch = useAppDispatch();
   const mutating = useAppSelector(selectVendorMutating);
 
-  const [name,     setName]     = useState('');
-  const [category, setCategory] = useState(CATEGORY_ICONS[0].label);
-  const [icon,     setIcon]     = useState(CATEGORY_ICONS[0].icon);
+  const [name,      setName]      = useState('');
+  const [nameError, setNameError] = useState('');
+  const [category,  setCategory]  = useState(CATEGORY_ICONS[0].label);
+  const [icon,      setIcon]      = useState(CATEGORY_ICONS[0].icon);
   const [contact,  setContact]  = useState('');
   const [location, setLocation] = useState('');
   const [status,   setStatus]   = useState<Vendor['status']>('pending');
@@ -44,7 +45,7 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) { setNameError('Required'); return; }
     const result = await dispatch(createVendor({ icon, category, name: name.trim(), contact, location, status, rating, notes }));
     if (createVendor.fulfilled.match(result)) onClose();
   };
@@ -70,7 +71,12 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
           {/* Name */}
           <div>
             <FieldLabel>Vendor Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
-            <Input variant="dark" placeholder="e.g. Floral Dreams by Sunita" value={name} onChange={e => setName(e.target.value)} required />
+            <Input variant="dark" placeholder="e.g. Floral Dreams by Sunita"
+              value={name}
+              onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
+              onBlur={() => { if (!name.trim()) setNameError('Required'); }}
+              error={!!nameError} />
+            {nameError && <p className="text-xs text-red-400 mt-1">{nameError}</p>}
           </div>
 
           {/* Category */}

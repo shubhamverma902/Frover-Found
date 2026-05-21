@@ -39,8 +39,13 @@ const GuestsPage = () => {
 
   const [addOpen,    setAddOpen]    = useState(false);
   const [rsvpGuest,  setRsvpGuest]  = useState<Guest | null>(null);
+  const [query,      setQuery]      = useState('');
 
   const loading      = status === 'idle' || status === 'loading';
+  const q            = query.trim().toLowerCase();
+  const visibleGuests = q
+    ? guests.filter(g => [g.name, g.relation, g.phone ?? ''].some(f => f.toLowerCase().includes(q)))
+    : guests;
   const responsePct  = total > 0 ? Math.round(((confirmed + declined) / total) * 100) : 0;
 
   useEffect(() => {
@@ -91,17 +96,32 @@ const GuestsPage = () => {
           />
 
           <div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#DDDED9]" />
-              <div className="flex items-center gap-2 px-3 py-1 border border-[#E4BC62]/25 bg-[#E4BC62]/5">
-                <span className="w-1 h-1 rounded-full bg-[#E4BC62]" />
-                <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.35em]">All Guests</p>
-                <span className="w-1 h-1 rounded-full bg-[#E4BC62]" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#DDDED9]" />
+                <div className="flex items-center gap-2 px-3 py-1 border border-[#E4BC62]/25 bg-[#E4BC62]/5">
+                  <span className="w-1 h-1 rounded-full bg-[#E4BC62]" />
+                  <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.35em]">All Guests</p>
+                  <span className="w-1 h-1 rounded-full bg-[#E4BC62]" />
+                </div>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#DDDED9]" />
               </div>
-              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#DDDED9]" />
+              <div className="relative sm:w-60">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 text-sm pointer-events-none">⌕</span>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search guests…"
+                  className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
+                />
+                {query && (
+                  <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+                )}
+              </div>
             </div>
 
-            <GuestTable guests={guests} onEditGuest={setRsvpGuest} />
+            <GuestTable guests={visibleGuests} onEditGuest={setRsvpGuest} />
 
             {totalPages > 1 && (
               <GuestPagination

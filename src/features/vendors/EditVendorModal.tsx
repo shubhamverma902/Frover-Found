@@ -32,7 +32,8 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   const mutating = useAppSelector(selectVendorMutating);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const [name,     setName]     = useState(vendor.name);
+  const [name,      setName]      = useState(vendor.name);
+  const [nameError, setNameError] = useState('');
   const [category, setCategory] = useState(vendor.category);
   const [icon,     setIcon]     = useState(vendor.icon);
   const [contact,  setContact]  = useState(vendor.contact);
@@ -48,7 +49,7 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
 
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) { setNameError('Required'); return; }
     const result = await dispatch(updateVendor({
       vendorId: vendor._id,
       payload: { icon, category, name: name.trim(), contact, location, status, rating, notes },
@@ -82,7 +83,12 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
           {/* Name */}
           <div>
             <FieldLabel>Vendor Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
-            <Input variant="dark" value={name} onChange={e => setName(e.target.value)} required />
+            <Input variant="dark"
+              value={name}
+              onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
+              onBlur={() => { if (!name.trim()) setNameError('Required'); }}
+              error={!!nameError} />
+            {nameError && <p className="text-xs text-red-400 mt-1">{nameError}</p>}
           </div>
 
           {/* Category */}

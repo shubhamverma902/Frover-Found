@@ -22,8 +22,9 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
   const dispatch = useAppDispatch();
   const mutating = useAppSelector(selectGuestMutating);
 
-  const [name,     setName]     = useState('');
-  const [relation, setRelation] = useState('');
+  const [name,      setName]      = useState('');
+  const [nameError, setNameError] = useState('');
+  const [relation,  setRelation]  = useState('');
   const [phone,    setPhone]    = useState('');
   const [rsvp,     setRsvp]     = useState<Guest['rsvp']>('pending');
   const [meal,     setMeal]     = useState<Guest['meal']>('Veg');
@@ -31,7 +32,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) { setNameError('Required'); return; }
     const result = await dispatch(createGuest({ name: name.trim(), relation, phone, rsvp, meal, plusOne }));
     if (createGuest.fulfilled.match(result)) {
       dispatch(fetchGuests({ page: 1, limit: 10 }));
@@ -68,9 +69,11 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
               variant="dark"
               placeholder="e.g. Anjali Sharma"
               value={name}
-              onChange={e => setName(e.target.value)}
-              required
+              onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
+              onBlur={() => { if (!name.trim()) setNameError('Required'); }}
+              error={!!nameError}
             />
+            {nameError && <p className="text-xs text-red-400 mt-1">{nameError}</p>}
           </div>
 
           {/* Relation */}

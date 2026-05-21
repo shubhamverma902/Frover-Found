@@ -19,15 +19,20 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
   const mutating   = useAppSelector(selectBudgetMutating);
   const cat        = categories.find(c => c.category === categoryName)!;
 
-  const [allocated, setAllocated] = useState(String(cat.allocated));
-  const [deleteId,  setDeleteId]  = useState<string | null>(null);
+  const [allocated,      setAllocated]      = useState(String(cat.allocated));
+  const [allocatedError, setAllocatedError] = useState('');
+  const [deleteId,       setDeleteId]       = useState<string | null>(null);
 
   const allocatedChanged = Number(allocated) !== cat.allocated;
+
+  const validateAllocated = (v: string) =>
+    v === '' || isNaN(Number(v)) || Number(v) < 0 ? 'Must be 0 or more' : '';
 
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const newAllocated = Number(allocated);
-    if (isNaN(newAllocated) || newAllocated < 0) return;
+    const err = validateAllocated(allocated);
+    if (err) { setAllocatedError(err); return; }
     if (allocatedChanged) {
       const result = await dispatch(updateAllocated({ categoryId: cat._id, allocated: newAllocated }));
       if (updateAllocated.fulfilled.match(result)) onClose();
@@ -104,9 +109,15 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
               min={0}
               placeholder="e.g. 200000"
               value={allocated}
-              onChange={e => setAllocated(e.target.value)}
-              required
+              onChange={e => {
+                const v = e.target.value;
+                setAllocated(v);
+                if (allocatedError) setAllocatedError(validateAllocated(v));
+              }}
+              onBlur={() => setAllocatedError(validateAllocated(allocated))}
+              error={!!allocatedError}
             />
+            {allocatedError && <p className="text-xs text-red-400 mt-1">{allocatedError}</p>}
             {/* Live preview bar */}
             {allocatedChanged && Number(allocated) > 0 && (
               <div className="mt-2 space-y-1.5">

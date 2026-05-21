@@ -32,13 +32,18 @@ const EventsPage = () => {
   const [showAdd,   setShowAdd]   = useState(false);
   const [editEvent, setEditEvent] = useState<WeddingEvent | null>(null);
   const [filter,    setFilter]    = useState<EventFilter>('all');
+  const [query,     setQuery]     = useState('');
 
   useEffect(() => {
     if (status === 'idle') dispatch(fetchEvents());
   }, [status, dispatch]);
 
-  const loading       = status === 'loading';
-  const visibleEvents = filter === 'all' ? events : events.filter(e => e.status === filter);
+  const loading = status === 'loading';
+  const q = query.trim().toLowerCase();
+  const filteredByStatus = filter === 'all' ? events : events.filter(e => e.status === filter);
+  const visibleEvents = q
+    ? filteredByStatus.filter(e => [e.name, e.venue ?? ''].some(f => f.toLowerCase().includes(q)))
+    : filteredByStatus;
 
   const filters = [
     { value: 'all'       as EventFilter, label: 'All',       count: events.length },
@@ -67,7 +72,22 @@ const EventsPage = () => {
       />
 
       {!loading && events.length > 0 && (
-        <EventFilterPills filters={filters} activeFilter={filter} onChange={setFilter} />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <EventFilterPills filters={filters} activeFilter={filter} onChange={setFilter} />
+          <div className="relative sm:ml-auto sm:w-60">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 text-sm pointer-events-none">⌕</span>
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search events…"
+              className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
+            />
+            {query && (
+              <button onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+            )}
+          </div>
+        </div>
       )}
 
       {loading && <EventsSkeleton />}
@@ -77,7 +97,7 @@ const EventsPage = () => {
       )}
 
       {!loading && events.length > 0 && visibleEvents.length === 0 && (
-        <EventFilteredEmpty filter={filter} onReset={() => setFilter('all')} />
+        <EventFilteredEmpty filter={filter} onReset={() => { setFilter('all'); setQuery(''); }} />
       )}
 
       {!loading && visibleEvents.length > 0 && (

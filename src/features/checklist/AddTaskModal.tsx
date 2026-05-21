@@ -16,13 +16,15 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
   const categories = useAppSelector(selectCategories);
   const mutating   = useAppSelector(selectMutating);
 
-  const [label,    setLabel]    = useState('');
-  const [due,      setDue]      = useState('');
-  const [category, setCategory] = useState(categories[0]?.category ?? '');
+  const [label,      setLabel]      = useState('');
+  const [labelError, setLabelError] = useState('');
+  const [due,        setDue]        = useState('');
+  const [category,   setCategory]   = useState(categories[0]?.category ?? '');
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!label.trim() || !category) return;
+    if (!label.trim()) { setLabelError('Required'); return; }
+    if (!category) return;
     const result = await dispatch(createTask({ label: label.trim(), due: due.trim() || 'No due date', category }));
     if (createTask.fulfilled.match(result)) onClose();
   };
@@ -58,10 +60,12 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
               variant="dark"
               placeholder="e.g. Book florist for mandap"
               value={label}
-              onChange={e => setLabel(e.target.value)}
-              required
+              onChange={e => { const v = e.target.value; setLabel(v); if (labelError) setLabelError(v.trim() ? '' : 'Required'); }}
+              onBlur={() => { if (!label.trim()) setLabelError('Required'); }}
+              error={!!labelError}
               autoFocus
             />
+            {labelError && <p className="text-xs text-red-400 mt-1">{labelError}</p>}
           </div>
 
           {/* Due */}

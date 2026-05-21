@@ -17,6 +17,7 @@ import {
   FilterTabs,
   ChecklistSkeleton,
   CategorySection,
+  ChecklistEmptyState,
 } from '@/features/checklist';
 import type { Filter } from '@/features/checklist';
 import type { ChecklistTask } from '@/constants/dashboard-pages';
@@ -56,7 +57,11 @@ const ChecklistPage = () => {
 
       {loading && <ChecklistSkeleton />}
 
-      {!loading && (
+      {!loading && categories.length === 0 && (
+        <ChecklistEmptyState onAddTask={() => setShowAdd(true)} />
+      )}
+
+      {!loading && categories.length > 0 && (
         <div className="space-y-4 stagger-children">
           {categories.map(cat => (
             <CategorySection
