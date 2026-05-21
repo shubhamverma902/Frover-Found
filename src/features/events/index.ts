@@ -7,4 +7,5 @@ export { EventsSkeleton      } from './EventsSkeleton';
 export { EventsEmptyState    } from './EventsEmptyState';
 export { EventFilteredEmpty  } from './EventFilteredEmpty';
 export { EventCard           } from './EventCard';
+export { EventsCalendar     } from './EventsCalendar';
 export type { EventFilter } from './EventFilterPills';
