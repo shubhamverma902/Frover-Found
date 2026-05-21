@@ -1,0 +1,45 @@
+'use client';
+
+import type { InputHTMLAttributes, CSSProperties } from "react";
+
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  width?: string | number;
+  height?: string | number;
+  className?: string;
+  variant?: "light" | "dark";
+};
+
+const variantBase: Record<NonNullable<InputProps["variant"]>, string> = {
+  light: "w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200",
+  dark:  "w-full h-10 px-3 text-sm bg-[#FDFDF8]/5 border border-[#DDDED9]/20 text-white placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/60 transition-colors",
+};
+
+function normalizeSize(value?: string | number) {
+  if (value === undefined) return undefined;
+  return typeof value === "number" ? `${value}px` : value;
+}
+
+export function Input({
+  width,
+  height,
+  variant = "light",
+  className,
+  style,
+  ...props
+}: InputProps) {
+  const sizeStyle: CSSProperties = {
+    width: normalizeSize(width),
+    height: normalizeSize(height),
+    ...style,
+  };
+
+  return (
+    <input
+      {...props}
+      style={sizeStyle}
+      className={[variantBase[variant], className]
+        .filter(Boolean)
+        .join(" ")}
+    />
+  );
+}

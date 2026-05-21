@@ -1,0 +1,59 @@
+'use client';
+
+import type { ButtonHTMLAttributes, CSSProperties } from "react";
+
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  width?: string | number;
+  height?: string | number;
+  variant?: "primary" | "secondary" | "ghost" | "cancel" | "gold" | "close";
+};
+
+// Light-theme variants share a common base (rounded, padded, full-size text)
+const LIGHT_BASE = "inline-flex items-center justify-center px-4 py-3 text-sm font-semibold transition active:scale-95";
+
+const lightVariants: Partial<Record<NonNullable<ButtonProps["variant"]>, string>> = {
+  primary:   "rounded-2xl bg-[#23292E] text-white hover:bg-[#23292E]/85 shadow-sm shadow-[#23292E]/20",
+  secondary: "rounded-2xl border border-[#DDDED9] bg-white text-[#23292E] hover:border-[#DFB3AE] hover:bg-[#DDDED9]/20",
+  ghost:     "rounded-2xl bg-transparent text-[#23292E] hover:bg-[#DDDED9]/30",
+};
+
+// Modal-theme variants are standalone (no shared base — different sizing/typography)
+const modalVariants: Partial<Record<NonNullable<ButtonProps["variant"]>, string>> = {
+  cancel: "flex-1 py-2.5 text-xs font-semibold border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:border-[#DDDED9]/40 hover:text-white transition-colors",
+  gold:   "flex-1 py-2.5 text-xs font-bold bg-[#E4BC62] text-[#23292E] hover:bg-[#E4BC62]/90 hover:shadow-[0_4px_14px_rgba(228,188,98,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none",
+  close:  "w-8 h-8 flex items-center justify-center text-[#DDDED9]/40 hover:text-white hover:bg-[#DDDED9]/10 transition-colors text-lg",
+};
+
+function normalizeSize(value?: string | number) {
+  if (value === undefined) return undefined;
+  return typeof value === "number" ? `${value}px` : value;
+}
+
+export function Button({
+  width,
+  height,
+  variant = "primary",
+  className,
+  style,
+  children,
+  ...props
+}: ButtonProps) {
+  const sizeStyle: CSSProperties = {
+    width: normalizeSize(width),
+    height: normalizeSize(height),
+    ...style,
+  };
+
+  const isModal   = variant in modalVariants;
+  const baseClass = isModal ? modalVariants[variant] : `${LIGHT_BASE} ${lightVariants[variant] ?? ""}`;
+
+  return (
+    <button
+      {...props}
+      style={sizeStyle}
+      className={[baseClass, className].filter(Boolean).join(" ")}
+    >
+      {children}
+    </button>
+  );
+}

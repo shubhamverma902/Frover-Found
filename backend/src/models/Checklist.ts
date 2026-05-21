@@ -1,0 +1,39 @@
+import mongoose, { Document, Schema, Types } from 'mongoose';
+
+export interface ITask {
+  _id:   Types.ObjectId;
+  label: string;
+  due:   string;
+  done:  boolean;
+}
+
+export interface IChecklistCategory extends Document {
+  userId:   Types.ObjectId;
+  icon:     string;
+  category: string;
+  tasks:    ITask[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const taskSchema = new Schema<ITask>(
+  {
+    label: { type: String, required: true, trim: true },
+    due:   { type: String, default: '' },
+    done:  { type: Boolean, default: false },
+  },
+  { _id: true }
+);
+
+const checklistCategorySchema = new Schema<IChecklistCategory>(
+  {
+    userId:   { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    icon:     { type: String, default: '✓' },
+    category: { type: String, required: true, trim: true },
+    tasks:    [taskSchema],
+  },
+  { timestamps: true }
+);
+
+const ChecklistCategory = mongoose.model<IChecklistCategory>('ChecklistCategory', checklistCategorySchema);
+export default ChecklistCategory;

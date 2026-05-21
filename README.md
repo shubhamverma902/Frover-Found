@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Forever Found
+
+A full-stack wedding planning platform built for modern couples. Manage your events, guests, budget, vendors, and checklist — all in one place.
+
+## Features
+
+- **Dashboard** — aggregated overview of all planning modules in a single request
+- **Events** — create and track all wedding-related events (ceremony, reception, sangeet, etc.)
+- **Guest Management** — invite guests, track RSVPs, and monitor response rates
+- **Budget** — set a total budget, allocate by category, and track expenses
+- **Checklist** — task management with categories and completion tracking
+- **Vendors** — manage vendor contacts, status, and details
+- **Onboarding** — multi-step setup wizard capturing couple info, wedding style, date, venue, and guest/budget estimates
+- **Settings** — profile, wedding details, notification preferences, and account management
+- **Auth** — JWT-based registration and login with protected routes
+
+## Tech Stack
+
+**Frontend**
+- Next.js 16 + React 19 (TypeScript)
+- Redux Toolkit + React Redux (global state)
+- Tailwind CSS v4
+- next-themes (dark/light mode)
+- Axios
+
+**Backend**
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT + bcryptjs (authentication)
+- Helmet, CORS, express-rate-limit (security)
+- express-validator (input validation)
+
+## Project Structure
+
+```
+/
+├── src/                  # Next.js frontend
+│   ├── app/              # Pages (App Router)
+│   ├── features/         # Feature components (budget, events, guests, etc.)
+│   ├── components/       # Shared UI components and layout
+│   ├── store/            # Redux store and slices
+│   ├── api/              # Axios API layer
+│   └── constants/        # App-wide constants
+└── backend/
+    └── src/
+        ├── controllers/  # Route handlers
+        ├── routes/       # Express routers
+        ├── models/       # Mongoose schemas
+        ├── middleware/   # Auth, validation, error handling
+        └── helpers/      # Utility functions
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- MongoDB (local or Atlas)
+
+### Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+Opens at [http://localhost:3000](http://localhost:3000).
+
+### Backend
+
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file in `backend/`:
+
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=7d
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Backend runs at [http://localhost:5000](http://localhost:5000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Frontend
 
-## Learn More
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
 
-To learn more about Next.js, take a look at the following resources:
+### Backend
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start with hot reload (ts-node-dev) |
+| `npm run build` | Compile TypeScript |
+| `npm run start` | Run compiled output |

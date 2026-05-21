@@ -1,0 +1,28 @@
+import mongoose, { Document, Schema, Types } from 'mongoose';
+
+export interface IGuest extends Document {
+  userId:   Types.ObjectId;
+  name:     string;
+  relation: string;
+  phone:    string;
+  rsvp:     'confirmed' | 'pending' | 'declined';
+  meal:     'Veg' | 'Non-veg' | 'Jain';
+  plusOne:  boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const guestSchema = new Schema<IGuest>(
+  {
+    userId:   { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    name:     { type: String, required: true, trim: true },
+    relation: { type: String, default: '', trim: true },
+    phone:    { type: String, default: '', trim: true },
+    rsvp:     { type: String, enum: ['confirmed', 'pending', 'declined'], default: 'pending' },
+    meal:     { type: String, enum: ['Veg', 'Non-veg', 'Jain'], default: 'Veg' },
+    plusOne:  { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IGuest>('Guest', guestSchema);
