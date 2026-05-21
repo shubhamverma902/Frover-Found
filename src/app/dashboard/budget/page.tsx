@@ -17,6 +17,7 @@ import {
   BudgetHeader,
   BudgetSummaryPanel,
   UtilisationBar,
+  SpendingDonut,
   CategoryList,
   BudgetSkeleton,
 } from '@/features/budget';
@@ -83,6 +84,12 @@ const BudgetPage = () => {
           spent={spent}
           total={total}
           remaining={remaining}
+        />
+
+        <SpendingDonut
+          categories={categories}
+          spent={spent}
+          total={total}
         />
 
         <CategoryList

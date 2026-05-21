@@ -3,6 +3,7 @@ export { default as EditCategoryModal } from './EditCategoryModal';
 export { BudgetHeader       } from './BudgetHeader';
 export { BudgetSummaryPanel } from './BudgetSummaryPanel';
 export { UtilisationBar     } from './UtilisationBar';
+export { SpendingDonut      } from './SpendingDonut';
 export { CategoryList       } from './CategoryList';
 export { BudgetSkeleton     } from './BudgetSkeleton';
 export type { BudgetCategoryItem } from './CategoryCard';
