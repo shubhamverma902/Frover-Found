@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
-import { loginApi, registerApi, getMeApi } from '@/api/auth.api';
+import { loginApi, registerApi, getMeApi, logoutApi } from '@/api/auth.api';
 import type { LoginPayload, RegisterPayload } from '@/api/auth.api';
 import { submitOnboarding } from './onboardingSlice';
 
@@ -57,6 +57,16 @@ export const signupUser = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message ?? 'Sign up failed. Please try again.');
     }
+  }
+);
+
+// Calls the backend /auth/logout to clear the httpOnly refresh cookie,
+// then clears local state. Falls back to local-only cleanup if the request fails.
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { dispatch }) => {
+    try { await logoutApi(); } catch { /* ignore network errors on logout */ }
+    dispatch(logout());
   }
 );
 

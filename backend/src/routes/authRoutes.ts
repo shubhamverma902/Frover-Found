@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { register, login, getMe } from '../controllers/authController';
+import { register, login, getMe, refreshToken, logout } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import validate from '../middleware/validate';
 
@@ -28,5 +28,9 @@ router.post(
 );
 
 router.get('/me', protect, getMe);
+
+// No auth middleware needed — the httpOnly cookie is the credential
+router.post('/refresh', refreshToken);
+router.post('/logout', logout);
 
 export default router;

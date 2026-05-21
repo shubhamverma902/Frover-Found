@@ -17,7 +17,7 @@ import {
   selectSettingsWedding,
   selectNotifications,
 } from '@/store/slices/settingsSlice';
-import { logout } from '@/store/slices/authSlice';
+import { logoutUser } from '@/store/slices/authSlice';
 import {
   SettingsHeader,
   SettingsSkeleton,
@@ -64,10 +64,10 @@ const SettingsPage = () => {
 
   const handleDeleteAccount = async () => {
     const result = await dispatch(removeAccount());
-    if (removeAccount.fulfilled.match(result)) { dispatch(logout()); router.replace(PATH.auth.login); }
+    if (removeAccount.fulfilled.match(result)) { dispatch(logoutUser()); router.replace(PATH.auth.login); }
   };
 
-  const handleSignOut = () => { dispatch(logout()); router.replace(PATH.auth.login); };
+  const handleSignOut = () => { dispatch(logoutUser()); router.replace(PATH.auth.login); };
 
   return (
     <div className="p-6 lg:p-8 space-y-6 page-sections">

@@ -66,3 +66,17 @@ export const getMeApi = async (): Promise<AuthUser> => {
   const u = data.data.user;
   return toAuthUser({ ...u, id: u.id ?? u._id ?? '' });
 };
+
+// withCredentials: true ensures the httpOnly refresh cookie is sent/received
+export const refreshTokenApi = async (): Promise<string> => {
+  const { data } = await axiosInstance.post<ApiResponse<{ token: string }>>(
+    API.auth.refresh,
+    {},
+    { withCredentials: true }
+  );
+  return data.data.token;
+};
+
+export const logoutApi = async (): Promise<void> => {
+  await axiosInstance.post(API.auth.logout, {}, { withCredentials: true });
+};

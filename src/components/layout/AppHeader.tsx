@@ -8,7 +8,7 @@ import { HEADER_MENU_ITEMS } from '@/constants/navigation';
 import { ThemeToggle } from '@/components/ui';
 import { MenuIcon, ArrowLeftIcon, BellIcon, ChevronDownIcon, LogoutIcon } from '@/components/icons';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logout, selectUser } from '@/store/slices/authSlice';
+import { logoutUser, selectUser } from '@/store/slices/authSlice';
 import { selectWeddingProfile } from '@/store/slices/onboardingSlice';
 import {
   fetchNotifications,
@@ -75,7 +75,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
   }, [notifOpen]);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     router.push(PATH.home);
   };
 
