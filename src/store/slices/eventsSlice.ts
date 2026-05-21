@@ -7,6 +7,8 @@ import {
   updateEventApi,
   patchEventStatusApi,
   deleteEventApi,
+  addEventAttachmentApi,
+  removeEventAttachmentApi,
 } from '@/api/events.api';
 
 // ── State ────────────────────────────────────────────────────
@@ -65,6 +67,22 @@ export const deleteEvent = createAsyncThunk(
   }
 );
 
+export const addEventAttachment = createAsyncThunk(
+  'events/addAttachment',
+  async ({ eventId, file }: { eventId: string; file: File }, { rejectWithValue }) => {
+    try { return await addEventAttachmentApi(eventId, file); }
+    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Upload failed'); }
+  }
+);
+
+export const removeEventAttachment = createAsyncThunk(
+  'events/removeAttachment',
+  async ({ eventId, fileId }: { eventId: string; fileId: string }, { rejectWithValue }) => {
+    try { return await removeEventAttachmentApi(eventId, fileId); }
+    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Delete failed'); }
+  }
+);
+
 // ── Slice ────────────────────────────────────────────────────
 
 const eventsSlice = createSlice({
@@ -100,6 +118,17 @@ const eventsSlice = createSlice({
     builder
       .addCase(deleteEvent.fulfilled, (state, { payload: id }) => {
         state.items = state.items.filter(e => e._id !== id);
+      });
+
+    // attachments
+    builder
+      .addCase(addEventAttachment.fulfilled, (state, { payload }) => {
+        const idx = state.items.findIndex(e => e._id === payload._id);
+        if (idx !== -1) state.items[idx] = payload;
+      })
+      .addCase(removeEventAttachment.fulfilled, (state, { payload }) => {
+        const idx = state.items.findIndex(e => e._id === payload._id);
+        if (idx !== -1) state.items[idx] = payload;
       });
   },
 });

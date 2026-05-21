@@ -14,9 +14,11 @@ export const API = {
   dashboard: '/dashboard',
 
   events: {
-    base:   '/events',
-    byId:   (id: string) => `/events/${id}`,
-    status: (id: string) => `/events/${id}/status`,
+    base:        '/events',
+    byId:        (id: string) => `/events/${id}`,
+    status:      (id: string) => `/events/${id}/status`,
+    attachments: (id: string) => `/events/${id}/attachments`,
+    attachment:  (id: string, fileId: string) => `/events/${id}/attachments/${fileId}`,
   },
 
   checklist: {
@@ -41,9 +43,11 @@ export const API = {
   },
 
   vendors: {
-    base:   '/vendors',
-    byId:   (id: string) => `/vendors/${id}`,
-    status: (id: string) => `/vendors/${id}/status`,
+    base:        '/vendors',
+    byId:        (id: string) => `/vendors/${id}`,
+    status:      (id: string) => `/vendors/${id}/status`,
+    attachments: (id: string) => `/vendors/${id}/attachments`,
+    attachment:  (id: string, fileId: string) => `/vendors/${id}/attachments/${fileId}`,
   },
 
   settings: {

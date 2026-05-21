@@ -40,6 +40,15 @@ export const serializeEvent = (e: InstanceType<typeof Event>) => ({
   guests: e.guests,
   status: e.status,
   desc:   e.desc,
+  attachments: (e.attachments ?? []).map(a => ({
+    _id:          String(a._id),
+    filename:     a.filename,
+    originalName: a.originalName,
+    url:          a.url,
+    mimetype:     a.mimetype,
+    size:         a.size,
+    uploadedAt:   a.uploadedAt.toISOString(),
+  })),
 });
 
 export const serializeGuest = (g: InstanceType<typeof Guest>) => ({
@@ -62,4 +71,13 @@ export const serializeVendor = (v: InstanceType<typeof Vendor>) => ({
   status:   v.status,
   rating:   v.rating,
   notes:    v.notes,
+  attachments: (v.attachments ?? []).map(a => ({
+    _id:          String(a._id),
+    filename:     a.filename,
+    originalName: a.originalName,
+    url:          a.url,
+    mimetype:     a.mimetype,
+    size:         a.size,
+    uploadedAt:   a.uploadedAt.toISOString(),
+  })),
 });

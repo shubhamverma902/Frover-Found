@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import { Response, NextFunction } from 'express';
 import Event, { EventStatus } from '../models/Event';
 import User from '../models/User';
@@ -6,6 +8,9 @@ import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { serializeEvent } from '../helpers/serializers';
 import { EVENT_SEED_NAMES } from '../constants/eventSeeds';
+import { UPLOADS_ROOT } from '../middleware/upload';
+
+const MAX_ATTACHMENTS = 5;
 
 // GET /api/v1/events
 // Returns all events for the user.  On first call (empty list), auto-seeds
@@ -118,4 +123,46 @@ export const deleteEvent = async (req: AuthRequest, res: Response, next: NextFun
   } catch (err) {
     next(err);
   }
+};
+
+// POST /api/v1/events/:id/attachments
+export const addEventAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const event = await Event.findOne({ _id: req.params.id, userId: req.user!.id });
+    if (!event) return next(new ApiError(404, 'Event not found'));
+    if (!req.file)  return next(new ApiError(400, 'No file uploaded'));
+    if (event.attachments.length >= MAX_ATTACHMENTS)
+      return next(new ApiError(400, `Maximum ${MAX_ATTACHMENTS} attachments allowed`));
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    event.attachments.push({
+      filename:     req.file.filename,
+      originalName: req.file.originalname,
+      url:          `${baseUrl}/uploads/events/${req.params.id}/${req.file.filename}`,
+      mimetype:     req.file.mimetype,
+      size:         req.file.size,
+      uploadedAt:   new Date(),
+    } as any);
+
+    await event.save();
+    sendSuccess(res, { event: serializeEvent(event) }, 'File uploaded');
+  } catch (err) { next(err); }
+};
+
+// DELETE /api/v1/events/:id/attachments/:fileId
+export const removeEventAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const event = await Event.findOne({ _id: req.params.id, userId: req.user!.id });
+    if (!event) return next(new ApiError(404, 'Event not found'));
+
+    const att = event.attachments.id(String(req.params.fileId));
+    if (!att) return next(new ApiError(404, 'Attachment not found'));
+
+    const filePath = path.join(UPLOADS_ROOT, 'events', String(req.params.id), att.filename);
+    try { fs.unlinkSync(filePath); } catch { /* file already gone */ }
+
+    att.deleteOne();
+    await event.save();
+    sendSuccess(res, { event: serializeEvent(event) }, 'File removed');
+  } catch (err) { next(err); }
 };

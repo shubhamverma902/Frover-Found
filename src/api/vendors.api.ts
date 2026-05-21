@@ -40,3 +40,19 @@ export const patchVendorStatusApi = async (vendorId: string, status: Vendor['sta
 export const deleteVendorApi = async (vendorId: string): Promise<void> => {
   await axiosInstance.delete(API.vendors.byId(vendorId));
 };
+
+export const addVendorAttachmentApi = async (vendorId: string, file: File): Promise<Vendor> => {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await axiosInstance.post<ApiResponse<{ vendor: Vendor }>>(
+    API.vendors.attachments(vendorId), form
+  );
+  return data.data.vendor;
+};
+
+export const removeVendorAttachmentApi = async (vendorId: string, fileId: string): Promise<Vendor> => {
+  const { data } = await axiosInstance.delete<ApiResponse<{ vendor: Vendor }>>(
+    API.vendors.attachment(vendorId, fileId)
+  );
+  return data.data.vendor;
+};

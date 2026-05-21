@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import { Response, NextFunction } from 'express';
 import Vendor from '../models/Vendor';
 import ApiError from '../utils/ApiError';
@@ -5,6 +7,9 @@ import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import logActivity from '../utils/logActivity';
 import { serializeVendor } from '../helpers/serializers';
+import { UPLOADS_ROOT } from '../middleware/upload';
+
+const MAX_ATTACHMENTS = 5;
 
 // GET /api/v1/vendors
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -79,5 +84,47 @@ export const deleteVendor = async (req: AuthRequest, res: Response, next: NextFu
     const vendor = await Vendor.findOneAndDelete({ _id: req.params.id, userId: req.user!.id });
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
     sendSuccess(res, null, 'Vendor removed');
+  } catch (err) { next(err); }
+};
+
+// POST /api/v1/vendors/:id/attachments
+export const addVendorAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const vendor = await Vendor.findOne({ _id: req.params.id, userId: req.user!.id });
+    if (!vendor) return next(new ApiError(404, 'Vendor not found'));
+    if (!req.file)  return next(new ApiError(400, 'No file uploaded'));
+    if (vendor.attachments.length >= MAX_ATTACHMENTS)
+      return next(new ApiError(400, `Maximum ${MAX_ATTACHMENTS} attachments allowed`));
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    vendor.attachments.push({
+      filename:     req.file.filename,
+      originalName: req.file.originalname,
+      url:          `${baseUrl}/uploads/vendors/${req.params.id}/${req.file.filename}`,
+      mimetype:     req.file.mimetype,
+      size:         req.file.size,
+      uploadedAt:   new Date(),
+    } as any);
+
+    await vendor.save();
+    sendSuccess(res, { vendor: serializeVendor(vendor) }, 'File uploaded');
+  } catch (err) { next(err); }
+};
+
+// DELETE /api/v1/vendors/:id/attachments/:fileId
+export const removeVendorAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const vendor = await Vendor.findOne({ _id: req.params.id, userId: req.user!.id });
+    if (!vendor) return next(new ApiError(404, 'Vendor not found'));
+
+    const att = vendor.attachments.id(String(req.params.fileId));
+    if (!att) return next(new ApiError(404, 'Attachment not found'));
+
+    const filePath = path.join(UPLOADS_ROOT, 'vendors', String(req.params.id), att.filename);
+    try { fs.unlinkSync(filePath); } catch { /* file already gone */ }
+
+    att.deleteOne();
+    await vendor.save();
+    sendSuccess(res, { vendor: serializeVendor(vendor) }, 'File removed');
   } catch (err) { next(err); }
 };

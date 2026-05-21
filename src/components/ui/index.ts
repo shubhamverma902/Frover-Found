@@ -1,3 +1,4 @@
+export { AttachmentsPanel } from './AttachmentsPanel';
 export { Carousel } from './Carousel';
 export type { CarouselImage, CarouselProps } from './Carousel';
 export { ProgressRing } from './ProgressRing';

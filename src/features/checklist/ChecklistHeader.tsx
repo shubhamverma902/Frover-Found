@@ -1,13 +1,15 @@
 import { ProgressRing } from '@/components/ui';
 
 interface ChecklistHeaderProps {
-  doneCount: number;
+  doneCount:  number;
   totalCount: number;
-  progress: number;
-  onAddTask: () => void;
+  progress:   number;
+  exporting?: boolean;
+  onAddTask:  () => void;
+  onExport?:  () => void;
 }
 
-export const ChecklistHeader = ({ doneCount, totalCount, progress, onAddTask }: ChecklistHeaderProps) => (
+export const ChecklistHeader = ({ doneCount, totalCount, progress, exporting, onAddTask, onExport }: ChecklistHeaderProps) => (
   <div className="bg-[#23292E] p-[3px] glow-gold-strong relative">
     <span className="absolute top-2 left-2 text-[#E4BC62]/25 text-[10px]">◆</span>
     <span className="absolute top-2 right-2 text-[#E4BC62]/25 text-[10px]">◆</span>
@@ -54,12 +56,23 @@ export const ChecklistHeader = ({ doneCount, totalCount, progress, onAddTask }: 
             </div>
           </div>
 
-          <button
-            onClick={onAddTask}
-            className="self-start sm:self-auto px-5 py-2.5 text-xs font-bold bg-[#E4BC62] text-[#23292E] hover:bg-[#E4BC62]/85 transition-all hover:shadow-[0_4px_16px_rgba(228,188,98,0.45)]"
-          >
-            + Add Task
-          </button>
+          <div className="self-start sm:self-auto flex items-center gap-2">
+            {onExport && (
+              <button
+                onClick={onExport}
+                disabled={exporting}
+                className="px-4 py-2.5 text-xs font-bold border border-[#E4BC62]/25 text-[#E4BC62]/65 hover:border-[#E4BC62]/50 hover:text-[#E4BC62] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {exporting ? 'Exporting…' : '↓ PDF'}
+              </button>
+            )}
+            <button
+              onClick={onAddTask}
+              className="px-5 py-2.5 text-xs font-bold bg-[#E4BC62] text-[#23292E] hover:bg-[#E4BC62]/85 transition-all hover:shadow-[0_4px_16px_rgba(228,188,98,0.45)]"
+            >
+              + Add Task
+            </button>
+          </div>
         </div>
       </div>
 

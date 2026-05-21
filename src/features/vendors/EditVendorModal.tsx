@@ -2,10 +2,16 @@
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
+import { AttachmentsPanel } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateVendor, deleteVendor, selectVendorMutating } from '@/store/slices/vendorsSlice';
-import type { Vendor } from '@/constants/dashboard-pages';
+import { useAppDispatch } from '@/store/hooks';
+import {
+  updateVendor,
+  deleteVendor,
+  addVendorAttachment,
+  removeVendorAttachment,
+} from '@/store/slices/vendorsSlice';
+import type { Vendor, Attachment } from '@/constants/dashboard-pages';
 
 const CATEGORY_ICONS: { label: string; icon: string }[] = [
   { label: 'Decoration',    icon: '🌸' },
@@ -29,18 +35,23 @@ interface EditVendorModalProps {
 
 const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectVendorMutating);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [name,      setName]      = useState(vendor.name);
   const [nameError, setNameError] = useState('');
-  const [category, setCategory] = useState(vendor.category);
-  const [icon,     setIcon]     = useState(vendor.icon);
-  const [contact,  setContact]  = useState(vendor.contact);
-  const [location, setLocation] = useState(vendor.location);
-  const [status,   setStatus]   = useState<Vendor['status']>(vendor.status);
-  const [rating,   setRating]   = useState(vendor.rating);
-  const [notes,    setNotes]    = useState(vendor.notes ?? '');
+  const [category,  setCategory]  = useState(vendor.category);
+  const [icon,      setIcon]      = useState(vendor.icon);
+  const [contact,   setContact]   = useState(vendor.contact);
+  const [location,  setLocation]  = useState(vendor.location);
+  const [status,    setStatus]    = useState<Vendor['status']>(vendor.status);
+  const [rating,    setRating]    = useState(vendor.rating);
+  const [notes,     setNotes]     = useState(vendor.notes ?? '');
+
+  // Attachment state — tracked locally so panel updates without prop drilling
+  const [attachments,  setAttachments]  = useState<Attachment[]>(vendor.attachments ?? []);
+  const [uploading,    setUploading]    = useState(false);
+  const [uploadError,  setUploadError]  = useState('');
+  const [saving,       setSaving]       = useState(false);
 
   const handleCategoryChange = (label: string) => {
     setCategory(label);
@@ -50,16 +61,51 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) { setNameError('Required'); return; }
-    const result = await dispatch(updateVendor({
-      vendorId: vendor._id,
-      payload: { icon, category, name: name.trim(), contact, location, status, rating, notes },
-    }));
-    if (updateVendor.fulfilled.match(result)) onClose();
+    setSaving(true);
+    try {
+      const result = await dispatch(updateVendor({
+        vendorId: vendor._id,
+        payload: { icon, category, name: name.trim(), contact, location, status, rating, notes },
+      }));
+      if (updateVendor.fulfilled.match(result)) onClose();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     const result = await dispatch(deleteVendor(vendor._id));
     if (deleteVendor.fulfilled.match(result)) onClose();
+  };
+
+  const handleUpload = async (files: File[]) => {
+    setUploading(true);
+    setUploadError('');
+    try {
+      for (const file of files) {
+        const result = await dispatch(addVendorAttachment({ vendorId: vendor._id, file }));
+        if (addVendorAttachment.fulfilled.match(result)) {
+          setAttachments(result.payload.attachments ?? []);
+        } else {
+          setUploadError(typeof result.payload === 'string' ? result.payload : 'Upload failed');
+        }
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteAttachment = async (fileId: string) => {
+    setUploading(true);
+    setUploadError('');
+    try {
+      const result = await dispatch(removeVendorAttachment({ vendorId: vendor._id, fileId }));
+      if (removeVendorAttachment.fulfilled.match(result)) {
+        setAttachments(result.payload.attachments ?? []);
+      }
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -170,6 +216,17 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
             <Input variant="dark" placeholder="Any notes about this vendor…" value={notes} onChange={e => setNotes(e.target.value)} />
           </div>
 
+          {/* Attachments */}
+          <div className="pt-1 border-t border-[#DDDED9]/10">
+            <AttachmentsPanel
+              attachments={attachments}
+              uploading={uploading}
+              uploadError={uploadError}
+              onUpload={handleUpload}
+              onDelete={handleDeleteAttachment}
+            />
+          </div>
+
           {/* Delete */}
           <div className="pt-2 border-t border-[#DDDED9]/10">
             {confirmDelete ? (
@@ -179,9 +236,9 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
                   className="px-2.5 py-1 text-[11px] font-semibold border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors">
                   Cancel
                 </button>
-                <button type="button" onClick={handleDelete} disabled={mutating}
-                  className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors">
-                  Delete
+                <button type="button" onClick={handleDelete} disabled={saving}
+                  className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
+                  {saving ? '…' : 'Delete'}
                 </button>
               </div>
             ) : (
@@ -195,8 +252,8 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
 
         <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
-          <Button variant="gold" type="submit" disabled={!name.trim() || mutating}>
-            {mutating ? 'Saving…' : 'Save Changes ✦'}
+          <Button variant="gold" type="submit" disabled={!name.trim() || saving || uploading}>
+            {saving ? 'Saving…' : 'Save Changes ✦'}
           </Button>
         </div>
       </form>

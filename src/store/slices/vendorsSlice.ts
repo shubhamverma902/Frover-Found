@@ -7,6 +7,8 @@ import {
   updateVendorApi,
   patchVendorStatusApi,
   deleteVendorApi,
+  addVendorAttachmentApi,
+  removeVendorAttachmentApi,
   type VendorPayload,
 } from '@/api/vendors.api';
 
@@ -68,6 +70,22 @@ export const deleteVendor = createAsyncThunk(
   }
 );
 
+export const addVendorAttachment = createAsyncThunk(
+  'vendors/addAttachment',
+  async ({ vendorId, file }: { vendorId: string; file: File }, { rejectWithValue }) => {
+    try { return await addVendorAttachmentApi(vendorId, file); }
+    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Upload failed'); }
+  }
+);
+
+export const removeVendorAttachment = createAsyncThunk(
+  'vendors/removeAttachment',
+  async ({ vendorId, fileId }: { vendorId: string; fileId: string }, { rejectWithValue }) => {
+    try { return await removeVendorAttachmentApi(vendorId, fileId); }
+    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Delete failed'); }
+  }
+);
+
 // ── Helper ────────────────────────────────────────────────
 
 const replaceVendor = (state: VendorsState, updated: Vendor) => {
@@ -106,6 +124,10 @@ const vendorsSlice = createSlice({
       .addCase(deleteVendor.pending,   state => { state.mutating = true; })
       .addCase(deleteVendor.fulfilled, (state, { payload }) => { state.mutating = false; state.items = state.items.filter(v => v._id !== payload); })
       .addCase(deleteVendor.rejected,  state => { state.mutating = false; });
+
+    builder
+      .addCase(addVendorAttachment.fulfilled,    (state, { payload }) => { replaceVendor(state, payload); })
+      .addCase(removeVendorAttachment.fulfilled, (state, { payload }) => { replaceVendor(state, payload); });
   },
 });
 

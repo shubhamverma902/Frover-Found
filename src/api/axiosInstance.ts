@@ -8,12 +8,15 @@ const axiosInstance = axios.create({
   timeout: 10_000,
 });
 
-// Attach JWT on every request
+// Attach JWT on every request; let browser own Content-Type for FormData (multipart boundary)
 axiosInstance.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
     }
     return config;
   },

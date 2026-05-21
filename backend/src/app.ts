@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -35,6 +36,12 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
+
+// Serve uploaded files — allow cross-origin loading (helmet sets same-origin by default)
+app.use('/uploads', (_req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 // API routes
 app.use('/api/v1', routes);

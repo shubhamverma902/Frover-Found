@@ -4,9 +4,16 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
+import { AttachmentsPanel } from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateEvent, deleteEvent, selectEventsStatus } from '@/store/slices/eventsSlice';
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+import {
+  updateEvent,
+  deleteEvent,
+  addEventAttachment,
+  removeEventAttachment,
+  selectEventsStatus,
+} from '@/store/slices/eventsSlice';
+import type { WeddingEvent, Attachment } from '@/constants/dashboard-pages';
 import { STATUS_OPTIONS } from '@/constants/events';
 
 interface EditEventModalProps {
@@ -31,6 +38,13 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [errors,        setErrors]        = useState<{ name?: string; date?: string; venue?: string }>({});
 
+  const [attachments,  setAttachments]  = useState<Attachment[]>(event.attachments ?? []);
+  const [uploading,    setUploading]    = useState(false);
+  const [uploadError,  setUploadError]  = useState('');
+  const [saving,       setSaving]       = useState(false);
+
+  const initialAttachmentIds = (event.attachments ?? []).map(a => a._id).join(',');
+
   const setErr = (k: keyof typeof errors, msg: string | undefined) =>
     setErrors(prev => ({ ...prev, [k]: msg }));
 
@@ -41,10 +55,12 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
     if (k === 'venue') setErr('venue', String(v).trim() ? undefined : 'Required');
   };
 
-  const hasChanges = JSON.stringify(form) !== JSON.stringify({
+  const formChanged = JSON.stringify(form) !== JSON.stringify({
     name: event.name, date: event.date, time: event.time,
     venue: event.venue, guests: event.guests, status: event.status, desc: event.desc,
   });
+  const attachmentsChanged = attachments.map(a => a._id).join(',') !== initialAttachmentIds;
+  const hasChanges = formChanged || attachmentsChanged;
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -55,16 +71,52 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
       setErrors({ name: nameErr || undefined, date: dateErr || undefined, venue: venueErr || undefined });
       return;
     }
-    const result = await dispatch(updateEvent({
-      id: event._id!,
-      payload: { ...form, guests: Number(form.guests) },
-    }));
-    if (updateEvent.fulfilled.match(result)) onClose();
+    if (!formChanged) { onClose(); return; }
+    setSaving(true);
+    try {
+      const result = await dispatch(updateEvent({
+        id: event._id!,
+        payload: { ...form, guests: Number(form.guests) },
+      }));
+      if (updateEvent.fulfilled.match(result)) onClose();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     const result = await dispatch(deleteEvent(event._id!));
     if (deleteEvent.fulfilled.match(result)) onClose();
+  };
+
+  const handleUpload = async (files: File[]) => {
+    setUploading(true);
+    setUploadError('');
+    try {
+      for (const file of files) {
+        const result = await dispatch(addEventAttachment({ eventId: event._id!, file }));
+        if (addEventAttachment.fulfilled.match(result)) {
+          setAttachments(result.payload.attachments ?? []);
+        } else {
+          setUploadError(typeof result.payload === 'string' ? result.payload : 'Upload failed');
+        }
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteAttachment = async (fileId: string) => {
+    setUploading(true);
+    setUploadError('');
+    try {
+      const result = await dispatch(removeEventAttachment({ eventId: event._id!, fileId }));
+      if (removeEventAttachment.fulfilled.match(result)) {
+        setAttachments(result.payload.attachments ?? []);
+      }
+    } finally {
+      setUploading(false);
+    }
   };
 
   const loading = status === 'loading';
@@ -186,6 +238,17 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
               value={form.desc} onChange={e => set('desc', e.target.value)} />
           </div>
 
+          {/* Attachments */}
+          <div className="pt-1 border-t border-[#DDDED9]/10">
+            <AttachmentsPanel
+              attachments={attachments}
+              uploading={uploading}
+              uploadError={uploadError}
+              onUpload={handleUpload}
+              onDelete={handleDeleteAttachment}
+            />
+          </div>
+
           {/* Danger zone */}
           <div className="border border-red-900/30 bg-red-950/20 px-4 py-3">
             <p className="text-[10px] font-bold text-red-400/70 uppercase tracking-widest mb-2">Danger Zone</p>
@@ -214,8 +277,8 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
 
         <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
-          <Button variant="gold" type="submit" disabled={!hasChanges || loading}>
-            {loading ? 'Saving…' : 'Save Changes ✦'}
+          <Button variant="gold" type="submit" disabled={!hasChanges || saving || uploading}>
+            {saving ? 'Saving…' : 'Save Changes ✦'}
           </Button>
         </div>
 

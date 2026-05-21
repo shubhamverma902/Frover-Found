@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { exportGuestListPDF } from '@/utils/exportPdf';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchGuests,
@@ -41,6 +42,16 @@ const GuestsPage = () => {
   const [addOpen,    setAddOpen]    = useState(false);
   const [rsvpGuest,  setRsvpGuest]  = useState<Guest | null>(null);
   const [query,      setQuery]      = useState('');
+  const [exporting,  setExporting]  = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportGuestListPDF({ total, confirmed, pending, declined });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const loading      = status === 'idle' || status === 'loading';
   const q            = query.trim().toLowerCase();
@@ -69,7 +80,9 @@ const GuestsPage = () => {
         pending={pending}
         declined={declined}
         loading={loading}
+        exporting={exporting}
         onAddGuest={() => setAddOpen(true)}
+        onExport={handleExport}
       />
 
       {loading ? (

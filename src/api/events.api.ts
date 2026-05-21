@@ -27,3 +27,19 @@ export const patchEventStatusApi = async (id: string, status: WeddingEvent['stat
 export const deleteEventApi = async (id: string): Promise<void> => {
   await axiosInstance.delete(API.events.byId(id));
 };
+
+export const addEventAttachmentApi = async (eventId: string, file: File): Promise<WeddingEvent> => {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await axiosInstance.post<ApiResponse<{ event: WeddingEvent }>>(
+    API.events.attachments(eventId), form
+  );
+  return data.data.event;
+};
+
+export const removeEventAttachmentApi = async (eventId: string, fileId: string): Promise<WeddingEvent> => {
+  const { data } = await axiosInstance.delete<ApiResponse<{ event: WeddingEvent }>>(
+    API.events.attachment(eventId, fileId)
+  );
+  return data.data.event;
+};

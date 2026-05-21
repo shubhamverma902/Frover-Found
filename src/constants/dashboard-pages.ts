@@ -1,14 +1,25 @@
 // ── Types ─────────────────────────────────────────────────
 
+export interface Attachment {
+  _id:          string;
+  filename:     string;
+  originalName: string;
+  url:          string;
+  mimetype:     string;
+  size:         number;
+  uploadedAt:   string;
+}
+
 export interface WeddingEvent {
-  _id?:   string;              // MongoDB ID — present after first save
-  name:   string;
-  date:   string;              // YYYY-MM-DD  (use toDisplayDate() for display)
-  time:   string;              // HH:mm       (use toDisplayTime() for display)
-  venue:  string;
-  guests: number;
-  status: 'confirmed' | 'planning' | 'pending';
-  desc:   string;
+  _id?:        string;
+  name:        string;
+  date:        string;
+  time:        string;
+  venue:       string;
+  guests:      number;
+  status:      'confirmed' | 'planning' | 'pending';
+  desc:        string;
+  attachments?: Attachment[];
 }
 
 export interface ChecklistTask {
@@ -52,14 +63,15 @@ export interface Guest {
 }
 
 export interface Vendor {
-  _id:      string;
-  icon:     string;
-  category: string;
-  name:     string;
-  contact:  string;
-  location: string;
-  status:   'booked' | 'shortlisted' | 'pending';
-  rating:   number;
-  notes:    string;
+  _id:         string;
+  icon:        string;
+  category:    string;
+  name:        string;
+  contact:     string;
+  location:    string;
+  status:      'booked' | 'shortlisted' | 'pending';
+  rating:      number;
+  notes:       string;
+  attachments?: Attachment[];
 }
 

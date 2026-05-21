@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { exportChecklistPDF } from '@/utils/exportPdf';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchChecklist,
@@ -29,9 +30,19 @@ const ChecklistPage = () => {
   const doneCount  = useAppSelector(selectDoneCount);
   const totalCount = useAppSelector(selectTotalCount);
 
-  const [filter,   setFilter]   = useState<Filter>('all');
-  const [showAdd,  setShowAdd]  = useState(false);
-  const [editTask, setEditTask] = useState<{ task: ChecklistTask; category: string } | null>(null);
+  const [filter,    setFilter]    = useState<Filter>('all');
+  const [showAdd,   setShowAdd]   = useState(false);
+  const [editTask,  setEditTask]  = useState<{ task: ChecklistTask; category: string } | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportChecklistPDF(categories, doneCount, totalCount);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (clStatus === 'idle') dispatch(fetchChecklist());
@@ -50,7 +61,9 @@ const ChecklistPage = () => {
         doneCount={doneCount}
         totalCount={totalCount}
         progress={progress}
+        exporting={exporting}
         onAddTask={() => setShowAdd(true)}
+        onExport={categories.length > 0 ? handleExport : undefined}
       />
 
       <FilterTabs filter={filter} onChange={setFilter} />

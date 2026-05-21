@@ -1,12 +1,14 @@
 interface GuestsHeaderProps {
-  confirmed: number;
-  pending: number;
-  declined: number;
-  loading: boolean;
+  confirmed:  number;
+  pending:    number;
+  declined:   number;
+  loading:    boolean;
+  exporting?: boolean;
   onAddGuest: () => void;
+  onExport?:  () => void;
 }
 
-export const GuestsHeader = ({ confirmed, pending, declined, loading, onAddGuest }: GuestsHeaderProps) => (
+export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting, onAddGuest, onExport }: GuestsHeaderProps) => (
   <div className="bg-[#23292E] p-[3px] glow-gold-strong relative">
     <span className="absolute top-2 left-2 text-[#E4BC62]/25 text-[10px]">◆</span>
     <span className="absolute top-2 right-2 text-[#E4BC62]/25 text-[10px]">◆</span>
@@ -22,12 +24,23 @@ export const GuestsHeader = ({ confirmed, pending, declined, loading, onAddGuest
           {loading ? '—' : `${confirmed} confirmed · ${pending} pending · ${declined} declined`}
         </p>
       </div>
-      <button
-        onClick={onAddGuest}
-        className="relative self-start sm:self-auto px-5 py-2.5 text-xs font-bold bg-[#E4BC62] text-[#23292E] hover:bg-[#E4BC62]/85 transition-all hover:shadow-[0_4px_16px_rgba(228,188,98,0.45)]"
-      >
-        + Add Guest
-      </button>
+      <div className="relative self-start sm:self-auto flex items-center gap-2">
+        {onExport && (
+          <button
+            onClick={onExport}
+            disabled={loading || exporting}
+            className="px-4 py-2.5 text-xs font-bold border border-[#E4BC62]/25 text-[#E4BC62]/65 hover:border-[#E4BC62]/50 hover:text-[#E4BC62] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {exporting ? 'Exporting…' : '↓ PDF'}
+          </button>
+        )}
+        <button
+          onClick={onAddGuest}
+          className="px-5 py-2.5 text-xs font-bold bg-[#E4BC62] text-[#23292E] hover:bg-[#E4BC62]/85 transition-all hover:shadow-[0_4px_16px_rgba(228,188,98,0.45)]"
+        >
+          + Add Guest
+        </button>
+      </div>
     </div>
   </div>
 );
