@@ -21,6 +21,7 @@ import {
   ResponseRateBar,
   GuestTable,
   GuestPagination,
+  GuestsSkeleton,
 } from '@/features/guests';
 import type { Guest } from '@/constants/dashboard-pages';
 
@@ -72,13 +73,7 @@ const GuestsPage = () => {
       />
 
       {loading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-[#DDDED9]/10 rounded" />)}
-          </div>
-          <div className="h-16 bg-[#DDDED9]/10 rounded" />
-          <div className="h-64 bg-[#DDDED9]/10 rounded" />
-        </div>
+        <GuestsSkeleton />
       ) : (
         <>
           <GuestStatCards

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/elements';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -15,8 +16,9 @@ interface GuestRsvpModalProps {
 const RSVP_OPTIONS: Guest['rsvp'][] = ['confirmed', 'pending', 'declined'];
 
 const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectGuestMutating);
+  const dispatch       = useAppDispatch();
+  const mutating       = useAppSelector(selectGuestMutating);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleRsvp = async (rsvp: Guest['rsvp']) => {
     if (rsvp === guest.rsvp) return onClose();
@@ -102,14 +104,35 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
 
         {/* Danger zone */}
         <div className="pt-2 border-t border-[#DDDED9]/10">
-          <button
-            type="button"
-            disabled={mutating}
-            onClick={handleDelete}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] font-bold text-red-400/70 border border-red-900/30 hover:bg-red-950/30 hover:text-red-400 transition-colors"
-          >
-            Remove Guest
-          </button>
+          {confirmDelete ? (
+            <div className="flex items-center gap-2 px-4 py-3 bg-red-950/30 border border-red-700/30">
+              <p className="flex-1 text-xs text-red-300/80">Remove {guest.name}? This cannot be undone.</p>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="px-2.5 py-1 text-[11px] font-semibold border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={mutating}
+                className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
+              >
+                {mutating ? '…' : 'Yes, Remove'}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={mutating}
+              onClick={() => setConfirmDelete(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[11px] font-bold text-red-400/70 border border-red-900/30 hover:bg-red-950/30 hover:text-red-400 transition-colors"
+            >
+              Remove Guest
+            </button>
+          )}
         </div>
 
       </div>

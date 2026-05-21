@@ -5,3 +5,4 @@ export { GuestStatCards   } from './GuestStatCards';
 export { ResponseRateBar  } from './ResponseRateBar';
 export { GuestTable       } from './GuestTable';
 export { GuestPagination  } from './GuestPagination';
+export { GuestsSkeleton   } from './GuestsSkeleton';
