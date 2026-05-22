@@ -4,8 +4,8 @@ import { API } from '@/constants/api';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
-export const fetchEventsApi = async (): Promise<WeddingEvent[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ events: WeddingEvent[] }>>(API.events.base);
+export const fetchEventsApi = async (signal?: AbortSignal): Promise<WeddingEvent[]> => {
+  const { data } = await axiosInstance.get<ApiResponse<{ events: WeddingEvent[] }>>(API.events.base, { signal });
   return data.data.events;
 };
 

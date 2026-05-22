@@ -19,8 +19,8 @@ const initialState: NotificationsState = {
 
 export const fetchNotifications = createAsyncThunk(
   'notifications/fetch',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchNotificationsApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchNotificationsApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load notifications'); }
   }
 );
@@ -52,7 +52,10 @@ const notificationsSlice = createSlice({
         state.items       = payload.notifications;
         state.unreadCount = payload.unreadCount;
       })
-      .addCase(fetchNotifications.rejected,  state => { state.status = 'failed'; });
+      .addCase(fetchNotifications.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed';
+      });
 
     builder
       .addCase(markAllRead.fulfilled, state => {

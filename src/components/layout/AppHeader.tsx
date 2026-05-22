@@ -51,7 +51,9 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
 
   // fetch on mount
   useEffect(() => {
-    if (notifStatus === 'idle') dispatch(fetchNotifications());
+    if (notifStatus !== 'idle') return;
+    const thunk = dispatch(fetchNotifications());
+    return () => thunk.abort();
   }, [dispatch, notifStatus]);
 
   // close profile dropdown on outside click

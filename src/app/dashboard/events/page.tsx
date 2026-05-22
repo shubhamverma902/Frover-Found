@@ -37,7 +37,9 @@ const EventsPage = () => {
   const [view,      setView]      = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchEvents());
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchEvents());
+    return () => thunk.abort();
   }, [status, dispatch]);
 
   const loading = status === 'loading';

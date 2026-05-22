@@ -4,8 +4,8 @@ import { API } from '@/constants/api';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
-export const fetchTablesApi = async (): Promise<SeatingTable[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ tables: SeatingTable[] }>>(API.seating.base);
+export const fetchTablesApi = async (signal?: AbortSignal): Promise<SeatingTable[]> => {
+  const { data } = await axiosInstance.get<ApiResponse<{ tables: SeatingTable[] }>>(API.seating.base, { signal });
   return data.data.tables;
 };
 

@@ -41,7 +41,9 @@ const SettingsPage = () => {
   const loading = status === 'idle' || status === 'loading';
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchSettings());
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchSettings());
+    return () => thunk.abort();
   }, [dispatch, status]);
 
   const flash = (key: string) => { setSaved(key); setTimeout(() => setSaved(null), 2500); };

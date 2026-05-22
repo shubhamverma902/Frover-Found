@@ -61,7 +61,9 @@ const GuestsPage = () => {
   const responsePct  = total > 0 ? Math.round(((confirmed + declined) / total) * 100) : 0;
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchGuests({ page: 1, limit: PAGE_LIMIT }));
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchGuests({ page: 1, limit: PAGE_LIMIT }));
+    return () => thunk.abort();
   }, [dispatch, status]);
 
   const goToPage = (p: number) => {

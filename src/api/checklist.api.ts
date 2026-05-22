@@ -4,8 +4,8 @@ import { API } from '@/constants/api';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
-export const fetchChecklistApi = async (): Promise<ChecklistCategory[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ categories: ChecklistCategory[] }>>(API.checklist.base);
+export const fetchChecklistApi = async (signal?: AbortSignal): Promise<ChecklistCategory[]> => {
+  const { data } = await axiosInstance.get<ApiResponse<{ categories: ChecklistCategory[] }>>(API.checklist.base, { signal });
   return data.data.categories;
 };
 

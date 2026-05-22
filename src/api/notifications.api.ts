@@ -16,8 +16,8 @@ export interface NotificationsData {
   unreadCount:   number;
 }
 
-export const fetchNotificationsApi = async (): Promise<NotificationsData> => {
-  const { data } = await axiosInstance.get<ApiResponse<NotificationsData>>(API.notifications.base);
+export const fetchNotificationsApi = async (signal?: AbortSignal): Promise<NotificationsData> => {
+  const { data } = await axiosInstance.get<ApiResponse<NotificationsData>>(API.notifications.base, { signal });
   return data.data;
 };
 

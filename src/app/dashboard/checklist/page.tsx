@@ -45,7 +45,9 @@ const ChecklistPage = () => {
   };
 
   useEffect(() => {
-    if (clStatus === 'idle') dispatch(fetchChecklist());
+    if (clStatus !== 'idle') return;
+    const thunk = dispatch(fetchChecklist());
+    return () => thunk.abort();
   }, [clStatus, dispatch]);
 
   const loading  = clStatus === 'loading';

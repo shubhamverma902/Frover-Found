@@ -9,8 +9,8 @@ export interface BudgetData {
   categories: BudgetCategory[];
 }
 
-export const fetchBudgetApi = async (): Promise<BudgetData> => {
-  const { data } = await axiosInstance.get<ApiResponse<BudgetData>>(API.budget.base);
+export const fetchBudgetApi = async (signal?: AbortSignal): Promise<BudgetData> => {
+  const { data } = await axiosInstance.get<ApiResponse<BudgetData>>(API.budget.base, { signal });
   return data.data;
 };
 

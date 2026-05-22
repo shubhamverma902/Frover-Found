@@ -41,7 +41,9 @@ const VendorsPage = () => {
     : vendors;
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchVendors());
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchVendors());
+    return () => thunk.abort();
   }, [dispatch, status]);
 
   const openEdit = (v: Vendor) => { setDetailVendor(null); setEditVendor(v); };

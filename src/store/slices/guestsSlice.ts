@@ -39,8 +39,8 @@ const initialState: GuestsState = {
 
 export const fetchGuests = createAsyncThunk(
   'guests/fetchAll',
-  async ({ page, limit }: { page: number; limit: number }, { rejectWithValue }) => {
-    try { return await fetchGuestsApi(page, limit); }
+  async ({ page, limit }: { page: number; limit: number }, { rejectWithValue, signal }) => {
+    try { return await fetchGuestsApi(page, limit, signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load guests'); }
   }
 );
@@ -85,7 +85,10 @@ const guestsSlice = createSlice({
         state.page       = payload.page;
         state.totalPages = payload.totalPages;
       })
-      .addCase(fetchGuests.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchGuests.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       .addCase(createGuest.pending,   state => { state.mutating = true; })

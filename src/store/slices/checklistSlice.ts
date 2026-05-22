@@ -31,8 +31,8 @@ const initialState: ChecklistState = {
 
 export const fetchChecklist = createAsyncThunk(
   'checklist/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchChecklistApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchChecklistApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load checklist'); }
   }
 );
@@ -94,7 +94,10 @@ const checklistSlice = createSlice({
     builder
       .addCase(fetchChecklist.pending,   state => { state.status = 'loading'; state.error = null; })
       .addCase(fetchChecklist.fulfilled, (state, { payload }) => { state.status = 'succeeded'; state.categories = payload; })
-      .addCase(fetchChecklist.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchChecklist.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       .addCase(createTask.pending,   state => { state.mutating = true; })

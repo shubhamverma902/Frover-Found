@@ -37,8 +37,8 @@ const initialState: DashboardState = {
 
 export const fetchDashboard = createAsyncThunk(
   'dashboard/fetch',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchDashboardApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchDashboardApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load dashboard'); }
   }
 );
@@ -72,7 +72,10 @@ const dashboardSlice = createSlice({
         state.tasks    = payload.tasks;
         state.activity = payload.activity;
       })
-      .addCase(fetchDashboard.rejected,  state => { state.status = 'failed'; });
+      .addCase(fetchDashboard.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed';
+      });
   },
 });
 

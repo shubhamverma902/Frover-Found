@@ -34,7 +34,9 @@ const DashboardPage = () => {
   const loading = status === 'idle' || status === 'loading';
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchDashboard());
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchDashboard());
+    return () => thunk.abort();
   }, [dispatch, status]);
 
   const doneTasks  = TASKS.filter(t => t.done).length;

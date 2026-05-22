@@ -35,8 +35,8 @@ const initialState: BudgetState = {
 
 export const fetchBudget = createAsyncThunk(
   'budget/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchBudgetApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchBudgetApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load budget'); }
   }
 );
@@ -94,7 +94,10 @@ const budgetSlice = createSlice({
         state.total      = payload.total;
         state.categories = payload.categories;
       })
-      .addCase(fetchBudget.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchBudget.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       // Optimistic total: apply immediately, restore on failure

@@ -46,7 +46,9 @@ const SeatingPage = () => {
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
 
   useEffect(() => {
-    if (status === 'idle') dispatch(fetchSeating());
+    if (status !== 'idle') return;
+    const thunk = dispatch(fetchSeating());
+    return () => thunk.abort();
   }, [status, dispatch]);
 
   const sensors = useSensors(

@@ -36,8 +36,8 @@ const initialState: VendorsState = {
 
 export const fetchVendors = createAsyncThunk(
   'vendors/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchVendorsApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchVendorsApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load vendors'); }
   }
 );
@@ -107,7 +107,10 @@ const vendorsSlice = createSlice({
     builder
       .addCase(fetchVendors.pending,   state => { state.status = 'loading'; state.error = null; })
       .addCase(fetchVendors.fulfilled, (state, { payload }) => { state.status = 'succeeded'; state.items = payload; })
-      .addCase(fetchVendors.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchVendors.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       .addCase(createVendor.pending,   state => { state.mutating = true; })

@@ -33,8 +33,8 @@ const initialState: EventsState = {
 
 export const fetchEvents = createAsyncThunk(
   'events/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchEventsApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchEventsApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load events'); }
   }
 );
@@ -98,7 +98,10 @@ const eventsSlice = createSlice({
     builder
       .addCase(fetchEvents.pending,    state => { state.status = 'loading'; state.error = null; })
       .addCase(fetchEvents.fulfilled,  (state, { payload }) => { state.status = 'succeeded'; state.items = payload; })
-      .addCase(fetchEvents.rejected,   (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchEvents.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     // create — needs server _id, stays pessimistic
     builder

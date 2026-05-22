@@ -20,9 +20,10 @@ export interface CreateGuestPayload {
   plusOne:  boolean;
 }
 
-export const fetchGuestsApi = async (page = 1, limit = 10): Promise<GuestsData> => {
+export const fetchGuestsApi = async (page = 1, limit = 10, signal?: AbortSignal): Promise<GuestsData> => {
   const { data } = await axiosInstance.get<ApiResponse<GuestsData>>(API.guests.base, {
     params: { page, limit },
+    signal,
   });
   return data.data;
 };

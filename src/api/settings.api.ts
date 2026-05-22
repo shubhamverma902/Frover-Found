@@ -30,8 +30,8 @@ export interface SettingsData {
   notifications: NotificationPref[];
 }
 
-export const fetchSettingsApi = async (): Promise<SettingsData> => {
-  const { data } = await axiosInstance.get<ApiResponse<SettingsData>>(API.settings.base);
+export const fetchSettingsApi = async (signal?: AbortSignal): Promise<SettingsData> => {
+  const { data } = await axiosInstance.get<ApiResponse<SettingsData>>(API.settings.base, { signal });
   return data.data;
 };
 

@@ -35,8 +35,8 @@ const initialState: SettingsState = {
 
 export const fetchSettings = createAsyncThunk(
   'settings/fetch',
-  async (_, { rejectWithValue }) => {
-    try { return await fetchSettingsApi(); }
+  async (_, { rejectWithValue, signal }) => {
+    try { return await fetchSettingsApi(signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load settings'); }
   }
 );
@@ -93,7 +93,10 @@ const settingsSlice = createSlice({
         state.wedding       = payload.wedding;
         state.notifications = payload.notifications;
       })
-      .addCase(fetchSettings.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchSettings.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       .addCase(saveProfile.pending,   state => { state.saving = 'profile'; })

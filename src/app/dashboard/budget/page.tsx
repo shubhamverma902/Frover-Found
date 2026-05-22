@@ -38,7 +38,9 @@ const BudgetPage = () => {
   const [expandedCat,    setExpandedCat]    = useState<string | null>(null);
 
   useEffect(() => {
-    if (bdStatus === 'idle') dispatch(fetchBudget());
+    if (bdStatus !== 'idle') return;
+    const thunk = dispatch(fetchBudget());
+    return () => thunk.abort();
   }, [bdStatus, dispatch]);
 
   const loading = bdStatus === 'loading' || bdStatus === 'idle';

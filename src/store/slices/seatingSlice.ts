@@ -26,11 +26,11 @@ const initialState: SeatingState = {
 
 export const fetchSeating = createAsyncThunk(
   'seating/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, signal }) => {
     try {
       const [tables, guestsResult] = await Promise.all([
-        fetchTablesApi(),
-        fetchGuestsApi(1, 9999),
+        fetchTablesApi(signal),
+        fetchGuestsApi(1, 9999, signal),
       ]);
       return { tables, guests: guestsResult.guests };
     } catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load seating'); }
@@ -81,7 +81,10 @@ const seatingSlice = createSlice({
         state.tables  = payload.tables;
         state.guests  = payload.guests;
       })
-      .addCase(fetchSeating.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
+      .addCase(fetchSeating.rejected, (state, action) => {
+        if (action.meta.aborted) { state.status = 'idle'; return; }
+        state.status = 'failed'; state.error = action.payload as string;
+      });
 
     builder
       .addCase(createTable.pending,   state => { state.mutating = true; })

@@ -45,7 +45,7 @@ export interface DashboardData {
   activity: DashboardActivity[];
 }
 
-export const fetchDashboardApi = async (): Promise<DashboardData> => {
-  const { data } = await axiosInstance.get<ApiResponse<DashboardData>>(API.dashboard);
+export const fetchDashboardApi = async (signal?: AbortSignal): Promise<DashboardData> => {
+  const { data } = await axiosInstance.get<ApiResponse<DashboardData>>(API.dashboard, { signal });
   return data.data;
 };

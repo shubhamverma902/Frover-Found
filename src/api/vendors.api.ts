@@ -15,8 +15,8 @@ export interface VendorPayload {
   notes:    string;
 }
 
-export const fetchVendorsApi = async (): Promise<Vendor[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ vendors: Vendor[] }>>(API.vendors.base);
+export const fetchVendorsApi = async (signal?: AbortSignal): Promise<Vendor[]> => {
+  const { data } = await axiosInstance.get<ApiResponse<{ vendors: Vendor[] }>>(API.vendors.base, { signal });
   return data.data.vendors;
 };
 
