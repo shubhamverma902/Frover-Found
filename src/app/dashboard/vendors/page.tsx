@@ -6,6 +6,9 @@ import {
   fetchVendors,
   patchVendorStatus,
   selectVendors,
+  selectVendorTotal,
+  selectVendorPage,
+  selectVendorTotalPages,
   selectVendorStatus,
   selectBookedCount,
   selectShortlisted,
@@ -20,11 +23,17 @@ import {
   VendorsEmptyState,
   VendorCard,
 } from '@/features/vendors';
+import { Pagination } from '@/components/ui';
 import type { Vendor } from '@/constants/dashboard-pages';
+
+const PAGE_LIMIT = 10;
 
 const VendorsPage = () => {
   const dispatch    = useAppDispatch();
   const vendors     = useAppSelector(selectVendors);
+  const total       = useAppSelector(selectVendorTotal);
+  const page        = useAppSelector(selectVendorPage);
+  const totalPages  = useAppSelector(selectVendorTotalPages);
   const status      = useAppSelector(selectVendorStatus);
   const booked      = useAppSelector(selectBookedCount);
   const shortlisted = useAppSelector(selectShortlisted);
@@ -42,9 +51,14 @@ const VendorsPage = () => {
 
   useEffect(() => {
     if (status !== 'idle') return;
-    const thunk = dispatch(fetchVendors());
+    const thunk = dispatch(fetchVendors({ page: 1, limit: PAGE_LIMIT }));
     return () => thunk.abort();
   }, [dispatch, status]);
+
+  const goToPage = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    dispatch(fetchVendors({ page: p, limit: PAGE_LIMIT }));
+  };
 
   const openEdit = (v: Vendor) => { setDetailVendor(null); setEditVendor(v); };
 
@@ -55,7 +69,7 @@ const VendorsPage = () => {
 
       {loading ? <VendorsSkeleton /> : (
         <>
-          <VendorsSummaryStrip total={vendors.length} booked={booked} shortlisted={shortlisted} />
+          <VendorsSummaryStrip total={total} booked={booked} shortlisted={shortlisted} />
 
           {vendors.length > 0 && (
             <div className="relative w-full sm:w-72">
@@ -94,6 +108,16 @@ const VendorsPage = () => {
               />
             ))}
           </div>
+
+          {!query && totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              noun="vendors"
+              onGoToPage={goToPage}
+            />
+          )}
         </>
       )}
 

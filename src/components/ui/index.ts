@@ -1,4 +1,5 @@
 export { AttachmentsPanel } from './AttachmentsPanel';
+export { Pagination } from './Pagination';
 export { Carousel } from './Carousel';
 export type { CarouselImage, CarouselProps } from './Carousel';
 export { ProgressRing } from './ProgressRing';

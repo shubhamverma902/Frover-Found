@@ -4,6 +4,15 @@ import { API } from '@/constants/api';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
+export interface VendorsData {
+  vendors:    Vendor[];
+  total:      number;
+  page:       number;
+  totalPages: number;
+  booked:     number;
+  shortlisted: number;
+}
+
 export interface VendorPayload {
   icon:     string;
   category: string;
@@ -15,9 +24,12 @@ export interface VendorPayload {
   notes:    string;
 }
 
-export const fetchVendorsApi = async (signal?: AbortSignal): Promise<Vendor[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ vendors: Vendor[] }>>(API.vendors.base, { signal });
-  return data.data.vendors;
+export const fetchVendorsApi = async (page = 1, limit = 10, signal?: AbortSignal): Promise<VendorsData> => {
+  const { data } = await axiosInstance.get<ApiResponse<VendorsData>>(API.vendors.base, {
+    params: { page, limit },
+    signal,
+  });
+  return data.data;
 };
 
 export const createVendorApi = async (payload: VendorPayload): Promise<Vendor> => {

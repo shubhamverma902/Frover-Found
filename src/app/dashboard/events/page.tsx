@@ -6,8 +6,13 @@ import {
   fetchEvents,
   patchEventStatus,
   selectEvents,
+  selectEventTotal,
+  selectEventPage,
+  selectEventTotalPages,
   selectEventsStatus,
   selectConfirmedCount,
+  selectPlanningCount,
+  selectPendingCount,
 } from '@/store/slices/eventsSlice';
 import {
   AddEventModal,
@@ -21,14 +26,22 @@ import {
   EventCard,
   EventsCalendar,
 } from '@/features/events';
+import { Pagination } from '@/components/ui';
 import type { EventFilter } from '@/features/events';
 import type { WeddingEvent } from '@/constants/dashboard-pages';
 
+const PAGE_LIMIT = 20;
+
 const EventsPage = () => {
-  const dispatch  = useAppDispatch();
-  const events    = useAppSelector(selectEvents);
-  const status    = useAppSelector(selectEventsStatus);
-  const confirmed = useAppSelector(selectConfirmedCount);
+  const dispatch   = useAppDispatch();
+  const events     = useAppSelector(selectEvents);
+  const total      = useAppSelector(selectEventTotal);
+  const page       = useAppSelector(selectEventPage);
+  const totalPages = useAppSelector(selectEventTotalPages);
+  const status     = useAppSelector(selectEventsStatus);
+  const confirmed  = useAppSelector(selectConfirmedCount);
+  const planning   = useAppSelector(selectPlanningCount);
+  const pending    = useAppSelector(selectPendingCount);
 
   const [showAdd,   setShowAdd]   = useState(false);
   const [editEvent, setEditEvent] = useState<WeddingEvent | null>(null);
@@ -38,9 +51,14 @@ const EventsPage = () => {
 
   useEffect(() => {
     if (status !== 'idle') return;
-    const thunk = dispatch(fetchEvents());
+    const thunk = dispatch(fetchEvents({ page: 1, limit: PAGE_LIMIT }));
     return () => thunk.abort();
   }, [status, dispatch]);
+
+  const goToPage = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    dispatch(fetchEvents({ page: p, limit: PAGE_LIMIT }));
+  };
 
   const loading = status === 'loading';
   const q = query.trim().toLowerCase();
@@ -49,11 +67,12 @@ const EventsPage = () => {
     ? filteredByStatus.filter(e => [e.name, e.venue ?? ''].some(f => f.toLowerCase().includes(q)))
     : filteredByStatus;
 
+  // Filter pill counts come from the server (global, not just current page)
   const filters = [
-    { value: 'all'       as EventFilter, label: 'All',       count: events.length },
-    { value: 'pending'   as EventFilter, label: 'Pending',   count: events.filter(e => e.status === 'pending').length },
-    { value: 'planning'  as EventFilter, label: 'Planning',  count: events.filter(e => e.status === 'planning').length },
-    { value: 'confirmed' as EventFilter, label: 'Confirmed', count: events.filter(e => e.status === 'confirmed').length },
+    { value: 'all'       as EventFilter, label: 'All',       count: total },
+    { value: 'pending'   as EventFilter, label: 'Pending',   count: pending },
+    { value: 'planning'  as EventFilter, label: 'Planning',  count: planning },
+    { value: 'confirmed' as EventFilter, label: 'Confirmed', count: confirmed },
   ];
 
   const viewToggle = (
@@ -83,15 +102,15 @@ const EventsPage = () => {
 
       <EventsHeader
         confirmed={confirmed}
-        total={events.length}
+        total={total}
         loading={loading}
         onAddEvent={() => setShowAdd(true)}
       />
 
       <EventsSummaryStrip
-        total={events.length}
+        total={total}
         confirmed={confirmed}
-        inPlanning={events.filter(e => e.status !== 'confirmed').length}
+        inPlanning={total - confirmed}
       />
 
       {loading && <EventsSkeleton />}
@@ -136,16 +155,28 @@ const EventsPage = () => {
 
       {/* ── List view ── */}
       {!loading && visibleEvents.length > 0 && view === 'list' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-children">
-          {visibleEvents.map(event => (
-            <EventCard
-              key={event._id ?? event.name}
-              event={event}
-              onEdit={() => setEditEvent(event)}
-              onConfirm={() => event._id && dispatch(patchEventStatus({ id: event._id, status: 'confirmed' }))}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-children">
+            {visibleEvents.map(event => (
+              <EventCard
+                key={event._id ?? event.name}
+                event={event}
+                onEdit={() => setEditEvent(event)}
+                onConfirm={() => event._id && dispatch(patchEventStatus({ id: event._id, status: 'confirmed' }))}
+              />
+            ))}
+          </div>
+
+          {filter === 'all' && !query && totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              noun="events"
+              onGoToPage={goToPage}
             />
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* ── Calendar view ── */}

@@ -4,9 +4,22 @@ import { API } from '@/constants/api';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
-export const fetchEventsApi = async (signal?: AbortSignal): Promise<WeddingEvent[]> => {
-  const { data } = await axiosInstance.get<ApiResponse<{ events: WeddingEvent[] }>>(API.events.base, { signal });
-  return data.data.events;
+export interface EventsData {
+  events:    WeddingEvent[];
+  total:     number;
+  page:      number;
+  totalPages: number;
+  confirmed: number;
+  planning:  number;
+  pending:   number;
+}
+
+export const fetchEventsApi = async (page = 1, limit = 20, signal?: AbortSignal): Promise<EventsData> => {
+  const { data } = await axiosInstance.get<ApiResponse<EventsData>>(API.events.base, {
+    params: { page, limit },
+    signal,
+  });
+  return data.data;
 };
 
 export const createEventApi = async (payload: Omit<WeddingEvent, '_id'>): Promise<WeddingEvent> => {

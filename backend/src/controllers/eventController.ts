@@ -12,15 +12,19 @@ import { UPLOADS_ROOT } from '../middleware/upload';
 
 const MAX_ATTACHMENTS = 5;
 
-// GET /api/v1/events
-// Returns all events for the user.  On first call (empty list), auto-seeds
-// events from the user's onboarding wedding profile.
+// GET /api/v1/events?page=1&limit=20
+// Returns paginated events.  On first call (empty list), auto-seeds events
+// from the user's onboarding wedding profile.
 export const getEvents = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid = req.user!.id;
-    let events = await Event.find({ userId: uid }).sort({ date: 1 });
+    const uid   = req.user!.id;
+    const page  = Math.max(1, Number(req.query.page)  || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 20);
+    const skip  = (page - 1) * limit;
 
-    if (events.length === 0) {
+    // Auto-seed on first ever call before running the paginated query
+    const existingCount = await Event.countDocuments({ userId: uid });
+    if (existingCount === 0) {
       const user = await User.findById(uid);
       if (user?.weddingProfile?.events?.length) {
         const weddingDate = user.weddingProfile.weddingDate;
@@ -34,11 +38,26 @@ export const getEvents = async (req: AuthRequest, res: Response, next: NextFunct
           status: 'pending' as EventStatus,
           desc:   '',
         }));
-        events = await Event.insertMany(seeds) as unknown as typeof events;
+        await Event.insertMany(seeds);
       }
     }
 
-    sendSuccess(res, { events: events.map(serializeEvent) });
+    const [events, total, confirmed, planning] = await Promise.all([
+      Event.find({ userId: uid }).sort({ date: 1 }).skip(skip).limit(limit),
+      Event.countDocuments({ userId: uid }),
+      Event.countDocuments({ userId: uid, status: 'confirmed' }),
+      Event.countDocuments({ userId: uid, status: 'planning' }),
+    ]);
+
+    sendSuccess(res, {
+      events:     events.map(serializeEvent),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+      confirmed,
+      planning,
+      pending:    total - confirmed - planning,
+    });
   } catch (err) {
     next(err);
   }

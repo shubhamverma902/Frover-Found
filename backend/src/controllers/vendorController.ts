@@ -11,11 +11,29 @@ import { UPLOADS_ROOT } from '../middleware/upload';
 
 const MAX_ATTACHMENTS = 5;
 
-// GET /api/v1/vendors
+// GET /api/v1/vendors?page=1&limit=10
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const vendors = await Vendor.find({ userId: req.user!.id }).sort({ createdAt: 1 });
-    sendSuccess(res, { vendors: vendors.map(serializeVendor) });
+    const uid   = req.user!.id;
+    const page  = Math.max(1, Number(req.query.page)  || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const skip  = (page - 1) * limit;
+
+    const [vendors, total, booked, shortlisted] = await Promise.all([
+      Vendor.find({ userId: uid }).sort({ createdAt: 1 }).skip(skip).limit(limit),
+      Vendor.countDocuments({ userId: uid }),
+      Vendor.countDocuments({ userId: uid, status: 'booked' }),
+      Vendor.countDocuments({ userId: uid, status: 'shortlisted' }),
+    ]);
+
+    sendSuccess(res, {
+      vendors:     vendors.map(serializeVendor),
+      total,
+      page,
+      totalPages:  Math.ceil(total / limit) || 1,
+      booked,
+      shortlisted,
+    });
   } catch (err) { next(err); }
 };
 

@@ -15,16 +15,26 @@ import {
 // ── State ─────────────────────────────────────────────────
 
 interface VendorsState {
-  items:          Vendor[];
-  status:         'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating:       boolean;
-  error:          string | null;
+  items:           Vendor[];
+  total:           number;
+  page:            number;
+  totalPages:      number;
+  booked:          number;
+  shortlisted:     number;
+  status:          'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:        boolean;
+  error:           string | null;
   _statusRollback: { vendorId: string; status: Vendor['status'] } | null;
   _deletedVendor:  { vendor: Vendor; index: number } | null;
 }
 
 const initialState: VendorsState = {
   items:           [],
+  total:           0,
+  page:            1,
+  totalPages:      1,
+  booked:          0,
+  shortlisted:     0,
   status:          'idle',
   mutating:        false,
   error:           null,
@@ -36,8 +46,8 @@ const initialState: VendorsState = {
 
 export const fetchVendors = createAsyncThunk(
   'vendors/fetchAll',
-  async (_, { rejectWithValue, signal }) => {
-    try { return await fetchVendorsApi(signal); }
+  async ({ page, limit }: { page: number; limit: number }, { rejectWithValue, signal }) => {
+    try { return await fetchVendorsApi(page, limit, signal); }
     catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load vendors'); }
   }
 );
@@ -106,7 +116,15 @@ const vendorsSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchVendors.pending,   state => { state.status = 'loading'; state.error = null; })
-      .addCase(fetchVendors.fulfilled, (state, { payload }) => { state.status = 'succeeded'; state.items = payload; })
+      .addCase(fetchVendors.fulfilled, (state, { payload }) => {
+        state.status      = 'succeeded';
+        state.items       = payload.vendors;
+        state.total       = payload.total;
+        state.page        = payload.page;
+        state.totalPages  = payload.totalPages;
+        state.booked      = payload.booked;
+        state.shortlisted = payload.shortlisted;
+      })
       .addCase(fetchVendors.rejected, (state, action) => {
         if (action.meta.aborted) { state.status = 'idle'; return; }
         state.status = 'failed'; state.error = action.payload as string;
@@ -114,7 +132,11 @@ const vendorsSlice = createSlice({
 
     builder
       .addCase(createVendor.pending,   state => { state.mutating = true; })
-      .addCase(createVendor.fulfilled, (state, { payload }) => { state.mutating = false; state.items.push(payload); })
+      .addCase(createVendor.fulfilled, (state, { payload }) => {
+        state.mutating = false;
+        state.items.push(payload);
+        state.total += 1;
+      })
       .addCase(createVendor.rejected,  state => { state.mutating = false; });
 
     builder
@@ -128,7 +150,13 @@ const vendorsSlice = createSlice({
         const { vendorId, status } = meta.arg;
         const vendor = state.items.find(v => v._id === vendorId);
         if (vendor) {
-          state._statusRollback = { vendorId, status: vendor.status };
+          const oldStatus = vendor.status;
+          state._statusRollback = { vendorId, status: oldStatus };
+          // Update aggregate counts optimistically
+          if (oldStatus === 'booked')      state.booked      = Math.max(0, state.booked - 1);
+          if (oldStatus === 'shortlisted') state.shortlisted = Math.max(0, state.shortlisted - 1);
+          if (status === 'booked')         state.booked      += 1;
+          if (status === 'shortlisted')    state.shortlisted += 1;
           vendor.status = status;
         }
       })
@@ -138,9 +166,16 @@ const vendorsSlice = createSlice({
       })
       .addCase(patchVendorStatus.rejected, state => {
         if (state._statusRollback) {
-          const { vendorId, status } = state._statusRollback;
+          const { vendorId, status: oldStatus } = state._statusRollback;
           const vendor = state.items.find(v => v._id === vendorId);
-          if (vendor) vendor.status = status;
+          if (vendor) {
+            // Reverse the optimistic count changes
+            if (vendor.status === 'booked')      state.booked      = Math.max(0, state.booked - 1);
+            if (vendor.status === 'shortlisted') state.shortlisted = Math.max(0, state.shortlisted - 1);
+            if (oldStatus === 'booked')          state.booked      += 1;
+            if (oldStatus === 'shortlisted')     state.shortlisted += 1;
+            vendor.status = oldStatus;
+          }
           state._statusRollback = null;
         }
       });
@@ -151,8 +186,12 @@ const vendorsSlice = createSlice({
         state.mutating = true;
         const idx = state.items.findIndex(v => v._id === meta.arg);
         if (idx !== -1) {
-          state._deletedVendor = { vendor: current(state.items[idx]), index: idx };
+          const vendor = current(state.items[idx]);
+          state._deletedVendor = { vendor, index: idx };
           state.items.splice(idx, 1);
+          state.total = Math.max(0, state.total - 1);
+          if (vendor.status === 'booked')      state.booked      = Math.max(0, state.booked - 1);
+          if (vendor.status === 'shortlisted') state.shortlisted = Math.max(0, state.shortlisted - 1);
         }
       })
       .addCase(deleteVendor.fulfilled, state => {
@@ -162,7 +201,11 @@ const vendorsSlice = createSlice({
       .addCase(deleteVendor.rejected, state => {
         state.mutating = false;
         if (state._deletedVendor) {
-          state.items.splice(state._deletedVendor.index, 0, state._deletedVendor.vendor);
+          const { vendor, index } = state._deletedVendor;
+          state.items.splice(index, 0, vendor);
+          state.total += 1;
+          if (vendor.status === 'booked')      state.booked      += 1;
+          if (vendor.status === 'shortlisted') state.shortlisted += 1;
           state._deletedVendor = null;
         }
       });
@@ -175,10 +218,13 @@ const vendorsSlice = createSlice({
 
 // ── Selectors ─────────────────────────────────────────────
 
-export const selectVendors      = (state: RootState) => state.vendors.items;
-export const selectVendorStatus = (state: RootState) => state.vendors.status;
-export const selectVendorMutating = (state: RootState) => state.vendors.mutating;
-export const selectBookedCount  = (state: RootState) => state.vendors.items.filter(v => v.status === 'booked').length;
-export const selectShortlisted  = (state: RootState) => state.vendors.items.filter(v => v.status === 'shortlisted').length;
+export const selectVendors          = (state: RootState) => state.vendors.items;
+export const selectVendorTotal      = (state: RootState) => state.vendors.total;
+export const selectVendorPage       = (state: RootState) => state.vendors.page;
+export const selectVendorTotalPages = (state: RootState) => state.vendors.totalPages;
+export const selectVendorStatus     = (state: RootState) => state.vendors.status;
+export const selectVendorMutating   = (state: RootState) => state.vendors.mutating;
+export const selectBookedCount      = (state: RootState) => state.vendors.booked;
+export const selectShortlisted      = (state: RootState) => state.vendors.shortlisted;
 
 export default vendorsSlice.reducer;
