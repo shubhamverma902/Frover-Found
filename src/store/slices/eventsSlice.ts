@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { WeddingEvent } from '@/constants/dashboard-pages';
 import {
@@ -14,15 +14,19 @@ import {
 // ── State ────────────────────────────────────────────────────
 
 interface EventsState {
-  items:  WeddingEvent[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error:  string | null;
+  items:          WeddingEvent[];
+  status:         'idle' | 'loading' | 'succeeded' | 'failed';
+  error:          string | null;
+  _statusRollback: { id: string; status: WeddingEvent['status'] } | null;
+  _deletedEvent:   { event: WeddingEvent; index: number } | null;
 }
 
 const initialState: EventsState = {
-  items:  [],
-  status: 'idle',
-  error:  null,
+  items:           [],
+  status:          'idle',
+  error:           null,
+  _statusRollback: null,
+  _deletedEvent:   null,
 };
 
 // ── Thunks ───────────────────────────────────────────────────
@@ -96,31 +100,59 @@ const eventsSlice = createSlice({
       .addCase(fetchEvents.fulfilled,  (state, { payload }) => { state.status = 'succeeded'; state.items = payload; })
       .addCase(fetchEvents.rejected,   (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
 
-    // create
+    // create — needs server _id, stays pessimistic
     builder
       .addCase(createEvent.fulfilled, (state, { payload }) => { state.items.push(payload); });
 
-    // update
+    // update — modal closes on submit so optimistic adds no visible benefit
     builder
       .addCase(updateEvent.fulfilled, (state, { payload }) => {
         const idx = state.items.findIndex(e => e._id === payload._id);
         if (idx !== -1) state.items[idx] = payload;
       });
 
-    // patch status
+    // patch status — optimistic: apply immediately, restore on failure
     builder
+      .addCase(patchEventStatus.pending, (state, { meta }) => {
+        const { id, status } = meta.arg;
+        const event = state.items.find(e => e._id === id);
+        if (event) {
+          state._statusRollback = { id, status: event.status };
+          event.status = status;
+        }
+      })
       .addCase(patchEventStatus.fulfilled, (state, { payload }) => {
+        state._statusRollback = null;
         const idx = state.items.findIndex(e => e._id === payload._id);
         if (idx !== -1) state.items[idx] = payload;
+      })
+      .addCase(patchEventStatus.rejected, state => {
+        if (state._statusRollback) {
+          const { id, status } = state._statusRollback;
+          const event = state.items.find(e => e._id === id);
+          if (event) event.status = status;
+          state._statusRollback = null;
+        }
       });
 
-    // delete
+    // delete — optimistic: remove immediately, restore at original index on failure
     builder
-      .addCase(deleteEvent.fulfilled, (state, { payload: id }) => {
-        state.items = state.items.filter(e => e._id !== id);
+      .addCase(deleteEvent.pending, (state, { meta }) => {
+        const idx = state.items.findIndex(e => e._id === meta.arg);
+        if (idx !== -1) {
+          state._deletedEvent = { event: current(state.items[idx]), index: idx };
+          state.items.splice(idx, 1);
+        }
+      })
+      .addCase(deleteEvent.fulfilled, state => { state._deletedEvent = null; })
+      .addCase(deleteEvent.rejected, state => {
+        if (state._deletedEvent) {
+          state.items.splice(state._deletedEvent.index, 0, state._deletedEvent.event);
+          state._deletedEvent = null;
+        }
       });
 
-    // attachments
+    // attachments — must wait for server (need real URL); sync on fulfilled
     builder
       .addCase(addEventAttachment.fulfilled, (state, { payload }) => {
         const idx = state.items.findIndex(e => e._id === payload._id);

@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { Guest } from '@/constants/dashboard-pages';
 import {
@@ -16,9 +16,11 @@ interface GuestsState {
   total:      number;
   page:       number;
   totalPages: number;
-  status:   'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating: boolean;
-  error:    string | null;
+  status:     'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:   boolean;
+  error:      string | null;
+  _rsvpRollback:    { guestId: string; rsvp: Guest['rsvp'] } | null;
+  _deletedGuest:    { guest: Guest; index: number } | null;
 }
 
 const initialState: GuestsState = {
@@ -26,9 +28,11 @@ const initialState: GuestsState = {
   total:      0,
   page:       1,
   totalPages: 1,
-  status:   'idle',
-  mutating: false,
-  error:    null,
+  status:     'idle',
+  mutating:   false,
+  error:      null,
+  _rsvpRollback:    null,
+  _deletedGuest:    null,
 };
 
 // ── Thunks ────────────────────────────────────────────────
@@ -89,22 +93,52 @@ const guestsSlice = createSlice({
       .addCase(createGuest.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(patchGuestRsvp.pending,   state => { state.mutating = true; })
+      // Optimistic RSVP: apply immediately, store old value, restore on failure
+      .addCase(patchGuestRsvp.pending, (state, { meta }) => {
+        const { guestId, rsvp } = meta.arg;
+        const guest = state.items.find(g => g._id === guestId);
+        if (guest) {
+          state._rsvpRollback = { guestId, rsvp: guest.rsvp };
+          guest.rsvp = rsvp;
+        }
+      })
       .addCase(patchGuestRsvp.fulfilled, (state, { payload }) => {
-        state.mutating = false;
+        state._rsvpRollback = null;
         const idx = state.items.findIndex(g => g._id === payload._id);
         if (idx !== -1) state.items[idx] = payload;
       })
-      .addCase(patchGuestRsvp.rejected,  state => { state.mutating = false; });
+      .addCase(patchGuestRsvp.rejected, state => {
+        if (state._rsvpRollback) {
+          const { guestId, rsvp } = state._rsvpRollback;
+          const guest = state.items.find(g => g._id === guestId);
+          if (guest) guest.rsvp = rsvp;
+          state._rsvpRollback = null;
+        }
+      });
 
     builder
-      .addCase(deleteGuest.pending,   state => { state.mutating = true; })
-      .addCase(deleteGuest.fulfilled, (state, { payload }) => {
-        state.mutating = false;
-        state.items    = state.items.filter(g => g._id !== payload);
-        state.total    = Math.max(0, state.total - 1);
+      // Optimistic delete: remove immediately, restore at original index on failure
+      .addCase(deleteGuest.pending, (state, { meta }) => {
+        state.mutating = true;
+        const idx = state.items.findIndex(g => g._id === meta.arg);
+        if (idx !== -1) {
+          state._deletedGuest = { guest: current(state.items[idx]), index: idx };
+          state.items.splice(idx, 1);
+          state.total = Math.max(0, state.total - 1);
+        }
       })
-      .addCase(deleteGuest.rejected,  state => { state.mutating = false; });
+      .addCase(deleteGuest.fulfilled, state => {
+        state.mutating      = false;
+        state._deletedGuest = null;
+      })
+      .addCase(deleteGuest.rejected, state => {
+        state.mutating = false;
+        if (state._deletedGuest) {
+          state.items.splice(state._deletedGuest.index, 0, state._deletedGuest.guest);
+          state.total         += 1;
+          state._deletedGuest  = null;
+        }
+      });
   },
 });
 

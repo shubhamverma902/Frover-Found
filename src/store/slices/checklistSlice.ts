@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { ChecklistCategory } from '@/constants/dashboard-pages';
 import {
@@ -13,16 +13,18 @@ import {
 
 interface ChecklistState {
   categories: ChecklistCategory[];
-  status:   'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating: boolean;
-  error:    string | null;
+  status:     'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:   boolean;
+  error:      string | null;
+  _snapshot:  ChecklistCategory[] | null; // rollback store for optimistic deletes
 }
 
 const initialState: ChecklistState = {
   categories: [],
-  status:   'idle',
-  mutating: false,
-  error:    null,
+  status:     'idle',
+  mutating:   false,
+  error:      null,
+  _snapshot:  null,
 };
 
 // ── Thunks ────────────────────────────────────────────────
@@ -100,7 +102,20 @@ const checklistSlice = createSlice({
       .addCase(createTask.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(toggleTask.fulfilled, (state, { payload }) => { replaceCategories(state, [payload]); });
+      // Optimistic toggle: flip immediately, reverse on failure, sync on success
+      .addCase(toggleTask.pending, (state, { meta }) => {
+        for (const cat of state.categories) {
+          const task = cat.tasks.find(t => t._id === meta.arg);
+          if (task) { task.done = !task.done; break; }
+        }
+      })
+      .addCase(toggleTask.fulfilled, (state, { payload }) => { replaceCategories(state, [payload]); })
+      .addCase(toggleTask.rejected, (state, { meta }) => {
+        for (const cat of state.categories) {
+          const task = cat.tasks.find(t => t._id === meta.arg);
+          if (task) { task.done = !task.done; break; }
+        }
+      });
 
     builder
       .addCase(updateTask.pending,   state => { state.mutating = true; })
@@ -108,9 +123,24 @@ const checklistSlice = createSlice({
       .addCase(updateTask.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(deleteTask.pending,   state => { state.mutating = true; })
-      .addCase(deleteTask.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategories(state, [payload.category]); })
-      .addCase(deleteTask.rejected,  state => { state.mutating = false; });
+      // Optimistic delete: remove immediately, restore from snapshot on failure
+      .addCase(deleteTask.pending, (state, { meta }) => {
+        state.mutating  = true;
+        state._snapshot = current(state.categories);
+        for (const cat of state.categories) {
+          const idx = cat.tasks.findIndex(t => t._id === meta.arg);
+          if (idx !== -1) { cat.tasks.splice(idx, 1); break; }
+        }
+      })
+      .addCase(deleteTask.fulfilled, (state, { payload }) => {
+        state.mutating  = false;
+        state._snapshot = null;
+        replaceCategories(state, [payload.category]);
+      })
+      .addCase(deleteTask.rejected, state => {
+        state.mutating = false;
+        if (state._snapshot) { state.categories = state._snapshot; state._snapshot = null; }
+      });
   },
 });
 

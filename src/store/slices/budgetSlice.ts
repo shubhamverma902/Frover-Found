@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { BudgetCategory } from '@/constants/dashboard-pages';
 import {
@@ -12,19 +12,23 @@ import {
 // ── State ─────────────────────────────────────────────────
 
 interface BudgetState {
-  total:      number;
-  categories: BudgetCategory[];
-  status:   'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating: boolean;
-  error:    string | null;
+  total:             number;
+  categories:        BudgetCategory[];
+  status:            'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:          boolean;
+  error:             string | null;
+  _prevTotal:        number | null;       // rollback for updateTotal
+  _categorySnapshot: BudgetCategory | null; // rollback for updateAllocated / deleteExpense
 }
 
 const initialState: BudgetState = {
-  total:      0,
-  categories: [],
-  status:   'idle',
-  mutating: false,
-  error:    null,
+  total:             0,
+  categories:        [],
+  status:            'idle',
+  mutating:          false,
+  error:             null,
+  _prevTotal:        null,
+  _categorySnapshot: null,
 };
 
 // ── Thunks ────────────────────────────────────────────────
@@ -93,24 +97,74 @@ const budgetSlice = createSlice({
       .addCase(fetchBudget.rejected,  (state, { payload }) => { state.status = 'failed'; state.error = payload as string; });
 
     builder
-      .addCase(updateTotal.pending,   state => { state.mutating = true; })
-      .addCase(updateTotal.fulfilled, (state, { payload }) => { state.mutating = false; state.total = payload; })
-      .addCase(updateTotal.rejected,  state => { state.mutating = false; });
+      // Optimistic total: apply immediately, restore on failure
+      .addCase(updateTotal.pending, (state, { meta }) => {
+        state.mutating   = true;
+        state._prevTotal = state.total;
+        state.total      = meta.arg;
+      })
+      .addCase(updateTotal.fulfilled, (state, { payload }) => {
+        state.mutating   = false;
+        state._prevTotal = null;
+        state.total      = payload;
+      })
+      .addCase(updateTotal.rejected, state => {
+        state.mutating = false;
+        if (state._prevTotal !== null) { state.total = state._prevTotal; state._prevTotal = null; }
+      });
 
     builder
-      .addCase(updateAllocated.pending,   state => { state.mutating = true; })
-      .addCase(updateAllocated.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategory(state, payload); })
-      .addCase(updateAllocated.rejected,  state => { state.mutating = false; });
+      // Optimistic allocation: apply immediately, restore on failure
+      .addCase(updateAllocated.pending, (state, { meta }) => {
+        state.mutating = true;
+        const { categoryId, allocated } = meta.arg;
+        const cat = state.categories.find(c => c._id === categoryId);
+        if (cat) {
+          state._categorySnapshot = current(cat);
+          cat.allocated = allocated;
+        }
+      })
+      .addCase(updateAllocated.fulfilled, (state, { payload }) => {
+        state.mutating          = false;
+        state._categorySnapshot = null;
+        replaceCategory(state, payload);
+      })
+      .addCase(updateAllocated.rejected, state => {
+        state.mutating = false;
+        if (state._categorySnapshot) { replaceCategory(state, state._categorySnapshot); state._categorySnapshot = null; }
+      });
 
     builder
+      // addExpense stays pessimistic — needs the server-generated expense _id
       .addCase(addExpense.pending,   state => { state.mutating = true; })
       .addCase(addExpense.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategory(state, payload); })
       .addCase(addExpense.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(deleteExpense.pending,   state => { state.mutating = true; })
-      .addCase(deleteExpense.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategory(state, payload); })
-      .addCase(deleteExpense.rejected,  state => { state.mutating = false; });
+      // Optimistic expense delete: remove immediately, restore on failure
+      .addCase(deleteExpense.pending, (state, { meta }) => {
+        state.mutating = true;
+        const { categoryId, expenseId } = meta.arg;
+        const cat = state.categories.find(c => c._id === categoryId);
+        if (cat) {
+          state._categorySnapshot = current(cat);
+          const expIdx = cat.expenses.findIndex((e: { _id: string }) => e._id === expenseId);
+          if (expIdx !== -1) {
+            const removed = cat.expenses[expIdx];
+            cat.expenses.splice(expIdx, 1);
+            cat.spent = Math.max(0, cat.spent - (removed as { amount: number }).amount);
+          }
+        }
+      })
+      .addCase(deleteExpense.fulfilled, (state, { payload }) => {
+        state.mutating          = false;
+        state._categorySnapshot = null;
+        replaceCategory(state, payload);
+      })
+      .addCase(deleteExpense.rejected, state => {
+        state.mutating = false;
+        if (state._categorySnapshot) { replaceCategory(state, state._categorySnapshot); state._categorySnapshot = null; }
+      });
   },
 });
 

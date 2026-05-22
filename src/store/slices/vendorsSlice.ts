@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { Vendor } from '@/constants/dashboard-pages';
 import {
@@ -15,17 +15,21 @@ import {
 // ── State ─────────────────────────────────────────────────
 
 interface VendorsState {
-  items:    Vendor[];
-  status:   'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating: boolean;
-  error:    string | null;
+  items:          Vendor[];
+  status:         'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:       boolean;
+  error:          string | null;
+  _statusRollback: { vendorId: string; status: Vendor['status'] } | null;
+  _deletedVendor:  { vendor: Vendor; index: number } | null;
 }
 
 const initialState: VendorsState = {
-  items:    [],
-  status:   'idle',
-  mutating: false,
-  error:    null,
+  items:           [],
+  status:          'idle',
+  mutating:        false,
+  error:           null,
+  _statusRollback: null,
+  _deletedVendor:  null,
 };
 
 // ── Thunks ────────────────────────────────────────────────
@@ -116,14 +120,49 @@ const vendorsSlice = createSlice({
       .addCase(updateVendor.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(patchVendorStatus.pending,   state => { state.mutating = true; })
-      .addCase(patchVendorStatus.fulfilled, (state, { payload }) => { state.mutating = false; replaceVendor(state, payload); })
-      .addCase(patchVendorStatus.rejected,  state => { state.mutating = false; });
+      // Optimistic status: apply immediately, store old value, restore on failure
+      .addCase(patchVendorStatus.pending, (state, { meta }) => {
+        const { vendorId, status } = meta.arg;
+        const vendor = state.items.find(v => v._id === vendorId);
+        if (vendor) {
+          state._statusRollback = { vendorId, status: vendor.status };
+          vendor.status = status;
+        }
+      })
+      .addCase(patchVendorStatus.fulfilled, (state, { payload }) => {
+        state._statusRollback = null;
+        replaceVendor(state, payload);
+      })
+      .addCase(patchVendorStatus.rejected, state => {
+        if (state._statusRollback) {
+          const { vendorId, status } = state._statusRollback;
+          const vendor = state.items.find(v => v._id === vendorId);
+          if (vendor) vendor.status = status;
+          state._statusRollback = null;
+        }
+      });
 
     builder
-      .addCase(deleteVendor.pending,   state => { state.mutating = true; })
-      .addCase(deleteVendor.fulfilled, (state, { payload }) => { state.mutating = false; state.items = state.items.filter(v => v._id !== payload); })
-      .addCase(deleteVendor.rejected,  state => { state.mutating = false; });
+      // Optimistic delete: remove immediately, restore at original index on failure
+      .addCase(deleteVendor.pending, (state, { meta }) => {
+        state.mutating = true;
+        const idx = state.items.findIndex(v => v._id === meta.arg);
+        if (idx !== -1) {
+          state._deletedVendor = { vendor: current(state.items[idx]), index: idx };
+          state.items.splice(idx, 1);
+        }
+      })
+      .addCase(deleteVendor.fulfilled, state => {
+        state.mutating       = false;
+        state._deletedVendor = null;
+      })
+      .addCase(deleteVendor.rejected, state => {
+        state.mutating = false;
+        if (state._deletedVendor) {
+          state.items.splice(state._deletedVendor.index, 0, state._deletedVendor.vendor);
+          state._deletedVendor = null;
+        }
+      });
 
     builder
       .addCase(addVendorAttachment.fulfilled,    (state, { payload }) => { replaceVendor(state, payload); })

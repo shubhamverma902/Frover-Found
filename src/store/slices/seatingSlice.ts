@@ -1,23 +1,27 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
 import { fetchTablesApi, createTableApi, updateTableApi, deleteTableApi, assignGuestApi } from '@/api/seating.api';
 import { fetchGuestsApi } from '@/api/guests.api';
 
 interface SeatingState {
-  tables:   SeatingTable[];
-  guests:   Guest[];          // all guests, fetched once for assignment purposes
-  status:   'idle' | 'loading' | 'succeeded' | 'failed';
-  mutating: boolean;
-  error:    string | null;
+  tables:          SeatingTable[];
+  guests:          Guest[];
+  status:          'idle' | 'loading' | 'succeeded' | 'failed';
+  mutating:        boolean;
+  error:           string | null;
+  _tablesSnapshot: SeatingTable[] | null; // rollback for assignGuest
+  _deletedTable:   { table: SeatingTable; index: number } | null;
 }
 
 const initialState: SeatingState = {
-  tables:   [],
-  guests:   [],
-  status:   'idle',
-  mutating: false,
-  error:    null,
+  tables:          [],
+  guests:          [],
+  status:          'idle',
+  mutating:        false,
+  error:           null,
+  _tablesSnapshot: null,
+  _deletedTable:   null,
 };
 
 export const fetchSeating = createAsyncThunk(
@@ -94,21 +98,59 @@ const seatingSlice = createSlice({
       .addCase(updateTable.rejected,  state => { state.mutating = false; });
 
     builder
-      .addCase(deleteTable.pending,   state => { state.mutating = true; })
-      .addCase(deleteTable.fulfilled, (state, { payload: id }) => {
-        state.mutating = false;
-        state.tables   = state.tables.filter(t => t._id !== id);
+      // Optimistic delete: remove immediately, restore on failure
+      .addCase(deleteTable.pending, (state, { meta }) => {
+        state.mutating = true;
+        const idx = state.tables.findIndex(t => t._id === meta.arg);
+        if (idx !== -1) {
+          state._deletedTable = { table: current(state.tables[idx]), index: idx };
+          state.tables.splice(idx, 1);
+        }
       })
-      .addCase(deleteTable.rejected,  state => { state.mutating = false; });
+      .addCase(deleteTable.fulfilled, state => {
+        state.mutating      = false;
+        state._deletedTable = null;
+      })
+      .addCase(deleteTable.rejected, state => {
+        state.mutating = false;
+        if (state._deletedTable) {
+          state.tables.splice(state._deletedTable.index, 0, state._deletedTable.table);
+          state._deletedTable = null;
+        }
+      });
 
     builder
-      .addCase(assignGuest.fulfilled, (state, { payload }) => { state.tables = payload; });
+      // Optimistic drag-and-drop: move guest locally, sync with server truth on success
+      .addCase(assignGuest.pending, (state, { meta }) => {
+        const { guestId, tableId } = meta.arg;
+        state._tablesSnapshot = current(state.tables);
+        // Remove from every table first (mirrors the backend's $pull)
+        for (const table of state.tables) {
+          const i = table.guestIds.indexOf(guestId);
+          if (i !== -1) table.guestIds.splice(i, 1);
+        }
+        // Place into the target table
+        if (tableId) {
+          const target = state.tables.find(t => t._id === tableId);
+          if (target && !target.guestIds.includes(guestId)) target.guestIds.push(guestId);
+        }
+      })
+      .addCase(assignGuest.fulfilled, (state, { payload }) => {
+        state._tablesSnapshot = null;
+        state.tables = payload;
+      })
+      .addCase(assignGuest.rejected, state => {
+        if (state._tablesSnapshot) {
+          state.tables          = state._tablesSnapshot;
+          state._tablesSnapshot = null;
+        }
+      });
   },
 });
 
-export const selectSeatingTables  = (state: RootState) => state.seating.tables;
-export const selectSeatingGuests  = (state: RootState) => state.seating.guests;
-export const selectSeatingStatus  = (state: RootState) => state.seating.status;
+export const selectSeatingTables   = (state: RootState) => state.seating.tables;
+export const selectSeatingGuests   = (state: RootState) => state.seating.guests;
+export const selectSeatingStatus   = (state: RootState) => state.seating.status;
 export const selectSeatingMutating = (state: RootState) => state.seating.mutating;
 
 export const selectAssignedGuestIds = (state: RootState): Set<string> =>
