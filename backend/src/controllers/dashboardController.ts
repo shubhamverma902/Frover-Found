@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import User from '../models/User';
+import { ownerId } from '../helpers/authHelpers';
 import ChecklistCategory from '../models/Checklist';
 import { BudgetCategory } from '../models/Budget';
 import Guest from '../models/Guest';
@@ -12,7 +13,7 @@ import { fmtRelative, fmtDateLong } from '../helpers/dateHelpers';
 // GET /api/v1/dashboard
 export const getDashboard = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid = req.user!.id;
+    const uid = ownerId(req);
 
     const [user, checklistCats, budgetCats, guestCounts, vendorCounts, activities] = await Promise.all([
       User.findById(uid),

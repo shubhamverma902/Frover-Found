@@ -5,11 +5,12 @@ import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import logActivity from '../utils/logActivity';
 import { serializeGuest } from '../helpers/serializers';
+import { ownerId } from '../helpers/authHelpers';
 
 // GET /api/v1/guests?page=1&limit=10
 export const getGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid   = req.user!.id;
+    const uid   = ownerId(req);
     const page  = Math.max(1, Number(req.query.page)  || 1);
     const limit = Math.max(1, Number(req.query.limit) || 10);
     const skip  = (page - 1) * limit;
@@ -37,7 +38,7 @@ export const createGuest = async (req: AuthRequest, res: Response, next: NextFun
     if (!name?.trim()) return next(new ApiError(422, 'Guest name is required'));
 
     const guest = await Guest.create({
-      userId: req.user!.id,
+      userId: ownerId(req),
       name:     name.trim(),
       relation: relation?.trim() ?? '',
       phone:    phone?.trim()    ?? '',
@@ -46,7 +47,7 @@ export const createGuest = async (req: AuthRequest, res: Response, next: NextFun
       plusOne:  Boolean(plusOne),
     });
 
-    logActivity(req.user!.id, '👤', `Guest added: ${guest.name}`);
+    logActivity(ownerId(req), '👤', `Guest added: ${guest.name}`);
     sendSuccess(res, { guest: serializeGuest(guest) }, 'Guest added', 201);
   } catch (err) {
     next(err);
@@ -61,13 +62,14 @@ export const patchGuestRsvp = async (req: AuthRequest, res: Response, next: Next
       return next(new ApiError(422, 'Invalid RSVP value'));
 
     const guest = await Guest.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { rsvp },
       { new: true }
     );
     if (!guest) return next(new ApiError(404, 'Guest not found'));
-    if (rsvp === 'confirmed') logActivity(req.user!.id, '✉', `${guest.name} confirmed attendance`);
-    if (rsvp === 'declined')  logActivity(req.user!.id, '✉', `${guest.name} declined invitation`);
+    const uid = ownerId(req);
+    if (rsvp === 'confirmed') logActivity(uid, '✉', `${guest.name} confirmed attendance`);
+    if (rsvp === 'declined')  logActivity(uid, '✉', `${guest.name} declined invitation`);
     sendSuccess(res, { guest: serializeGuest(guest) });
   } catch (err) {
     next(err);
@@ -77,7 +79,7 @@ export const patchGuestRsvp = async (req: AuthRequest, res: Response, next: Next
 // DELETE /api/v1/guests/:id
 export const deleteGuest = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const guest = await Guest.findOneAndDelete({ _id: req.params.id, userId: req.user!.id });
+    const guest = await Guest.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!guest) return next(new ApiError(404, 'Guest not found'));
     sendSuccess(res, null, 'Guest removed');
   } catch (err) {

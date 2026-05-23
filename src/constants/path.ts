@@ -2,9 +2,10 @@ export const PATH = {
   home: '/',
 
   auth: {
-    base:   '/auth',
-    login:  '/auth/login',
-    signup: '/auth/signup',
+    base:         '/auth',
+    login:        '/auth/login',
+    signup:       '/auth/signup',
+    acceptInvite: '/auth/accept-invite',
   },
 
   onboarding: '/onboarding',

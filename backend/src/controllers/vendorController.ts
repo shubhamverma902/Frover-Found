@@ -8,13 +8,14 @@ import { AuthRequest } from '../types';
 import logActivity from '../utils/logActivity';
 import { serializeVendor } from '../helpers/serializers';
 import { UPLOADS_ROOT } from '../middleware/upload';
+import { ownerId } from '../helpers/authHelpers';
 
 const MAX_ATTACHMENTS = 5;
 
 // GET /api/v1/vendors?page=1&limit=10
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid   = req.user!.id;
+    const uid   = ownerId(req);
     const page  = Math.max(1, Number(req.query.page)  || 1);
     const limit = Math.max(1, Number(req.query.limit) || 10);
     const skip  = (page - 1) * limit;
@@ -45,7 +46,7 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
     if (!category?.trim()) return next(new ApiError(422, 'Category is required'));
 
     const vendor = await Vendor.create({
-      userId: req.user!.id,
+      userId: ownerId(req),
       icon:     icon     ?? '🏢',
       category: category.trim(),
       name:     name.trim(),
@@ -56,7 +57,7 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
       notes:    notes    ?? '',
     });
 
-    logActivity(req.user!.id, vendor.icon, `Vendor added: ${vendor.name} (${vendor.category})`);
+    logActivity(ownerId(req), vendor.icon, `Vendor added: ${vendor.name} (${vendor.category})`);
     sendSuccess(res, { vendor: serializeVendor(vendor) }, 'Vendor added', 201);
   } catch (err) { next(err); }
 };
@@ -69,7 +70,7 @@ export const updateVendor = async (req: AuthRequest, res: Response, next: NextFu
     if (!category?.trim()) return next(new ApiError(422, 'Category is required'));
 
     const vendor = await Vendor.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { icon, category: category.trim(), name: name.trim(), contact, location, status, rating: Number(rating), notes },
       { new: true, runValidators: true }
     );
@@ -86,12 +87,12 @@ export const patchVendorStatus = async (req: AuthRequest, res: Response, next: N
       return next(new ApiError(422, 'Invalid status'));
 
     const vendor = await Vendor.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { status },
       { new: true }
     );
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
-    if (status === 'booked') logActivity(req.user!.id, vendor.icon, `Vendor booked: ${vendor.name}`);
+    if (status === 'booked') logActivity(ownerId(req), vendor.icon, `Vendor booked: ${vendor.name}`);
     sendSuccess(res, { vendor: serializeVendor(vendor) });
   } catch (err) { next(err); }
 };
@@ -99,7 +100,7 @@ export const patchVendorStatus = async (req: AuthRequest, res: Response, next: N
 // DELETE /api/v1/vendors/:id
 export const deleteVendor = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const vendor = await Vendor.findOneAndDelete({ _id: req.params.id, userId: req.user!.id });
+    const vendor = await Vendor.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
     sendSuccess(res, null, 'Vendor removed');
   } catch (err) { next(err); }
@@ -108,7 +109,7 @@ export const deleteVendor = async (req: AuthRequest, res: Response, next: NextFu
 // POST /api/v1/vendors/:id/attachments
 export const addVendorAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const vendor = await Vendor.findOne({ _id: req.params.id, userId: req.user!.id });
+    const vendor = await Vendor.findOne({ _id: req.params.id, userId: ownerId(req) });
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
     if (!req.file)  return next(new ApiError(400, 'No file uploaded'));
     if (vendor.attachments.length >= MAX_ATTACHMENTS)
@@ -132,7 +133,7 @@ export const addVendorAttachment = async (req: AuthRequest, res: Response, next:
 // DELETE /api/v1/vendors/:id/attachments/:fileId
 export const removeVendorAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const vendor = await Vendor.findOne({ _id: req.params.id, userId: req.user!.id });
+    const vendor = await Vendor.findOne({ _id: req.params.id, userId: ownerId(req) });
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
 
     const att = vendor.attachments.id(String(req.params.fileId));

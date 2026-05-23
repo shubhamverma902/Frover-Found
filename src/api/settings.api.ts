@@ -52,3 +52,21 @@ export const updateNotificationsApi = async (prefs: Record<string, boolean>): Pr
 export const deleteAccountApi = async (): Promise<void> => {
   await axiosInstance.delete(API.settings.account);
 };
+
+export interface LinkedPartnerData {
+  id:       string;
+  name:     string;
+  email:    string;
+  linkedAt: string;
+}
+
+export interface PartnerStatusData {
+  linked:  LinkedPartnerData | null;
+  pending: { email: string; expiresAt: string } | null;
+}
+
+export interface InviteResult {
+  inviteUrl: string;
+  email:     string;
+  expiresAt: string;
+}

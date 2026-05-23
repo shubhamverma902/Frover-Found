@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 // ── Wedding profile sub-document ─────────────────────────────
@@ -40,6 +40,13 @@ export interface IUser extends Document {
   onboardingCompleted:  boolean;
   weddingProfile:       IWeddingProfile | null;
   notificationPrefs:    Map<string, boolean>;
+  // Partner linking
+  linkedPartner?:       mongoose.Types.ObjectId;
+  linkedAt?:            Date;
+  pendingInviteEmail?:  string;
+  partnerInviteToken?:  string;
+  partnerInviteExpiry?: Date;
+  dataOwner?:           mongoose.Types.ObjectId; // set on secondary account; primary has none
   createdAt:            Date;
   updatedAt:            Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -55,6 +62,12 @@ const userSchema = new Schema<IUser>(
     onboardingCompleted: { type: Boolean, default: false },
     weddingProfile:      { type: weddingProfileSchema, default: null },
     notificationPrefs:   { type: Map, of: Boolean, default: {} },
+    linkedPartner:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    linkedAt:            { type: Date, default: null },
+    pendingInviteEmail:  { type: String, default: null },
+    partnerInviteToken:  { type: String, default: null },
+    partnerInviteExpiry: { type: Date,   default: null },
+    dataOwner:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   },
   { timestamps: true }
 );

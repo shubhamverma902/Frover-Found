@@ -9,6 +9,7 @@ import { AuthRequest } from '../types';
 import { serializeEvent } from '../helpers/serializers';
 import { EVENT_SEED_NAMES } from '../constants/eventSeeds';
 import { UPLOADS_ROOT } from '../middleware/upload';
+import { ownerId } from '../helpers/authHelpers';
 
 const MAX_ATTACHMENTS = 5;
 
@@ -17,7 +18,7 @@ const MAX_ATTACHMENTS = 5;
 // from the user's onboarding wedding profile.
 export const getEvents = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid   = req.user!.id;
+    const uid   = ownerId(req);
     const page  = Math.max(1, Number(req.query.page)  || 1);
     const limit = Math.max(1, Number(req.query.limit) || 20);
     const skip  = (page - 1) * limit;
@@ -70,7 +71,7 @@ export const createEvent = async (req: AuthRequest, res: Response, next: NextFun
     if (!name?.trim() || !date) return next(new ApiError(422, 'Name and date are required'));
 
     const event = await Event.create({
-      userId: req.user!.id,
+      userId: ownerId(req),
       name:   name.trim(),
       date:   new Date(date),
       time:   time ?? '',
@@ -92,7 +93,7 @@ export const updateEvent = async (req: AuthRequest, res: Response, next: NextFun
     const { name, date, time, venue, guests, status, desc } = req.body;
 
     const event = await Event.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       {
         name:   name?.trim(),
         date:   date ? new Date(date) : undefined,
@@ -121,7 +122,7 @@ export const patchEventStatus = async (req: AuthRequest, res: Response, next: Ne
     }
 
     const event = await Event.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { status },
       { new: true }
     );
@@ -136,7 +137,7 @@ export const patchEventStatus = async (req: AuthRequest, res: Response, next: Ne
 // DELETE /api/v1/events/:id
 export const deleteEvent = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const event = await Event.findOneAndDelete({ _id: req.params.id, userId: req.user!.id });
+    const event = await Event.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!event) return next(new ApiError(404, 'Event not found'));
     sendSuccess(res, { id: req.params.id }, 'Event deleted');
   } catch (err) {
@@ -147,7 +148,7 @@ export const deleteEvent = async (req: AuthRequest, res: Response, next: NextFun
 // POST /api/v1/events/:id/attachments
 export const addEventAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const event = await Event.findOne({ _id: req.params.id, userId: req.user!.id });
+    const event = await Event.findOne({ _id: req.params.id, userId: ownerId(req) });
     if (!event) return next(new ApiError(404, 'Event not found'));
     if (!req.file)  return next(new ApiError(400, 'No file uploaded'));
     if (event.attachments.length >= MAX_ATTACHMENTS)
@@ -171,7 +172,7 @@ export const addEventAttachment = async (req: AuthRequest, res: Response, next: 
 // DELETE /api/v1/events/:id/attachments/:fileId
 export const removeEventAttachment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const event = await Event.findOne({ _id: req.params.id, userId: req.user!.id });
+    const event = await Event.findOne({ _id: req.params.id, userId: ownerId(req) });
     if (!event) return next(new ApiError(404, 'Event not found'));
 
     const att = event.attachments.id(String(req.params.fileId));

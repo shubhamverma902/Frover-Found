@@ -6,6 +6,7 @@ import { sendSuccess } from "../utils/ApiResponse";
 import { AuthRequest } from "../types";
 import logActivity from "../utils/logActivity";
 import { serializeBudgetCategory } from "../helpers/serializers";
+import { ownerId } from "../helpers/authHelpers";
 
 // GET /api/v1/budget
 export const getBudget = async (
@@ -14,7 +15,7 @@ export const getBudget = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const uid = req.user!.id;
+    const uid = ownerId(req);
 
     const [user, existingCats] = await Promise.all([
       User.findById(uid),
@@ -45,7 +46,7 @@ export const updateTotal = async (
       return next(new ApiError(422, "Total must be a positive number"));
 
     const user = await User.findByIdAndUpdate(
-      req.user!.id,
+      ownerId(req),
       { "weddingProfile.budget": Number(total) },
       { new: true },
     );
@@ -68,7 +69,7 @@ export const updateAllocated = async (
       return next(new ApiError(422, "Allocated must be ≥ 0"));
 
     const cat = await BudgetCategory.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { allocated: Number(allocated) },
       { new: true },
     );
@@ -91,8 +92,9 @@ export const addExpense = async (
     if (!amount || Number(amount) <= 0)
       return next(new ApiError(422, "Amount must be positive"));
 
+    const uid = ownerId(req);
     const cat = await BudgetCategory.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: uid },
       {
         $push: {
           expenses: {
@@ -107,7 +109,7 @@ export const addExpense = async (
 
     if (!cat) return next(new ApiError(404, "Category not found"));
     logActivity(
-      req.user!.id,
+      uid,
       "₹",
       `Expense recorded: ₹${Number(amount).toLocaleString("en-IN")} in ${cat.category}`,
     );
@@ -130,7 +132,7 @@ export const deleteExpense = async (
 ): Promise<void> => {
   try {
     const cat = await BudgetCategory.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user!.id },
+      { _id: req.params.id, userId: ownerId(req) },
       { $pull: { expenses: { _id: req.params.expId } } },
       { new: true },
     );

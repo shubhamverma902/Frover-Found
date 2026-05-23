@@ -21,6 +21,7 @@ import {
   ProfileSection,
   WeddingSection,
   NotificationsSection,
+  PartnerSection,
   PlanBillingSection,
   DangerZone,
 } from '@/features/settings';
@@ -70,6 +71,7 @@ const SettingsPage = () => {
           <ProfileSection     profile={profile}       saving={saving} showSaved={saved === 'profile'} onSave={handleSaveProfile} />
           <WeddingSection     wedding={wedding}        saving={saving} showSaved={saved === 'wedding'} onSave={handleSaveWedding} />
           <NotificationsSection notifications={notifications} onToggle={handleToggle} />
+          <PartnerSection />
           <PlanBillingSection />
           <DangerZone         onSignOut={handleSignOut} onDeleteAccount={handleDeleteAccount} />
         </>

@@ -13,7 +13,7 @@ import type { GuestsData } from "@/api/guests.api";
 import type { VendorsData } from "@/api/vendors.api";
 import type { EventsData } from "@/api/events.api";
 import type { BudgetData } from "@/api/budget.api";
-import type { SettingsData } from "@/api/settings.api";
+import type { SettingsData, PartnerStatusData, InviteResult } from "@/api/settings.api";
 import type { NotificationsData } from "@/api/notifications.api";
 import type { DashboardData } from "@/api/dashboard.api";
 
@@ -38,6 +38,7 @@ export const api = createApi({
     "Settings",
     "Notifications",
     "Dashboard",
+    "Partner",
   ],
 
   endpoints: (build) => ({
@@ -120,6 +121,27 @@ export const api = createApi({
       query: () => ({ url: API.dashboard }),
       providesTags: ["Dashboard"],
     }),
+
+    // ── Partner ──────────────────────────────────────────────────────────────
+    getPartner: build.query<PartnerStatusData, void>({
+      query: () => ({ url: API.settings.partner }),
+      providesTags: ["Partner"],
+    }),
+
+    invitePartner: build.mutation<InviteResult, { email: string }>({
+      query: (body) => ({ url: API.settings.partnerInvite, method: "POST", data: body }),
+      invalidatesTags: ["Partner"],
+    }),
+
+    acceptInvite: build.mutation<{ token: string }, { token: string }>({
+      query: (body) => ({ url: API.settings.partnerAccept, method: "POST", data: body }),
+      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+    }),
+
+    removePartner: build.mutation<{ token: string }, void>({
+      query: () => ({ url: API.settings.partner, method: "DELETE" }),
+      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+    }),
   }),
 });
 
@@ -134,4 +156,8 @@ export const {
   useGetSettingsQuery,
   useGetNotificationsQuery,
   useGetDashboardQuery,
+  useGetPartnerQuery,
+  useInvitePartnerMutation,
+  useAcceptInviteMutation,
+  useRemovePartnerMutation,
 } = api;

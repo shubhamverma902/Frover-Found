@@ -6,11 +6,12 @@ import { AuthRequest } from '../types';
 import logActivity from '../utils/logActivity';
 import { serializeChecklistCategory } from '../helpers/serializers';
 import { SEED_CATEGORIES } from '../constants/checklistSeeds';
+import { ownerId } from '../helpers/authHelpers';
 
 // GET /api/v1/checklist
 export const getChecklist = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const uid = req.user!.id;
+    const uid = ownerId(req);
     let cats = await ChecklistCategory.find({ userId: uid }).sort({ createdAt: 1 });
 
     if (cats.length === 0) {
@@ -33,7 +34,7 @@ export const createTask = async (req: AuthRequest, res: Response, next: NextFunc
     if (!label?.trim() || !category) return next(new ApiError(422, 'Category and label are required'));
 
     const cat = await ChecklistCategory.findOneAndUpdate(
-      { userId: req.user!.id, category },
+      { userId: ownerId(req), category },
       { $push: { tasks: { label: label.trim(), due: due ?? 'No due date', done: false } } },
       { new: true }
     );
@@ -48,8 +49,9 @@ export const createTask = async (req: AuthRequest, res: Response, next: NextFunc
 // PATCH /api/v1/checklist/tasks/:taskId/toggle
 export const toggleTask = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const uid = ownerId(req);
     const cat = await ChecklistCategory.findOne({
-      userId: req.user!.id,
+      userId: uid,
       'tasks._id': req.params.taskId,
     });
     if (!cat) return next(new ApiError(404, 'Task not found'));
@@ -58,7 +60,7 @@ export const toggleTask = async (req: AuthRequest, res: Response, next: NextFunc
     if (!task) return next(new ApiError(404, 'Task not found'));
     task.done = !task.done;
     await cat.save();
-    if (task.done) logActivity(req.user!.id, '✓', `Task completed: ${task.label}`);
+    if (task.done) logActivity(uid, '✓', `Task completed: ${task.label}`);
     sendSuccess(res, { category: serializeChecklistCategory(cat) });
   } catch (err) {
     next(err);
@@ -69,7 +71,7 @@ export const toggleTask = async (req: AuthRequest, res: Response, next: NextFunc
 export const updateTask = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { label, due, category: newCategory, originalCategory } = req.body;
-    const uid = req.user!.id;
+    const uid = ownerId(req);
     if (!label?.trim()) return next(new ApiError(422, 'Label is required'));
 
     if (!newCategory || !originalCategory || originalCategory === newCategory) {
@@ -109,7 +111,7 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
 export const deleteTask = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const cat = await ChecklistCategory.findOneAndUpdate(
-      { userId: req.user!.id, 'tasks._id': req.params.taskId },
+      { userId: ownerId(req), 'tasks._id': req.params.taskId },
       { $pull: { tasks: { _id: req.params.taskId } } },
       { new: true }
     );

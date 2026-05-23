@@ -8,3 +8,4 @@ export { WeddingSection       } from './WeddingSection';
 export { NotificationsSection } from './NotificationsSection';
 export { PlanBillingSection   } from './PlanBillingSection';
 export { DangerZone           } from './DangerZone';
+export { PartnerSection       } from './PartnerSection';

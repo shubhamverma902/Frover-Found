@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Response, NextFunction } from 'express';
 import User from '../models/User';
 import ApiError from '../utils/ApiError';
@@ -5,6 +6,7 @@ import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { NOTIFICATION_DEFAULTS } from '../constants/notifications';
 import { fmtDateISO } from '../helpers/dateHelpers';
+import { signToken } from '../helpers/authHelpers';
 
 // GET /api/v1/settings
 export const getSettings = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -118,5 +120,136 @@ export const deleteAccount = async (req: AuthRequest, res: Response, next: NextF
   try {
     await User.findByIdAndDelete(req.user!.id);
     sendSuccess(res, null, 'Account deleted');
+  } catch (err) { next(err); }
+};
+
+// ── Partner invite ─────────────────────────────────────────────────────────────
+
+// GET /api/v1/settings/partner
+export const getPartner = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = await User.findById(req.user!.id).populate<{
+      linkedPartner: { _id: unknown; name: string; email: string } | null;
+    }>('linkedPartner', 'name email');
+
+    if (!user) return next(new ApiError(404, 'User not found'));
+
+    const linked = user.linkedPartner
+      ? {
+          id:       String(user.linkedPartner._id),
+          name:     user.linkedPartner.name,
+          email:    user.linkedPartner.email,
+          linkedAt: user.linkedAt?.toISOString() ?? '',
+        }
+      : null;
+
+    const pending = user.pendingInviteEmail
+      ? { email: user.pendingInviteEmail, expiresAt: user.partnerInviteExpiry?.toISOString() ?? '' }
+      : null;
+
+    sendSuccess(res, { linked, pending });
+  } catch (err) { next(err); }
+};
+
+// POST /api/v1/settings/partner/invite
+export const invitePartner = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email?.trim()) return next(new ApiError(422, 'Email is required'));
+    if (email.trim().toLowerCase() === req.user!.email.toLowerCase())
+      return next(new ApiError(422, 'You cannot invite yourself'));
+
+    const me = await User.findById(req.user!.id);
+    if (!me) return next(new ApiError(404, 'User not found'));
+    if (me.linkedPartner)
+      return next(new ApiError(409, 'You already have a linked partner. Remove them first.'));
+
+    const token  = crypto.randomBytes(32).toString('hex');
+    const expiry = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 h
+
+    await User.findByIdAndUpdate(req.user!.id, {
+      partnerInviteToken:  token,
+      partnerInviteExpiry: expiry,
+      pendingInviteEmail:  email.trim().toLowerCase(),
+    });
+
+    const appUrl    = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const inviteUrl = `${appUrl}/auth/accept-invite?token=${token}`;
+
+    sendSuccess(res, {
+      inviteUrl,
+      email:     email.trim().toLowerCase(),
+      expiresAt: expiry.toISOString(),
+    }, 'Invite created');
+  } catch (err) { next(err); }
+};
+
+// POST /api/v1/settings/partner/accept
+export const acceptInvite = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { token } = req.body;
+    if (!token) return next(new ApiError(422, 'Token is required'));
+
+    const inviter = await User.findOne({
+      partnerInviteToken:  token,
+      partnerInviteExpiry: { $gt: new Date() },
+    });
+    if (!inviter) return next(new ApiError(404, 'Invite not found or has expired'));
+    if (String(inviter._id) === req.user!.id)
+      return next(new ApiError(422, 'You cannot accept your own invite'));
+
+    const me = await User.findById(req.user!.id);
+    if (!me) return next(new ApiError(404, 'User not found'));
+    if (me.linkedPartner)
+      return next(new ApiError(409, 'Your account is already linked to a partner'));
+
+    const now = new Date();
+
+    await Promise.all([
+      // Inviter becomes primary: clear invite fields, set link
+      User.findByIdAndUpdate(inviter._id, {
+        linkedPartner:       me._id,
+        linkedAt:            now,
+        partnerInviteToken:  null,
+        partnerInviteExpiry: null,
+        pendingInviteEmail:  null,
+      }),
+      // Acceptor becomes secondary: dataOwner → inviter
+      User.findByIdAndUpdate(me._id, {
+        linkedPartner: inviter._id,
+        linkedAt:      now,
+        dataOwner:     inviter._id,
+      }),
+    ]);
+
+    // Issue a new token that encodes the secondary user's dataOwnerId
+    const newToken = signToken(req.user!.id, req.user!.email, req.user!.role, String(inviter._id));
+    sendSuccess(res, { token: newToken }, 'Partner linked successfully');
+  } catch (err) { next(err); }
+};
+
+// DELETE /api/v1/settings/partner
+export const removePartner = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const me = await User.findById(req.user!.id);
+    if (!me) return next(new ApiError(404, 'User not found'));
+    if (!me.linkedPartner) return next(new ApiError(404, 'No linked partner to remove'));
+
+    const partnerId = me.linkedPartner;
+
+    await Promise.all([
+      User.findByIdAndUpdate(req.user!.id, {
+        linkedPartner: null, linkedAt: null, dataOwner: null,
+        partnerInviteToken: null, partnerInviteExpiry: null, pendingInviteEmail: null,
+      }),
+      User.findByIdAndUpdate(partnerId, {
+        linkedPartner: null, linkedAt: null, dataOwner: null,
+        partnerInviteToken: null, partnerInviteExpiry: null, pendingInviteEmail: null,
+      }),
+    ]);
+
+    // Issue a fresh token without dataOwnerId
+    const newToken = signToken(req.user!.id, req.user!.email, me.role);
+    sendSuccess(res, { token: newToken }, 'Partner removed');
   } catch (err) { next(err); }
 };

@@ -25,11 +25,16 @@ const LoginPage = () => {
   const [password,    setPassword]    = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect: onboarding first if not yet completed, otherwise dashboard
+  // Redirect: if a pending invite was saved before login, go accept it first
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push(user?.onboardingCompleted ? PATH.dashboard.base : PATH.onboarding);
+    if (!isAuthenticated) return;
+    const pendingToken = sessionStorage.getItem('pendingInviteToken');
+    if (pendingToken) {
+      sessionStorage.removeItem('pendingInviteToken');
+      router.push(`${PATH.auth.acceptInvite}?token=${pendingToken}`);
+      return;
     }
+    router.push(user?.onboardingCompleted ? PATH.dashboard.base : PATH.onboarding);
   }, [isAuthenticated, user, router]);
 
   const handleSubmit = (e: React.SyntheticEvent) => {

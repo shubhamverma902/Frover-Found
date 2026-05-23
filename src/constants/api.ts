@@ -64,6 +64,9 @@ export const API = {
     wedding:       '/settings/wedding',
     notifications: '/settings/notifications',
     account:       '/settings/account',
+    partner:       '/settings/partner',
+    partnerInvite: '/settings/partner/invite',
+    partnerAccept: '/settings/partner/accept',
   },
 
   notifications: {

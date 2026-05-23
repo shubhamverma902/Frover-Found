@@ -3,6 +3,7 @@ import SeatingTable from '../models/SeatingTable';
 import { sendSuccess } from '../utils/ApiResponse';
 import ApiError from '../utils/ApiError';
 import type { AuthRequest } from '../types';
+import { ownerId } from '../helpers/authHelpers';
 
 const serialize = (t: InstanceType<typeof SeatingTable>) => ({
   _id:      String(t._id),
@@ -15,7 +16,7 @@ const serialize = (t: InstanceType<typeof SeatingTable>) => ({
 // GET /api/v1/seating
 export const getTables = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const tables = await SeatingTable.find({ userId: req.user!.id }).sort({ createdAt: 1 });
+    const tables = await SeatingTable.find({ userId: ownerId(req) }).sort({ createdAt: 1 });
     sendSuccess(res, { tables: tables.map(serialize) });
   } catch (err) { next(err); }
 };
@@ -25,7 +26,7 @@ export const createTable = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const { name, capacity = 8, shape = 'round' } = req.body;
     if (!name?.trim()) return next(new ApiError(400, 'Table name is required'));
-    const table = await SeatingTable.create({ userId: req.user!.id, name: name.trim(), capacity, shape });
+    const table = await SeatingTable.create({ userId: ownerId(req), name: name.trim(), capacity, shape });
     sendSuccess(res, { table: serialize(table) }, 'Table created', 201);
   } catch (err) { next(err); }
 };
@@ -34,7 +35,7 @@ export const createTable = async (req: AuthRequest, res: Response, next: NextFun
 export const updateTable = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, capacity, shape } = req.body;
-    const table = await SeatingTable.findOne({ _id: req.params.id, userId: req.user!.id });
+    const table = await SeatingTable.findOne({ _id: req.params.id, userId: ownerId(req) });
     if (!table) return next(new ApiError(404, 'Table not found'));
     if (name     !== undefined) table.name     = String(name).trim();
     if (capacity !== undefined) table.capacity = Number(capacity);
@@ -47,7 +48,7 @@ export const updateTable = async (req: AuthRequest, res: Response, next: NextFun
 // DELETE /api/v1/seating/:id
 export const deleteTable = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const table = await SeatingTable.findOneAndDelete({ _id: req.params.id, userId: req.user!.id });
+    const table = await SeatingTable.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!table) return next(new ApiError(404, 'Table not found'));
     sendSuccess(res, null, 'Table removed');
   } catch (err) { next(err); }
@@ -64,13 +65,13 @@ export const assignGuest = async (req: AuthRequest, res: Response, next: NextFun
 
     // Remove guest from every table they're currently in
     await SeatingTable.updateMany(
-      { userId: req.user!.id, guestIds: guestId },
+      { userId: ownerId(req), guestIds: guestId },
       { $pull: { guestIds: guestId } }
     );
 
     // Add to target table (if provided)
     if (tableId) {
-      const target = await SeatingTable.findOne({ _id: tableId, userId: req.user!.id });
+      const target = await SeatingTable.findOne({ _id: tableId, userId: ownerId(req) });
       if (!target) return next(new ApiError(404, 'Target table not found'));
       if (!target.guestIds.includes(guestId)) {
         target.guestIds.push(guestId);
@@ -78,7 +79,7 @@ export const assignGuest = async (req: AuthRequest, res: Response, next: NextFun
       }
     }
 
-    const tables = await SeatingTable.find({ userId: req.user!.id }).sort({ createdAt: 1 });
+    const tables = await SeatingTable.find({ userId: ownerId(req) }).sort({ createdAt: 1 });
     sendSuccess(res, { tables: tables.map(serialize) });
   } catch (err) { next(err); }
 };
