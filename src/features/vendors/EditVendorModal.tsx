@@ -109,7 +109,7 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90vh]">
+    <Modal onClose={onClose} className="flex flex-col max-h-[90svh]">
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
         <div>
           <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Vendors</p>
@@ -160,7 +160,7 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
           </div>
 
           {/* Contact & Location */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Contact</FieldLabel>
               <Input variant="dark" value={contact} onChange={e => setContact(e.target.value)} />

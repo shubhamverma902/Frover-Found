@@ -43,14 +43,18 @@ const Modal = ({ onClose, children, maxWidth = 'max-w-lg', className = '' }: Mod
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    // Outer div scrolls on mobile when the modal is taller than the viewport.
+    <div className="fixed inset-0 z-[200] overflow-y-auto bg-black/70 backdrop-blur-sm">
+      {/* Inner div handles centering and is the click-outside target. */}
       <div
-        className={`w-full ${maxWidth} bg-[#23292E] border border-[#E4BC62]/25 shadow-2xl shadow-black/60 overflow-hidden ${className}`}
+        className="flex min-h-full items-center justify-center p-3 sm:p-4"
+        onClick={e => { if (e.target === e.currentTarget) onClose(); }}
       >
-        {children}
+        <div
+          className={`w-full ${maxWidth} bg-[#23292E] border border-[#E4BC62]/25 shadow-2xl shadow-black/60 ${className}`}
+        >
+          {children}
+        </div>
       </div>
     </div>,
     document.body,

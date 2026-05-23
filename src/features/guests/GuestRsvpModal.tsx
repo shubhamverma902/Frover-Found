@@ -37,7 +37,7 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
   })();
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90vh]">
+    <Modal onClose={onClose} className="flex flex-col max-h-[90svh]">
 
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
@@ -48,7 +48,7 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
         <Button variant="close" onClick={onClose}>✕</Button>
       </div>
 
-      <div className="px-6 pt-5 pb-6 space-y-5">
+      <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-6 space-y-5">
 
         {/* Guest identity */}
         <div className="flex items-center gap-4 p-4 bg-[#E4BC62]/8 border border-[#E4BC62]/20">

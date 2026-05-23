@@ -49,7 +49,7 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
   const loading = mutating;
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90vh] relative">
+    <Modal onClose={onClose} className="flex flex-col max-h-[90svh] relative">
 
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -86,7 +86,7 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
             {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Date <span className="text-[#DFB3AE]">*</span></FieldLabel>
               <Input variant="dark" type="date" className="[color-scheme:dark]"
@@ -111,7 +111,7 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
             {errors.venue && <p className="text-xs text-red-400 mt-1">{errors.venue}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Expected Guests</FieldLabel>
               <Input variant="dark" type="number" min={0} placeholder="0"
