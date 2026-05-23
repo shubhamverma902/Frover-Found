@@ -122,7 +122,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
   const loading = mutating;
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90svh] relative">
+    <Modal onClose={onClose} aria-label="Edit event" className="flex flex-col max-h-[90svh] relative">
 
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

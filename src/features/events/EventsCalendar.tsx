@@ -301,7 +301,7 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
                 weekday: 'long', month: 'long', day: 'numeric',
               })}
             </p>
-            <button onClick={() => setSelectedDay(null)} className="text-[#DDDED9]/30 hover:text-[#DDDED9] transition-colors text-xs ml-1">✕</button>
+            <button aria-label="Clear selected day" onClick={() => setSelectedDay(null)} className="text-[#DDDED9]/30 hover:text-[#DDDED9] transition-colors text-xs ml-1">✕</button>
           </div>
           {selectedEvents.map(e => {
             const meta = STATUS_META[e.status];

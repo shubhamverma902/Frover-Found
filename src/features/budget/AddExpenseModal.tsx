@@ -41,7 +41,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90svh]">
+    <Modal onClose={onClose} aria-label="Add expense" className="flex flex-col max-h-[90svh]">
 
       {/* Header — fixed */}
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
@@ -57,9 +57,9 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
 
           {/* API error */}
           {submitErr && (
-            <div className="flex items-center justify-between gap-3 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#DFB3AE]">
+            <div role="alert" className="flex items-center justify-between gap-3 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#DFB3AE]">
               <span>{submitErr}</span>
-              <button type="button" onClick={() => setSubmitErr('')} className="shrink-0 hover:text-white transition-colors">✕</button>
+              <button type="button" aria-label="Dismiss error" onClick={() => setSubmitErr('')} className="shrink-0 hover:text-white transition-colors">✕</button>
             </div>
           )}
 

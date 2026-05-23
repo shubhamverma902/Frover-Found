@@ -17,14 +17,14 @@ export const AddTableModal = ({ onSave, onClose, saving }: Props) => {
   const [shape,    setShape]    = useState<SeatingTable['shape']>('round');
   const [nameErr,  setNameErr]  = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) { setNameErr('Required'); return; }
     onSave({ name: name.trim(), capacity, shape });
   };
 
   return (
-    <Modal onClose={onClose} maxWidth="max-w-sm" className="flex flex-col max-h-[90svh]">
+    <Modal onClose={onClose} maxWidth="max-w-sm" aria-label="Add table" className="flex flex-col max-h-[90svh]">
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
         <div>
           <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Seating</p>

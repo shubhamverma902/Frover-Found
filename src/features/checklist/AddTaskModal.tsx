@@ -30,7 +30,7 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} className="flex flex-col max-h-[90svh]">
+    <Modal onClose={onClose} aria-label="Add new task" className="flex flex-col max-h-[90svh]">
 
       {/* Header — fixed */}
       <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">

@@ -103,9 +103,9 @@ const LoginPage = () => {
 
             {/* Error message */}
             {error && (
-              <div className="mb-5 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
+              <div role="alert" className="mb-5 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
                 <span>{error}</span>
-                <button onClick={() => dispatch(clearError())} className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors">✕</button>
+                <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors">✕</button>
               </div>
             )}
 

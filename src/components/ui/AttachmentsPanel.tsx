@@ -46,6 +46,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
       {/* close */}
       <button
         type="button"
+        aria-label="Close preview"
         onClick={onClose}
         className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors text-sm z-10"
       >
@@ -56,6 +57,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
       {attachments.length > 1 && (
         <button
           type="button"
+          aria-label="Previous image"
           onClick={e => { e.stopPropagation(); prev(); }}
           className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
         >
@@ -100,6 +102,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
       {attachments.length > 1 && (
         <button
           type="button"
+          aria-label="Next image"
           onClick={e => { e.stopPropagation(); next(); }}
           className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
         >
@@ -229,8 +232,8 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                   <button
                     type="button"
                     onClick={() => openLightbox(att)}
+                    aria-label={`Preview ${att.originalName}`}
                     className="shrink-0 w-9 h-9 overflow-hidden border border-[#DDDED9]/10 hover:border-[#E4BC62]/40 transition-colors group relative"
-                    title="Preview"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -246,8 +249,8 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
+                    aria-label={`Open ${att.originalName}`}
                     className="shrink-0 w-9 h-9 flex items-center justify-center bg-red-900/20 border border-red-900/30 hover:border-red-500/50 hover:bg-red-900/30 transition-colors"
-                    title="Open PDF"
                   >
                     <span className="text-[9px] font-black text-red-400/70 leading-none">PDF</span>
                   </a>
@@ -301,8 +304,8 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     type="button"
                     onClick={() => setPendingDelete(att._id)}
                     disabled={uploading}
+                    aria-label={`Remove ${att.originalName}`}
                     className="shrink-0 w-6 h-6 flex items-center justify-center text-[#DDDED9]/25 hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 text-[10px] leading-none"
-                    title="Remove file"
                   >
                     ✕
                   </button>

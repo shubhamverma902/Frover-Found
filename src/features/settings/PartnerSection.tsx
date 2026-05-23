@@ -123,7 +123,7 @@ export const PartnerSection = () => {
               Expires {new Date(pending.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
           <button
             onClick={handleResend}
             disabled={inviting}
@@ -160,7 +160,7 @@ export const PartnerSection = () => {
           <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 leading-relaxed">
             Invite your partner to link accounts. Once linked, you both see and edit the same wedding plan.
           </p>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
           <form onSubmit={handleInvite} className="flex items-center gap-2">
             <input
               type="email"

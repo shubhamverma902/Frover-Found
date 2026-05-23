@@ -141,7 +141,7 @@ export const CollaboratorsSection = () => {
           <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 leading-relaxed">
             Give family members or wedding planners access. Choose their role carefully — Planners can make changes, Viewers can only look.
           </p>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
 
           {/* Role picker */}
           <div className="grid grid-cols-2 gap-2">

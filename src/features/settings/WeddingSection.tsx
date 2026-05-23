@@ -46,7 +46,7 @@ export const WeddingSection = ({ wedding, saving, showSaved, onSave }: Props) =>
           </div>
           <div className="flex items-center gap-3">
             <SettingsSaveBtn saving={saving === 'wedding'} label="Save Details" />
-            {showSaved && <span className="text-[11px] font-semibold text-[#E4BC62] animate-fade-in-up">✓ Saved</span>}
+            {showSaved && <span role="status" className="text-[11px] font-semibold text-[#E4BC62] animate-fade-in-up">✓ Saved</span>}
           </div>
         </form>
       ) : (

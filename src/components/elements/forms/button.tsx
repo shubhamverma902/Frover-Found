@@ -44,6 +44,13 @@ export function Button({
     ...style,
   };
 
+  // Close buttons contain only a symbol (✕) — provide a default accessible label
+  // so every modal dismiss button is usable by screen-reader / keyboard-only users
+  // without requiring every call site to remember aria-label.
+  if (variant === 'close' && !props['aria-label']) {
+    props = { ...props, 'aria-label': 'Close' };
+  }
+
   const isModal   = variant in modalVariants;
   const baseClass = isModal ? modalVariants[variant] : `${LIGHT_BASE} ${lightVariants[variant] ?? ""}`;
 
