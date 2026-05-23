@@ -74,4 +74,11 @@ export const API = {
     readAll: '/notifications/read-all',
   },
 
+  collaborators: {
+    base:   '/collaborators',
+    invite: '/collaborators/invite',
+    accept: '/collaborators/accept',
+    byId:   (id: string) => `/collaborators/${id}`,
+  },
+
 };

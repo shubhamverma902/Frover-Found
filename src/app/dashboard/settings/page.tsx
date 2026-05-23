@@ -13,7 +13,7 @@ import {
   selectSettingsSaving,
   selectNotifications,
 } from '@/store/slices/settingsSlice';
-import { logoutUser } from '@/store/slices/authSlice';
+import { logoutUser, selectCollaboratorRole } from '@/store/slices/authSlice';
 import { useGetSettingsQuery } from '@/store/api';
 import {
   SettingsHeader,
@@ -22,6 +22,7 @@ import {
   WeddingSection,
   NotificationsSection,
   PartnerSection,
+  CollaboratorsSection,
   PlanBillingSection,
   DangerZone,
 } from '@/features/settings';
@@ -29,8 +30,10 @@ import {
 const SettingsPage = () => {
   const dispatch      = useAppDispatch();
   const router        = useRouter();
-  const saving        = useAppSelector(selectSettingsSaving);
-  const notifications = useAppSelector(selectNotifications);
+  const saving            = useAppSelector(selectSettingsSaving);
+  const notifications     = useAppSelector(selectNotifications);
+  const collaboratorRole  = useAppSelector(selectCollaboratorRole);
+  const isCollaborator    = !!collaboratorRole;
 
   const { data, isLoading } = useGetSettingsQuery();
   const profile = data?.profile ?? null;
@@ -71,7 +74,8 @@ const SettingsPage = () => {
           <ProfileSection     profile={profile}       saving={saving} showSaved={saved === 'profile'} onSave={handleSaveProfile} />
           <WeddingSection     wedding={wedding}        saving={saving} showSaved={saved === 'wedding'} onSave={handleSaveWedding} />
           <NotificationsSection notifications={notifications} onToggle={handleToggle} />
-          <PartnerSection />
+          {!isCollaborator && <PartnerSection />}
+          {!isCollaborator && <CollaboratorsSection />}
           <PlanBillingSection />
           <DangerZone         onSignOut={handleSignOut} onDeleteAccount={handleDeleteAccount} />
         </>

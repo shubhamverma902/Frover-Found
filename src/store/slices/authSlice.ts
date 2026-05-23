@@ -12,6 +12,7 @@ export interface AuthUser {
   email:                string;
   plan:                 'free' | 'premium';
   onboardingCompleted?: boolean;
+  collaboratorRole?:    'planner' | 'viewer' | null;
 }
 
 interface AuthState {
@@ -148,10 +149,11 @@ export const { logout, clearError } = authSlice.actions;
 
 // ── Selectors ─────────────────────────────────────────────────
 
-export const selectUser            = (state: RootState) => state.auth.user;
-export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
-export const selectHydrated        = (state: RootState) => state.auth.hydrated;
-export const selectAuthStatus      = (state: RootState) => state.auth.status;
-export const selectAuthError       = (state: RootState) => state.auth.error;
+export const selectUser              = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated   = (state: RootState) => state.auth.isAuthenticated;
+export const selectHydrated          = (state: RootState) => state.auth.hydrated;
+export const selectAuthStatus        = (state: RootState) => state.auth.status;
+export const selectAuthError         = (state: RootState) => state.auth.error;
+export const selectCollaboratorRole  = (state: RootState) => state.auth.user?.collaboratorRole ?? null;
 
 export default authSlice.reducer;

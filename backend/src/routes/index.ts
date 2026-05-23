@@ -10,11 +10,12 @@ import seatingRoutes     from './seatingRoutes';
 import settingsRoutes    from './settingsRoutes';
 import dashboardRoutes      from './dashboardRoutes';
 import notificationRoutes  from './notificationRoutes';
+import collaboratorRoutes  from './collaboratorRoutes';
 
 const router = Router();
 
-router.use('/auth',        authRoutes);
-router.use('/onboarding',  onboardingRoutes);
+router.use('/auth',           authRoutes);
+router.use('/onboarding',     onboardingRoutes);
 router.use('/events',      eventRoutes);
 router.use('/checklist',   checklistRoutes);
 router.use('/budget',      budgetRoutes);
@@ -23,6 +24,7 @@ router.use('/vendors',     vendorRoutes);
 router.use('/seating',     seatingRoutes);
 router.use('/settings',    settingsRoutes);
 router.use('/dashboard',      dashboardRoutes);
-router.use('/notifications',  notificationRoutes);
+router.use('/notifications',   notificationRoutes);
+router.use('/collaborators',   collaboratorRoutes);
 
 export default router;

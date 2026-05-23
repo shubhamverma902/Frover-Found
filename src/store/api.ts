@@ -14,6 +14,22 @@ import type { VendorsData } from "@/api/vendors.api";
 import type { EventsData } from "@/api/events.api";
 import type { BudgetData } from "@/api/budget.api";
 import type { SettingsData, PartnerStatusData, InviteResult } from "@/api/settings.api";
+
+export interface CollaboratorEntry {
+  _id:      string;
+  email:    string;
+  name:     string;
+  role:     'planner' | 'viewer';
+  accepted: boolean;
+  linkedAt: string | null;
+}
+
+export interface CollaboratorInviteResult {
+  inviteUrl:  string;
+  email:      string;
+  role:       'planner' | 'viewer';
+  expiresAt:  string;
+}
 import type { NotificationsData } from "@/api/notifications.api";
 import type { DashboardData } from "@/api/dashboard.api";
 
@@ -39,6 +55,7 @@ export const api = createApi({
     "Notifications",
     "Dashboard",
     "Partner",
+    "Collaborator",
   ],
 
   endpoints: (build) => ({
@@ -142,6 +159,27 @@ export const api = createApi({
       query: () => ({ url: API.settings.partner, method: "DELETE" }),
       invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
     }),
+
+    // ── Collaborators ─────────────────────────────────────────────────────────
+    getCollaborators: build.query<{ collaborators: CollaboratorEntry[] }, void>({
+      query: () => ({ url: API.collaborators.base }),
+      providesTags: ["Collaborator"],
+    }),
+
+    inviteCollaborator: build.mutation<CollaboratorInviteResult, { email: string; role: 'planner' | 'viewer' }>({
+      query: (body) => ({ url: API.collaborators.invite, method: "POST", data: body }),
+      invalidatesTags: ["Collaborator"],
+    }),
+
+    acceptCollaboratorInvite: build.mutation<{ token: string; role: 'planner' | 'viewer' }, { token: string }>({
+      query: (body) => ({ url: API.collaborators.accept, method: "POST", data: body }),
+      invalidatesTags: ["Collaborator", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+    }),
+
+    removeCollaborator: build.mutation<{ collaborators: CollaboratorEntry[] }, string>({
+      query: (id) => ({ url: API.collaborators.byId(id), method: "DELETE" }),
+      invalidatesTags: ["Collaborator"],
+    }),
   }),
 });
 
@@ -160,4 +198,8 @@ export const {
   useInvitePartnerMutation,
   useAcceptInviteMutation,
   useRemovePartnerMutation,
+  useGetCollaboratorsQuery,
+  useInviteCollaboratorMutation,
+  useAcceptCollaboratorInviteMutation,
+  useRemoveCollaboratorMutation,
 } = api;

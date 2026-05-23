@@ -50,11 +50,16 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [plan,        setPlan]        = useState<'free' | 'premium'>('free');
 
-  // New users always go to onboarding; returning users (re-signup?) go to dashboard
+  // If arriving from a collaborator invite, skip onboarding and go accept the invite
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push(user?.onboardingCompleted ? PATH.dashboard.base : PATH.onboarding);
+    if (!isAuthenticated) return;
+    const pendingToken = sessionStorage.getItem('pendingInviteToken');
+    if (pendingToken) {
+      sessionStorage.removeItem('pendingInviteToken');
+      router.push(`${PATH.auth.acceptInvite}?token=${pendingToken}&type=collab`);
+      return;
     }
+    router.push(user?.onboardingCompleted ? PATH.dashboard.base : PATH.onboarding);
   }, [isAuthenticated, user, router]);
 
   const handleSignup = (e: React.SyntheticEvent) => {

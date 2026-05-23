@@ -74,9 +74,9 @@ export const PartnerSection = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-[#23292E] dark:text-white truncate">{linked.name}</p>
-              <p className="text-xs text-[#DDDED9]/60 truncate">{linked.email}</p>
+              <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 truncate">{linked.email}</p>
               {linked.linkedAt && (
-                <p className="text-[10px] text-[#DDDED9]/40 mt-0.5">
+                <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/40 mt-0.5">
                   Linked {new Date(linked.linkedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
               )}
@@ -88,10 +88,10 @@ export const PartnerSection = () => {
 
           {confirmRemove ? (
             <div className="flex items-center gap-3 p-3 bg-red-950/20 border border-red-700/30">
-              <p className="text-xs text-red-300/80 flex-1">Remove partner? Both accounts will be unlinked.</p>
+              <p className="text-xs text-red-600 dark:text-red-300/80 flex-1">Remove partner? Both accounts will be unlinked.</p>
               <button
                 onClick={() => setConfirmRemove(false)}
-                className="px-3 py-1.5 text-[11px] border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors"
+                className="px-3 py-1.5 text-[11px] border border-zinc-300 dark:border-[#DDDED9]/20 text-zinc-500 dark:text-[#DDDED9]/50 hover:text-[#23292E] dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -106,7 +106,7 @@ export const PartnerSection = () => {
           ) : (
             <button
               onClick={() => setConfirmRemove(true)}
-              className="text-xs text-[#DFB3AE] hover:text-white border border-[#DFB3AE]/30 hover:border-[#DFB3AE] px-4 py-2 transition-all"
+              className="text-xs text-[#DFB3AE] hover:text-[#23292E] dark:hover:text-white border border-[#DFB3AE]/30 hover:border-[#DFB3AE] px-4 py-2 transition-all"
             >
               Remove Partner
             </button>
@@ -116,14 +116,14 @@ export const PartnerSection = () => {
         /* ── Pending invite (previous session, no URL available) ── */
         <div className="space-y-4">
           <div className="p-4 border border-[#E4BC62]/20 bg-[#E4BC62]/5">
-            <p className="text-xs text-[#DDDED9]/70 mb-1">
+            <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/70 mb-1">
               Invite pending for <span className="text-[#E4BC62] font-medium">{pending.email}</span>
             </p>
-            <p className="text-[10px] text-[#DDDED9]/40">
+            <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/40">
               Expires {new Date(pending.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs text-red-500">{error}</p>}
           <button
             onClick={handleResend}
             disabled={inviting}
@@ -135,7 +135,7 @@ export const PartnerSection = () => {
       ) : freshInvite ? (
         /* ── Fresh invite URL ── */
         <div className="space-y-4">
-          <p className="text-xs text-[#DDDED9]/60">
+          <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60">
             Share this link with <span className="text-[#E4BC62] font-medium">{freshInvite.email}</span>. It expires in 48 hours.
           </p>
           <div className="flex items-center gap-2 p-3 border border-[#E4BC62]/20 bg-[#23292E]">
@@ -149,7 +149,7 @@ export const PartnerSection = () => {
           </div>
           <button
             onClick={() => setFreshInvite(null)}
-            className="text-[11px] text-[#DDDED9]/40 hover:text-[#DDDED9]/70 transition-colors"
+            className="text-[11px] text-zinc-400 dark:text-[#DDDED9]/40 hover:text-zinc-600 dark:hover:text-[#DDDED9]/70 transition-colors"
           >
             Send another invite
           </button>
@@ -157,10 +157,10 @@ export const PartnerSection = () => {
       ) : (
         /* ── No partner, no pending ── */
         <div className="space-y-4">
-          <p className="text-xs text-[#DDDED9]/60 leading-relaxed">
+          <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 leading-relaxed">
             Invite your partner to link accounts. Once linked, you both see and edit the same wedding plan.
           </p>
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs text-red-500">{error}</p>}
           <form onSubmit={handleInvite} className="flex items-center gap-2">
             <input
               type="email"
@@ -168,7 +168,7 @@ export const PartnerSection = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="partner@email.com"
-              className="flex-1 bg-[#23292E] border border-[#DDDED9]/20 focus:border-[#E4BC62]/50 px-3 py-2.5 text-sm text-white placeholder:text-[#DDDED9]/30 outline-none transition-colors"
+              className="flex-1 bg-white dark:bg-[#23292E] border border-zinc-300 dark:border-[#DDDED9]/20 focus:border-[#E4BC62]/50 px-3 py-2.5 text-sm text-[#23292E] dark:text-white placeholder:text-zinc-400 dark:placeholder:text-[#DDDED9]/30 outline-none transition-colors"
             />
             <button
               type="submit"

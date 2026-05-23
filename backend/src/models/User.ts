@@ -1,6 +1,28 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// ── Collaborator sub-document ────────────────────────────────
+export interface ICollaborator {
+  _id:           mongoose.Types.ObjectId;
+  userId?:       mongoose.Types.ObjectId; // set once invite is accepted
+  email:         string;
+  name?:         string;
+  role:          'planner' | 'viewer';
+  inviteToken?:  string;
+  inviteExpiry?: Date;
+  linkedAt?:     Date;
+}
+
+const collaboratorSchema = new Schema<ICollaborator>({
+  userId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  email:        { type: String, required: true, lowercase: true, trim: true },
+  name:         { type: String, default: '' },
+  role:         { type: String, enum: ['planner', 'viewer'], required: true },
+  inviteToken:  { type: String, default: null },
+  inviteExpiry: { type: Date,   default: null },
+  linkedAt:     { type: Date,   default: null },
+});
+
 // ── Wedding profile sub-document ─────────────────────────────
 // Exported so controllers and other services can type against it
 export interface IWeddingProfile {
@@ -47,6 +69,8 @@ export interface IUser extends Document {
   partnerInviteToken?:  string;
   partnerInviteExpiry?: Date;
   dataOwner?:           mongoose.Types.ObjectId; // set on secondary account; primary has none
+  collaboratorRole?:    'planner' | 'viewer';    // set on collaborator accounts
+  collaborators:        mongoose.Types.DocumentArray<ICollaborator>;
   createdAt:            Date;
   updatedAt:            Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -68,6 +92,8 @@ const userSchema = new Schema<IUser>(
     partnerInviteToken:  { type: String, default: null },
     partnerInviteExpiry: { type: Date,   default: null },
     dataOwner:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    collaboratorRole:    { type: String, enum: ['planner', 'viewer'], default: null },
+    collaborators:       { type: [collaboratorSchema], default: [] },
   },
   { timestamps: true }
 );

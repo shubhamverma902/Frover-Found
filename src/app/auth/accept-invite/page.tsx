@@ -5,47 +5,57 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/layout';
 import { PATH } from '@/constants/path';
-import { useAppSelector } from '@/store/hooks';
-import { selectIsAuthenticated, selectHydrated } from '@/store/slices/authSlice';
-import { useAcceptInviteMutation } from '@/store/api';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { selectIsAuthenticated, selectHydrated, restoreAuth } from '@/store/slices/authSlice';
+import { useAcceptInviteMutation, useAcceptCollaboratorInviteMutation } from '@/store/api';
 
-type Stage = 'loading' | 'confirm' | 'success' | 'error' | 'unauthenticated';
+type Outcome = 'idle' | 'success' | 'error';
 
 const AcceptInvitePage = () => {
   const router       = useRouter();
   const params       = useSearchParams();
   const token        = params.get('token') ?? '';
+  const isCollab     = params.get('type') === 'collab';
 
+  const dispatch        = useAppDispatch();
   const hydrated        = useAppSelector(selectHydrated);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  const [acceptInvite, { isLoading: accepting }] = useAcceptInviteMutation();
+  const [acceptPartner, { isLoading: acceptingPartner }] = useAcceptInviteMutation();
+  const [acceptCollab,  { isLoading: acceptingCollab }]  = useAcceptCollaboratorInviteMutation();
+  const accepting = isCollab ? acceptingCollab : acceptingPartner;
 
-  const [stage,   setStage]   = useState<Stage>('loading');
+  const [outcome, setOutcome] = useState<Outcome>('idle');
   const [errMsg,  setErrMsg]  = useState('');
 
+  // Derive the visual stage — no setState inside effects
+  const stage =
+    outcome === 'success'           ? 'success'
+    : outcome === 'error'           ? 'error'
+    : !hydrated                     ? 'loading'
+    : !token                        ? 'error'
+    : !isAuthenticated              ? 'unauthenticated'
+    :                                 'confirm';
+
+  // Side-effect only: save token to sessionStorage so login/signup can redirect back
   useEffect(() => {
-    if (!hydrated) return;
-    if (!token)    { setStage('error'); setErrMsg('No invite token found in this link.'); return; }
-
-    if (!isAuthenticated) {
-      // Save token so the login page can redirect back here after login
+    if (hydrated && !isAuthenticated && token) {
       sessionStorage.setItem('pendingInviteToken', token);
-      setStage('unauthenticated');
-      return;
     }
-
-    setStage('confirm');
   }, [hydrated, isAuthenticated, token]);
 
   const handleAccept = async () => {
     try {
-      const result = await acceptInvite({ token }).unwrap();
+      const result = isCollab
+        ? await acceptCollab({ token }).unwrap()
+        : await acceptPartner({ token }).unwrap();
       localStorage.setItem('auth_token', result.token);
-      setStage('success');
+      // Refresh Redux auth state so onboardingCompleted + collaboratorRole are current
+      await dispatch(restoreAuth());
+      setOutcome('success');
     } catch (err: any) {
       setErrMsg(err?.data?.message ?? 'Failed to accept invite. The link may have expired.');
-      setStage('error');
+      setOutcome('error');
     }
   };
 
@@ -77,7 +87,7 @@ const AcceptInvitePage = () => {
                 <div className="text-4xl mb-4">♡</div>
                 <h1 className="text-2xl font-bold text-[#23292E] mb-2">You've been invited!</h1>
                 <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  Log in (or create an account) to accept the invite and join your partner's wedding plan.
+                  Log in (or create an account) to accept the invite and join the wedding plan.
                 </p>
                 <Link
                   href={PATH.auth.login}
@@ -96,10 +106,14 @@ const AcceptInvitePage = () => {
 
             {stage === 'confirm' && (
               <>
-                <div className="text-4xl mb-4">♡</div>
-                <h1 className="text-2xl font-bold text-[#23292E] mb-2">Partner Invite</h1>
+                <div className="text-4xl mb-4">{isCollab ? '👥' : '♡'}</div>
+                <h1 className="text-2xl font-bold text-[#23292E] mb-2">
+                  {isCollab ? 'Collaborator Invite' : 'Partner Invite'}
+                </h1>
                 <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  Accept this invite to link your account. You'll both share the same wedding plan, guest list, budget, and checklist.
+                  {isCollab
+                    ? 'Accept this invite to access the wedding plan. Your role will determine what you can see and change.'
+                    : "Accept this invite to link your account. You'll both share the same wedding plan, guest list, budget, and checklist."}
                 </p>
                 <button
                   onClick={handleAccept}
@@ -134,7 +148,9 @@ const AcceptInvitePage = () => {
               <>
                 <div className="text-4xl mb-4">✕</div>
                 <h1 className="text-2xl font-bold text-[#23292E] mb-2">Invite Invalid</h1>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">{errMsg}</p>
+                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                  {errMsg || 'No invite token found in this link.'}
+                </p>
                 <Link
                   href={PATH.dashboard.settings}
                   className="block w-full h-12 bg-[#23292E] text-white font-semibold text-sm hover:bg-[#23292E]/85 transition-all leading-[3rem]"

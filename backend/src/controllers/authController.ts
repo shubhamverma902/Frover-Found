@@ -49,7 +49,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     }
 
     const id           = String(user._id);
-    const accessToken  = signToken(id, user.email, user.role, user.dataOwner?.toString());
+    const accessToken  = signToken(id, user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
     const refreshToken = signRefreshToken(id);
 
     setRefreshCookie(res, refreshToken);
@@ -79,7 +79,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
     const user = await User.findById(payload.id);
     if (!user) return next(new ApiError(401, 'User not found'));
 
-    const newAccessToken  = signToken(String(user._id), user.email, user.role, user.dataOwner?.toString());
+    const newAccessToken  = signToken(String(user._id), user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
     const newRefreshToken = signRefreshToken(String(user._id));
 
     // Rotate: issue a fresh refresh token on every use
