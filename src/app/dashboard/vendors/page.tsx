@@ -1,18 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchVendors,
-  patchVendorStatus,
-  selectVendors,
-  selectVendorTotal,
-  selectVendorPage,
-  selectVendorTotalPages,
-  selectVendorStatus,
-  selectBookedCount,
-  selectShortlisted,
-} from '@/store/slices/vendorsSlice';
+import { useState } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+import { patchVendorStatus } from '@/store/slices/vendorsSlice';
+import { useGetVendorsQuery } from '@/store/api';
 import {
   AddVendorModal,
   EditVendorModal,
@@ -29,35 +20,30 @@ import type { Vendor } from '@/constants/dashboard-pages';
 const PAGE_LIMIT = 10;
 
 const VendorsPage = () => {
-  const dispatch    = useAppDispatch();
-  const vendors     = useAppSelector(selectVendors);
-  const total       = useAppSelector(selectVendorTotal);
-  const page        = useAppSelector(selectVendorPage);
-  const totalPages  = useAppSelector(selectVendorTotalPages);
-  const status      = useAppSelector(selectVendorStatus);
-  const booked      = useAppSelector(selectBookedCount);
-  const shortlisted = useAppSelector(selectShortlisted);
+  const dispatch = useAppDispatch();
 
+  const [page,         setPage]         = useState(1);
   const [addOpen,      setAddOpen]      = useState(false);
   const [detailVendor, setDetailVendor] = useState<Vendor | null>(null);
   const [editVendor,   setEditVendor]   = useState<Vendor | null>(null);
   const [query,        setQuery]        = useState('');
 
-  const loading = status === 'idle' || status === 'loading';
+  const { data, isLoading } = useGetVendorsQuery({ page, limit: PAGE_LIMIT });
+
+  const vendors     = data?.vendors     ?? [];
+  const total       = data?.total       ?? 0;
+  const totalPages  = data?.totalPages  ?? 0;
+  const booked      = data?.booked      ?? 0;
+  const shortlisted = data?.shortlisted ?? 0;
+
   const q = query.trim().toLowerCase();
   const visibleVendors = q
     ? vendors.filter(v => [v.name, v.category, v.location ?? ''].some(f => f.toLowerCase().includes(q)))
     : vendors;
 
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchVendors({ page: 1, limit: PAGE_LIMIT }));
-    return () => thunk.abort();
-  }, [dispatch, status]);
-
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages) return;
-    dispatch(fetchVendors({ page: p, limit: PAGE_LIMIT }));
+    setPage(p);
   };
 
   const openEdit = (v: Vendor) => { setDetailVendor(null); setEditVendor(v); };
@@ -65,9 +51,9 @@ const VendorsPage = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
 
-      <VendorsHeader booked={booked} shortlisted={shortlisted} loading={loading} onAddVendor={() => setAddOpen(true)} />
+      <VendorsHeader booked={booked} shortlisted={shortlisted} loading={isLoading} onAddVendor={() => setAddOpen(true)} />
 
-      {loading ? <VendorsSkeleton /> : (
+      {isLoading ? <VendorsSkeleton /> : (
         <>
           <VendorsSummaryStrip total={total} booked={booked} shortlisted={shortlisted} />
 

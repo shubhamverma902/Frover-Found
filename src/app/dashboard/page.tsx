@@ -1,21 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { CheckIcon } from '@/components/icons';
 import { PATH } from '@/constants/path';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchDashboard,
-  toggleDashboardTask,
-  selectDashboardUser,
-  selectDashboardStats,
-  selectDashboardTasks,
-  selectDashboardActivity,
-  selectDashboardActions,
-  selectDashboardStatus,
-} from '@/store/slices/dashboardSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { DASHBOARD_ACTIONS, toggleDashboardTask } from '@/store/slices/dashboardSlice';
 import { toggleTask } from '@/store/slices/checklistSlice';
+import { useGetDashboardQuery } from '@/store/api';
 
 const fmt = (n: number) =>
   n >= 1_00_000 ? `₹${(n / 1_00_000).toFixed(1)}L` :
@@ -24,20 +15,12 @@ const fmt = (n: number) =>
 
 const DashboardPage = () => {
   const dispatch = useAppDispatch();
-  const status   = useAppSelector(selectDashboardStatus);
-  const USER     = useAppSelector(selectDashboardUser);
-  const STATS    = useAppSelector(selectDashboardStats);
-  const TASKS    = useAppSelector(selectDashboardTasks);
-  const ACTIVITY = useAppSelector(selectDashboardActivity);
-  const ACTIONS  = selectDashboardActions();
+  const { data, isLoading: loading } = useGetDashboardQuery(undefined, { pollingInterval: 60_000 });
 
-  const loading = status === 'idle' || status === 'loading';
-
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchDashboard());
-    return () => thunk.abort();
-  }, [dispatch, status]);
+  const USER     = data?.user     ?? null;
+  const STATS    = data?.stats    ?? null;
+  const TASKS    = data?.tasks    ?? [];
+  const ACTIVITY = data?.activity ?? [];
 
   const doneTasks  = TASKS.filter(t => t.done).length;
   const totalTasks = TASKS.length;
@@ -183,7 +166,7 @@ const DashboardPage = () => {
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#DDDED9]" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-children">
-          {ACTIONS.map((a) => (
+          {DASHBOARD_ACTIONS.map((a) => (
             <Link
               key={a.label}
               href={a.href}

@@ -4,8 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createEvent } from '@/store/slices/eventsSlice';
-import { selectEventsStatus } from '@/store/slices/eventsSlice';
+import { createEvent, selectEventsMutating } from '@/store/slices/eventsSlice';
 import type { WeddingEvent } from '@/constants/dashboard-pages';
 
 type FormData = Omit<WeddingEvent, '_id'>;
@@ -20,7 +19,7 @@ interface AddEventModalProps {
 
 const AddEventModal = ({ onClose }: AddEventModalProps) => {
   const dispatch = useAppDispatch();
-  const status   = useAppSelector(selectEventsStatus);
+  const mutating = useAppSelector(selectEventsMutating);
   const [form,   setForm]   = useState<FormData>({ ...EMPTY });
   const [errors, setErrors] = useState<{ name?: string; date?: string; venue?: string }>({});
 
@@ -47,7 +46,7 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
     if (createEvent.fulfilled.match(result)) onClose();
   };
 
-  const loading = status === 'loading';
+  const loading = mutating;
 
   return (
     <Modal onClose={onClose} className="flex flex-col max-h-[90vh] relative">

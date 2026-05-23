@@ -1,23 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PATH } from '@/constants/path';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  fetchSettings,
   saveProfile,
   saveWedding,
   saveNotifications,
   removeAccount,
   toggleNotification,
-  selectSettingsStatus,
   selectSettingsSaving,
-  selectSettingsProfile,
-  selectSettingsWedding,
   selectNotifications,
 } from '@/store/slices/settingsSlice';
 import { logoutUser } from '@/store/slices/authSlice';
+import { useGetSettingsQuery } from '@/store/api';
 import {
   SettingsHeader,
   SettingsSkeleton,
@@ -31,30 +28,24 @@ import {
 const SettingsPage = () => {
   const dispatch      = useAppDispatch();
   const router        = useRouter();
-  const status        = useAppSelector(selectSettingsStatus);
   const saving        = useAppSelector(selectSettingsSaving);
-  const profile       = useAppSelector(selectSettingsProfile);
-  const wedding       = useAppSelector(selectSettingsWedding);
   const notifications = useAppSelector(selectNotifications);
 
-  const [saved, setSaved] = useState<string | null>(null);
-  const loading = status === 'idle' || status === 'loading';
+  const { data, isLoading } = useGetSettingsQuery();
+  const profile = data?.profile ?? null;
+  const wedding = data?.wedding ?? null;
 
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchSettings());
-    return () => thunk.abort();
-  }, [dispatch, status]);
+  const [saved, setSaved] = useState<string | null>(null);
 
   const flash = (key: string) => { setSaved(key); setTimeout(() => setSaved(null), 2500); };
 
-  const handleSaveProfile = async (data: { name: string; partnerName: string; email: string; phone: string }) => {
-    const result = await dispatch(saveProfile(data));
+  const handleSaveProfile = async (d: { name: string; partnerName: string; email: string; phone: string }) => {
+    const result = await dispatch(saveProfile(d));
     if (saveProfile.fulfilled.match(result)) flash('profile');
   };
 
-  const handleSaveWedding = async (data: { weddingDate: string; venue: string; city: string; guestCount: number }) => {
-    const result = await dispatch(saveWedding(data));
+  const handleSaveWedding = async (d: { weddingDate: string; venue: string; city: string; guestCount: number }) => {
+    const result = await dispatch(saveWedding(d));
     if (saveWedding.fulfilled.match(result)) flash('wedding');
   };
 
@@ -74,7 +65,7 @@ const SettingsPage = () => {
   return (
     <div className="p-6 lg:p-8 space-y-6 page-sections">
       <SettingsHeader />
-      {loading ? <SettingsSkeleton /> : (
+      {isLoading ? <SettingsSkeleton /> : (
         <>
           <ProfileSection     profile={profile}       saving={saving} showSaved={saved === 'profile'} onSave={handleSaveProfile} />
           <WeddingSection     wedding={wedding}        saving={saving} showSaved={saved === 'wedding'} onSave={handleSaveWedding} />

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createGuest, fetchGuests, selectGuestMutating } from '@/store/slices/guestsSlice';
+import { createGuest, selectGuestMutating } from '@/store/slices/guestsSlice';
 import type { Guest } from '@/constants/dashboard-pages';
 
 interface AddGuestModalProps {
@@ -34,10 +34,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
     e.preventDefault();
     if (!name.trim()) { setNameError('Required'); return; }
     const result = await dispatch(createGuest({ name: name.trim(), relation, phone, rsvp, meal, plusOne }));
-    if (createGuest.fulfilled.match(result)) {
-      dispatch(fetchGuests({ page: 1, limit: 10 }));
-      onClose();
-    }
+    if (createGuest.fulfilled.match(result)) onClose();
   };
 
   return (

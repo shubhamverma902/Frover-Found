@@ -1,76 +1,25 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import type { RootState } from '../store';
-import { fetchNotificationsApi, markAllReadApi } from '@/api/notifications.api';
-import type { AppNotification } from '@/api/notifications.api';
+import { createAppAsyncThunk } from '../thunk';
+import type { AxiosError } from 'axios';
+import { markAllReadApi } from '@/api/notifications.api';
+import { api } from '../api';
 
-interface NotificationsState {
-  items:       AppNotification[];
-  unreadCount: number;
-  status:      'idle' | 'loading' | 'succeeded' | 'failed';
-}
-
-const initialState: NotificationsState = {
-  items:       [],
-  unreadCount: 0,
-  status:      'idle',
-};
+type ApiErr = AxiosError<{ message?: string }>;
 
 // ── Thunks ────────────────────────────────────────────────
 
-export const fetchNotifications = createAsyncThunk(
-  'notifications/fetch',
-  async (_, { rejectWithValue, signal }) => {
-    try { return await fetchNotificationsApi(signal); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load notifications'); }
-  }
-);
-
-export const markAllRead = createAsyncThunk(
+export const markAllRead = createAppAsyncThunk(
   'notifications/markAllRead',
-  async (_, { rejectWithValue }) => {
-    try { await markAllReadApi(); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to mark read'); }
+  async (_, { dispatch, rejectWithValue }) => {
+    const patch = dispatch(api.util.updateQueryData('getNotifications', undefined, draft => {
+      draft.notifications.forEach(n => { n.read = true; });
+      draft.unreadCount = 0;
+    }));
+    try {
+      await markAllReadApi();
+      dispatch(api.util.invalidateTags(['Notifications']));
+    } catch (e) {
+      patch.undo();
+      return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to mark read');
+    }
   }
 );
-
-// ── Slice ─────────────────────────────────────────────────
-
-const notificationsSlice = createSlice({
-  name: 'notifications',
-  initialState,
-  reducers: {
-    prependNotification(state, { payload }: { payload: AppNotification }) {
-      state.items       = [payload, ...state.items].slice(0, 20);
-      state.unreadCount += 1;
-    },
-  },
-  extraReducers: builder => {
-    builder
-      .addCase(fetchNotifications.pending,   state => { state.status = 'loading'; })
-      .addCase(fetchNotifications.fulfilled, (state, { payload }) => {
-        state.status      = 'succeeded';
-        state.items       = payload.notifications;
-        state.unreadCount = payload.unreadCount;
-      })
-      .addCase(fetchNotifications.rejected, (state, action) => {
-        if (action.meta.aborted) { state.status = 'idle'; return; }
-        state.status = 'failed';
-      });
-
-    builder
-      .addCase(markAllRead.fulfilled, state => {
-        state.unreadCount = 0;
-        state.items       = state.items.map(n => ({ ...n, read: true }));
-      });
-  },
-});
-
-export const { prependNotification } = notificationsSlice.actions;
-
-// ── Selectors ─────────────────────────────────────────────
-
-export const selectNotifications       = (state: RootState) => state.notifications.items;
-export const selectUnreadCount         = (state: RootState) => state.notifications.unreadCount;
-export const selectNotificationsStatus = (state: RootState) => state.notifications.status;
-
-export default notificationsSlice.reducer;

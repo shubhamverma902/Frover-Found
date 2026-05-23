@@ -1,19 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { exportGuestListPDF } from '@/utils/exportPdf';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchGuests,
-  selectGuests,
-  selectGuestTotal,
-  selectGuestPage,
-  selectTotalPages,
-  selectGuestStatus,
-  selectConfirmed,
-  selectPending,
-  selectDeclined,
-} from '@/store/slices/guestsSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
   GuestRsvpModal,
@@ -29,20 +19,22 @@ import type { Guest } from '@/constants/dashboard-pages';
 const PAGE_LIMIT = 10;
 
 const GuestsPage = () => {
-  const dispatch   = useAppDispatch();
-  const guests     = useAppSelector(selectGuests);
-  const total      = useAppSelector(selectGuestTotal);
-  const page       = useAppSelector(selectGuestPage);
-  const totalPages = useAppSelector(selectTotalPages);
-  const status     = useAppSelector(selectGuestStatus);
-  const confirmed  = useAppSelector(selectConfirmed);
-  const pending    = useAppSelector(selectPending);
-  const declined   = useAppSelector(selectDeclined);
+  const dispatch = useAppDispatch();
 
-  const [addOpen,    setAddOpen]    = useState(false);
-  const [rsvpGuest,  setRsvpGuest]  = useState<Guest | null>(null);
-  const [query,      setQuery]      = useState('');
-  const [exporting,  setExporting]  = useState(false);
+  const [page,      setPage]      = useState(1);
+  const [addOpen,   setAddOpen]   = useState(false);
+  const [rsvpGuest, setRsvpGuest] = useState<Guest | null>(null);
+  const [query,     setQuery]     = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const { data, isLoading } = useGetGuestsQuery({ page, limit: PAGE_LIMIT });
+
+  const guests     = data?.guests     ?? [];
+  const total      = data?.total      ?? 0;
+  const totalPages = data?.totalPages ?? 0;
+  const confirmed  = guests.filter(g => g.rsvp === 'confirmed').length;
+  const pending    = guests.filter(g => g.rsvp === 'pending').length;
+  const declined   = guests.filter(g => g.rsvp === 'declined').length;
 
   const handleExport = async () => {
     setExporting(true);
@@ -53,23 +45,19 @@ const GuestsPage = () => {
     }
   };
 
-  const loading      = status === 'idle' || status === 'loading';
-  const q            = query.trim().toLowerCase();
+  const q             = query.trim().toLowerCase();
   const visibleGuests = q
     ? guests.filter(g => [g.name, g.relation, g.phone ?? ''].some(f => f.toLowerCase().includes(q)))
     : guests;
-  const responsePct  = total > 0 ? Math.round(((confirmed + declined) / total) * 100) : 0;
-
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchGuests({ page: 1, limit: PAGE_LIMIT }));
-    return () => thunk.abort();
-  }, [dispatch, status]);
+  const responsePct = total > 0 ? Math.round(((confirmed + declined) / total) * 100) : 0;
 
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages) return;
-    dispatch(fetchGuests({ page: p, limit: PAGE_LIMIT }));
+    setPage(p);
   };
+
+  // dispatch is still needed by modals; suppress unused-var warning
+  void dispatch;
 
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
@@ -81,13 +69,13 @@ const GuestsPage = () => {
         confirmed={confirmed}
         pending={pending}
         declined={declined}
-        loading={loading}
+        loading={isLoading}
         exporting={exporting}
         onAddGuest={() => setAddOpen(true)}
         onExport={handleExport}
       />
 
-      {loading ? (
+      {isLoading ? (
         <GuestsSkeleton />
       ) : (
         <>

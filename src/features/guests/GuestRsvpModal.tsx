@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/elements';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { patchGuestRsvp, deleteGuest, fetchGuests, selectGuestMutating } from '@/store/slices/guestsSlice';
+import { patchGuestRsvp, deleteGuest, selectGuestMutating } from '@/store/slices/guestsSlice';
 import { RSVP_META } from '@/constants/guests';
 import type { Guest } from '@/constants/dashboard-pages';
 
@@ -28,10 +28,7 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
 
   const handleDelete = async () => {
     const result = await dispatch(deleteGuest(guest._id));
-    if (deleteGuest.fulfilled.match(result)) {
-      dispatch(fetchGuests({ page: 1, limit: 10 }));
-      onClose();
-    }
+    if (deleteGuest.fulfilled.match(result)) onClose();
   };
 
   const initials = (() => {

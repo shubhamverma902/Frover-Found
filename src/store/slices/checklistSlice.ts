@@ -1,88 +1,80 @@
-import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { AxiosError } from 'axios';
 import type { RootState } from '../store';
 import type { ChecklistCategory } from '@/constants/dashboard-pages';
-import {
-  fetchChecklistApi,
-  createTaskApi,
-  toggleTaskApi,
-  updateTaskApi,
-  deleteTaskApi,
-} from '@/api/checklist.api';
+import { createTaskApi, toggleTaskApi, updateTaskApi, deleteTaskApi } from '@/api/checklist.api';
+import { api } from '../api';
+import { createAppAsyncThunk } from '../thunk';
+
+type ApiErr = AxiosError<{ message?: string }>;
 
 // ── State ─────────────────────────────────────────────────
 
 interface ChecklistState {
   categories: ChecklistCategory[];
-  status:     'idle' | 'loading' | 'succeeded' | 'failed';
   mutating:   boolean;
-  error:      string | null;
-  _snapshot:  ChecklistCategory[] | null; // rollback store for optimistic deletes
 }
 
-const initialState: ChecklistState = {
-  categories: [],
-  status:     'idle',
-  mutating:   false,
-  error:      null,
-  _snapshot:  null,
-};
+const initialState: ChecklistState = { categories: [], mutating: false };
 
 // ── Thunks ────────────────────────────────────────────────
 
-export const fetchChecklist = createAsyncThunk(
-  'checklist/fetchAll',
-  async (_, { rejectWithValue, signal }) => {
-    try { return await fetchChecklistApi(signal); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load checklist'); }
-  }
-);
-
-export const createTask = createAsyncThunk(
+export const createTask = createAppAsyncThunk(
   'checklist/createTask',
-  async (payload: { category: string; label: string; due: string }, { rejectWithValue }) => {
-    try { return await createTaskApi(payload); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to create task'); }
+  async (payload: { category: string; label: string; due: string }, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await createTaskApi(payload);
+      dispatch(api.util.invalidateTags(['Checklist']));
+      return result;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to create task'); }
   }
 );
 
-export const toggleTask = createAsyncThunk(
+export const toggleTask = createAppAsyncThunk(
   'checklist/toggleTask',
-  async (taskId: string, { rejectWithValue }) => {
-    try { return await toggleTaskApi(taskId); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to toggle task'); }
+  async (taskId: string, { dispatch, rejectWithValue }) => {
+    const patch = dispatch(api.util.updateQueryData('getChecklist', undefined, draft => {
+      for (const cat of draft) {
+        const task = cat.tasks.find(t => t._id === taskId);
+        if (task) { task.done = !task.done; break; }
+      }
+    }));
+    try {
+      const result = await toggleTaskApi(taskId);
+      dispatch(api.util.invalidateTags(['Checklist']));
+      return result;
+    } catch (e) {
+      patch.undo();
+      return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to toggle task');
+    }
   }
 );
 
-export const updateTask = createAsyncThunk(
+export const updateTask = createAppAsyncThunk(
   'checklist/updateTask',
   async (
     payload: { taskId: string; label: string; due: string; category: string; originalCategory: string },
-    { rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     try {
       const { taskId, ...rest } = payload;
-      return await updateTaskApi(taskId, rest);
-    }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to update task'); }
+      const result = await updateTaskApi(taskId, rest);
+      dispatch(api.util.invalidateTags(['Checklist']));
+      return result;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update task'); }
   }
 );
 
-export const deleteTask = createAsyncThunk(
+export const deleteTask = createAppAsyncThunk(
   'checklist/deleteTask',
-  async (taskId: string, { rejectWithValue }) => {
-    try { return await deleteTaskApi(taskId); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to delete task'); }
+  async (taskId: string, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await deleteTaskApi(taskId);
+      dispatch(api.util.invalidateTags(['Checklist']));
+      return result;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to delete task'); }
   }
 );
-
-// ── Helpers ───────────────────────────────────────────────
-
-const replaceCategories = (state: ChecklistState, updated: ChecklistCategory[]) => {
-  for (const u of updated) {
-    const idx = state.categories.findIndex(c => c._id === u._id);
-    if (idx !== -1) state.categories[idx] = u;
-  }
-};
 
 // ── Slice ─────────────────────────────────────────────────
 
@@ -91,69 +83,27 @@ const checklistSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder
-      .addCase(fetchChecklist.pending,   state => { state.status = 'loading'; state.error = null; })
-      .addCase(fetchChecklist.fulfilled, (state, { payload }) => { state.status = 'succeeded'; state.categories = payload; })
-      .addCase(fetchChecklist.rejected, (state, action) => {
-        if (action.meta.aborted) { state.status = 'idle'; return; }
-        state.status = 'failed'; state.error = action.payload as string;
-      });
+    const setMutating = (v: boolean) => (state: ChecklistState) => { state.mutating = v; };
+    [createTask, updateTask, deleteTask].forEach(thunk => {
+      builder
+        .addCase(thunk.pending,   setMutating(true))
+        .addCase(thunk.fulfilled, setMutating(false))
+        .addCase(thunk.rejected,  setMutating(false));
+    });
 
-    builder
-      .addCase(createTask.pending,   state => { state.mutating = true; })
-      .addCase(createTask.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategories(state, [payload]); })
-      .addCase(createTask.rejected,  state => { state.mutating = false; });
-
-    builder
-      // Optimistic toggle: flip immediately, reverse on failure, sync on success
-      .addCase(toggleTask.pending, (state, { meta }) => {
-        for (const cat of state.categories) {
-          const task = cat.tasks.find(t => t._id === meta.arg);
-          if (task) { task.done = !task.done; break; }
-        }
-      })
-      .addCase(toggleTask.fulfilled, (state, { payload }) => { replaceCategories(state, [payload]); })
-      .addCase(toggleTask.rejected, (state, { meta }) => {
-        for (const cat of state.categories) {
-          const task = cat.tasks.find(t => t._id === meta.arg);
-          if (task) { task.done = !task.done; break; }
-        }
-      });
-
-    builder
-      .addCase(updateTask.pending,   state => { state.mutating = true; })
-      .addCase(updateTask.fulfilled, (state, { payload }) => { state.mutating = false; replaceCategories(state, payload); })
-      .addCase(updateTask.rejected,  state => { state.mutating = false; });
-
-    builder
-      // Optimistic delete: remove immediately, restore from snapshot on failure
-      .addCase(deleteTask.pending, (state, { meta }) => {
-        state.mutating  = true;
-        state._snapshot = current(state.categories);
-        for (const cat of state.categories) {
-          const idx = cat.tasks.findIndex(t => t._id === meta.arg);
-          if (idx !== -1) { cat.tasks.splice(idx, 1); break; }
-        }
-      })
-      .addCase(deleteTask.fulfilled, (state, { payload }) => {
-        state.mutating  = false;
-        state._snapshot = null;
-        replaceCategories(state, [payload.category]);
-      })
-      .addCase(deleteTask.rejected, state => {
-        state.mutating = false;
-        if (state._snapshot) { state.categories = state._snapshot; state._snapshot = null; }
-      });
+    builder.addMatcher(
+      api.endpoints.getChecklist.matchFulfilled,
+      (state, { payload }) => { state.categories = payload; }
+    );
   },
 });
 
 // ── Selectors ─────────────────────────────────────────────
 
-export const selectCategories      = (state: RootState) => state.checklist.categories;
-export const selectChecklistStatus = (state: RootState) => state.checklist.status;
-export const selectMutating        = (state: RootState) => state.checklist.mutating;
-export const selectAllTasks        = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks);
-export const selectDoneCount       = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).filter(t => t.done).length;
-export const selectTotalCount      = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).length;
+export const selectCategories = (state: RootState) => state.checklist.categories;
+export const selectMutating   = (state: RootState) => state.checklist.mutating;
+export const selectAllTasks   = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks);
+export const selectDoneCount  = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).filter(t => t.done).length;
+export const selectTotalCount = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).length;
 
 export default checklistSlice.reducer;

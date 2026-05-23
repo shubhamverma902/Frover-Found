@@ -11,7 +11,7 @@ import {
   deleteEvent,
   addEventAttachment,
   removeEventAttachment,
-  selectEventsStatus,
+  selectEventsMutating,
 } from '@/store/slices/eventsSlice';
 import type { WeddingEvent, Attachment } from '@/constants/dashboard-pages';
 import { STATUS_OPTIONS } from '@/constants/events';
@@ -23,7 +23,7 @@ interface EditEventModalProps {
 
 const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
   const dispatch = useAppDispatch();
-  const status   = useAppSelector(selectEventsStatus);
+  const mutating = useAppSelector(selectEventsMutating);
 
   // date and time are already in YYYY-MM-DD / HH:mm — use directly in inputs
   const [form, setForm]                   = useState<Omit<WeddingEvent, '_id'>>({
@@ -119,7 +119,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
     }
   };
 
-  const loading = status === 'loading';
+  const loading = mutating;
 
   return (
     <Modal onClose={onClose} className="flex flex-col max-h-[90vh] relative">

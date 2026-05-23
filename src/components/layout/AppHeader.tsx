@@ -10,13 +10,8 @@ import { MenuIcon, ArrowLeftIcon, BellIcon, ChevronDownIcon, LogoutIcon } from '
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logoutUser, selectUser } from '@/store/slices/authSlice';
 import { selectWeddingProfile } from '@/store/slices/onboardingSlice';
-import {
-  fetchNotifications,
-  markAllRead,
-  selectNotifications,
-  selectUnreadCount,
-  selectNotificationsStatus,
-} from '@/store/slices/notificationsSlice';
+import { markAllRead } from '@/store/slices/notificationsSlice';
+import { useGetNotificationsQuery } from '@/store/api';
 
 interface AppHeaderProps {
   onMenuClick?: () => void;
@@ -39,22 +34,15 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const user     = useAppSelector(selectUser);
   const profile  = useAppSelector(selectWeddingProfile);
 
-  const notifications = useAppSelector(selectNotifications);
-  const unreadCount   = useAppSelector(selectUnreadCount);
-  const notifStatus   = useAppSelector(selectNotificationsStatus);
+  const { data: notifData, isLoading: notifLoading } = useGetNotificationsQuery(undefined, { pollingInterval: 60_000 });
+  const notifications = notifData?.notifications ?? [];
+  const unreadCount   = notifData?.unreadCount ?? 0;
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen,   setNotifOpen]   = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef    = useRef<HTMLDivElement>(null);
-
-  // fetch on mount
-  useEffect(() => {
-    if (notifStatus !== 'idle') return;
-    const thunk = dispatch(fetchNotifications());
-    return () => thunk.abort();
-  }, [dispatch, notifStatus]);
 
   // close profile dropdown on outside click
   useEffect(() => {
@@ -171,7 +159,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
 
               {/* List */}
               <div className="max-h-[22rem] overflow-y-auto">
-                {notifStatus === 'loading' ? (
+                {notifLoading ? (
                   <div className="space-y-3 p-4 animate-pulse">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="flex gap-3">

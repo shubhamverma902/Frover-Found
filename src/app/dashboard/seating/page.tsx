@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -13,17 +13,13 @@ import {
 } from '@dnd-kit/core';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  fetchSeating,
   createTable,
   updateTable,
   deleteTable,
   assignGuest,
-  selectSeatingTables,
-  selectSeatingGuests,
-  selectSeatingStatus,
   selectSeatingMutating,
-  selectUnassignedGuests,
 } from '@/store/slices/seatingSlice';
+import { useGetSeatingQuery } from '@/store/api';
 import {
   GuestChip,
   GuestPool,
@@ -34,22 +30,20 @@ import {
 import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
 
 const SeatingPage = () => {
-  const dispatch   = useAppDispatch();
-  const tables     = useAppSelector(selectSeatingTables);
-  const allGuests  = useAppSelector(selectSeatingGuests);
-  const unassigned = useAppSelector(selectUnassignedGuests);
-  const status     = useAppSelector(selectSeatingStatus);
-  const mutating   = useAppSelector(selectSeatingMutating);
+  const dispatch = useAppDispatch();
+  const mutating = useAppSelector(selectSeatingMutating);
 
-  const [showAdd,    setShowAdd]    = useState(false);
-  const [editTable,  setEditTable]  = useState<SeatingTable | null>(null);
+  const { data, isLoading } = useGetSeatingQuery();
+
+  const tables    = data?.tables ?? [];
+  const allGuests = data?.guests ?? [];
+
+  const assignedIds = new Set(tables.flatMap(t => t.guestIds));
+  const unassigned  = allGuests.filter(g => !assignedIds.has(g._id));
+
+  const [showAdd,     setShowAdd]     = useState(false);
+  const [editTable,   setEditTable]   = useState<SeatingTable | null>(null);
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
-
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchSeating());
-    return () => thunk.abort();
-  }, [status, dispatch]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -76,8 +70,6 @@ const SeatingPage = () => {
 
   const assignedCount = allGuests.length - unassigned.length;
   const totalSeats    = tables.reduce((s, t) => s + t.capacity, 0);
-
-  const loading = status === 'loading' || status === 'idle';
 
   return (
     <div className="p-6 lg:p-8 min-h-full">
@@ -114,7 +106,7 @@ const SeatingPage = () => {
         <div>
           <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-1">Planning</p>
           <h1 className="text-2xl font-black text-[#23292E] dark:text-white">Seating Planner</h1>
-          {!loading && (
+          {!isLoading && (
             <p className="text-xs text-[#23292E]/50 dark:text-[#DDDED9]/40 mt-1">
               {assignedCount} of {allGuests.length} guests seated
               {tables.length > 0 && ` · ${totalSeats} seats across ${tables.length} table${tables.length !== 1 ? 's' : ''}`}
@@ -130,7 +122,7 @@ const SeatingPage = () => {
         </button>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
@@ -145,7 +137,7 @@ const SeatingPage = () => {
         </div>
       )}
 
-      {!loading && allGuests.length === 0 && (
+      {!isLoading && allGuests.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <span className="text-5xl text-[#23292E]/10 dark:text-[#DDDED9]/10">⬡</span>
           <p className="text-sm font-bold text-[#23292E]/40 dark:text-[#DDDED9]/40">No guests added yet</p>
@@ -153,7 +145,7 @@ const SeatingPage = () => {
         </div>
       )}
 
-      {!loading && allGuests.length > 0 && (
+      {!isLoading && allGuests.length > 0 && (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
           <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-start">
@@ -191,7 +183,6 @@ const SeatingPage = () => {
             )}
           </div>
 
-          {/* Drag overlay — renders the chip under the cursor while dragging */}
           <DragOverlay dropAnimation={null}>
             {activeGuest && <GuestChip guest={activeGuest} overlay />}
           </DragOverlay>

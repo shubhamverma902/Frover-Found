@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import type { AxiosError } from 'axios';
 import type { RootState } from '../store';
 import {
-  fetchSettingsApi,
   updateProfileApi,
   updateWeddingApi,
   updateNotificationsApi,
@@ -10,58 +10,51 @@ import {
   type ProfileData,
   type WeddingData,
 } from '@/api/settings.api';
+import { api } from '../api';
+
+type ApiErr = AxiosError<{ message?: string }>;
 
 // ── State ─────────────────────────────────────────────────
 
 interface SettingsState {
-  profile:       ProfileData | null;
-  wedding:       WeddingData | null;
   notifications: NotificationPref[];
-  status:        'idle' | 'loading' | 'succeeded' | 'failed';
   saving:        'idle' | 'profile' | 'wedding' | 'notifications';
-  error:         string | null;
 }
 
-const initialState: SettingsState = {
-  profile:       null,
-  wedding:       null,
-  notifications: [],
-  status:        'idle',
-  saving:        'idle',
-  error:         null,
-};
+const initialState: SettingsState = { notifications: [], saving: 'idle' };
 
 // ── Thunks ────────────────────────────────────────────────
 
-export const fetchSettings = createAsyncThunk(
-  'settings/fetch',
-  async (_, { rejectWithValue, signal }) => {
-    try { return await fetchSettingsApi(signal); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to load settings'); }
-  }
-);
-
 export const saveProfile = createAsyncThunk(
   'settings/saveProfile',
-  async (payload: ProfileData, { rejectWithValue }) => {
-    try { return await updateProfileApi(payload); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to update profile'); }
+  async (payload: ProfileData, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await updateProfileApi(payload);
+      dispatch(api.util.invalidateTags(['Settings']));
+      return result;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update profile'); }
   }
 );
 
 export const saveWedding = createAsyncThunk(
   'settings/saveWedding',
-  async (payload: WeddingData, { rejectWithValue }) => {
-    try { return await updateWeddingApi(payload); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to update wedding details'); }
+  async (payload: WeddingData, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await updateWeddingApi(payload);
+      dispatch(api.util.invalidateTags(['Settings']));
+      return result;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update wedding details'); }
   }
 );
 
 export const saveNotifications = createAsyncThunk(
   'settings/saveNotifications',
-  async (prefs: Record<string, boolean>, { rejectWithValue }) => {
-    try { await updateNotificationsApi(prefs); return prefs; }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to update notifications'); }
+  async (prefs: Record<string, boolean>, { dispatch, rejectWithValue }) => {
+    try {
+      await updateNotificationsApi(prefs);
+      dispatch(api.util.invalidateTags(['Settings']));
+      return prefs;
+    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update notifications'); }
   }
 );
 
@@ -69,7 +62,7 @@ export const removeAccount = createAsyncThunk(
   'settings/deleteAccount',
   async (_, { rejectWithValue }) => {
     try { await deleteAccountApi(); }
-    catch (e: any) { return rejectWithValue(e.response?.data?.message ?? 'Failed to delete account'); }
+    catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to delete account'); }
   }
 );
 
@@ -86,32 +79,24 @@ const settingsSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchSettings.pending,   state => { state.status = 'loading'; state.error = null; })
-      .addCase(fetchSettings.fulfilled, (state, { payload }) => {
-        state.status        = 'succeeded';
-        state.profile       = payload.profile;
-        state.wedding       = payload.wedding;
-        state.notifications = payload.notifications;
-      })
-      .addCase(fetchSettings.rejected, (state, action) => {
-        if (action.meta.aborted) { state.status = 'idle'; return; }
-        state.status = 'failed'; state.error = action.payload as string;
-      });
-
-    builder
       .addCase(saveProfile.pending,   state => { state.saving = 'profile'; })
-      .addCase(saveProfile.fulfilled, (state, { payload }) => { state.saving = 'idle'; state.profile = payload; })
+      .addCase(saveProfile.fulfilled, state => { state.saving = 'idle'; })
       .addCase(saveProfile.rejected,  state => { state.saving = 'idle'; });
 
     builder
       .addCase(saveWedding.pending,   state => { state.saving = 'wedding'; })
-      .addCase(saveWedding.fulfilled, (state, { payload }) => { state.saving = 'idle'; state.wedding = payload; })
+      .addCase(saveWedding.fulfilled, state => { state.saving = 'idle'; })
       .addCase(saveWedding.rejected,  state => { state.saving = 'idle'; });
 
     builder
       .addCase(saveNotifications.pending,   state => { state.saving = 'notifications'; })
       .addCase(saveNotifications.fulfilled, state => { state.saving = 'idle'; })
       .addCase(saveNotifications.rejected,  state => { state.saving = 'idle'; });
+
+    builder.addMatcher(
+      api.endpoints.getSettings.matchFulfilled,
+      (state, { payload }) => { state.notifications = payload.notifications; }
+    );
   },
 });
 
@@ -119,10 +104,7 @@ export const { toggleNotification } = settingsSlice.actions;
 
 // ── Selectors ─────────────────────────────────────────────
 
-export const selectSettingsStatus    = (state: RootState) => state.settings.status;
-export const selectSettingsSaving    = (state: RootState) => state.settings.saving;
-export const selectSettingsProfile   = (state: RootState) => state.settings.profile;
-export const selectSettingsWedding   = (state: RootState) => state.settings.wedding;
-export const selectNotifications     = (state: RootState) => state.settings.notifications;
+export const selectSettingsSaving  = (state: RootState) => state.settings.saving;
+export const selectNotifications   = (state: RootState) => state.settings.notifications;
 
 export default settingsSlice.reducer;

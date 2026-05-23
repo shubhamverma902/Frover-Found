@@ -1,16 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { exportChecklistPDF } from '@/utils/exportPdf';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchChecklist,
-  toggleTask,
-  selectCategories,
-  selectChecklistStatus,
-  selectDoneCount,
-  selectTotalCount,
-} from '@/store/slices/checklistSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { toggleTask } from '@/store/slices/checklistSlice';
+import { useGetChecklistQuery } from '@/store/api';
 import {
   AddTaskModal,
   EditTaskModal,
@@ -24,11 +18,12 @@ import type { Filter } from '@/features/checklist';
 import type { ChecklistTask } from '@/constants/dashboard-pages';
 
 const ChecklistPage = () => {
-  const dispatch   = useAppDispatch();
-  const categories = useAppSelector(selectCategories);
-  const clStatus   = useAppSelector(selectChecklistStatus);
-  const doneCount  = useAppSelector(selectDoneCount);
-  const totalCount = useAppSelector(selectTotalCount);
+  const dispatch = useAppDispatch();
+  const { data: categories = [], isLoading } = useGetChecklistQuery();
+
+  const doneCount  = categories.flatMap(c => c.tasks).filter(t => t.done).length;
+  const totalCount = categories.flatMap(c => c.tasks).length;
+  const progress   = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   const [filter,    setFilter]    = useState<Filter>('all');
   const [showAdd,   setShowAdd]   = useState(false);
@@ -43,15 +38,6 @@ const ChecklistPage = () => {
       setExporting(false);
     }
   };
-
-  useEffect(() => {
-    if (clStatus !== 'idle') return;
-    const thunk = dispatch(fetchChecklist());
-    return () => thunk.abort();
-  }, [clStatus, dispatch]);
-
-  const loading  = clStatus === 'loading';
-  const progress = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   return (
     <div className="p-6 lg:p-8 space-y-6 page-sections">
@@ -70,13 +56,13 @@ const ChecklistPage = () => {
 
       <FilterTabs filter={filter} onChange={setFilter} />
 
-      {loading && <ChecklistSkeleton />}
+      {isLoading && <ChecklistSkeleton />}
 
-      {!loading && categories.length === 0 && (
+      {!isLoading && categories.length === 0 && (
         <ChecklistEmptyState onAddTask={() => setShowAdd(true)} />
       )}
 
-      {!loading && categories.length > 0 && (
+      {!isLoading && categories.length > 0 && (
         <div className="space-y-4 stagger-children">
           {categories.map(cat => (
             <CategorySection

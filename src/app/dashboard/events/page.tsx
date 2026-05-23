@@ -1,19 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  fetchEvents,
-  patchEventStatus,
-  selectEvents,
-  selectEventTotal,
-  selectEventPage,
-  selectEventTotalPages,
-  selectEventsStatus,
-  selectConfirmedCount,
-  selectPlanningCount,
-  selectPendingCount,
-} from '@/store/slices/eventsSlice';
+import { useState } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+import { patchEventStatus } from '@/store/slices/eventsSlice';
+import { useGetEventsQuery } from '@/store/api';
 import {
   AddEventModal,
   EditEventModal,
@@ -33,41 +23,35 @@ import type { WeddingEvent } from '@/constants/dashboard-pages';
 const PAGE_LIMIT = 20;
 
 const EventsPage = () => {
-  const dispatch   = useAppDispatch();
-  const events     = useAppSelector(selectEvents);
-  const total      = useAppSelector(selectEventTotal);
-  const page       = useAppSelector(selectEventPage);
-  const totalPages = useAppSelector(selectEventTotalPages);
-  const status     = useAppSelector(selectEventsStatus);
-  const confirmed  = useAppSelector(selectConfirmedCount);
-  const planning   = useAppSelector(selectPlanningCount);
-  const pending    = useAppSelector(selectPendingCount);
+  const dispatch = useAppDispatch();
 
+  const [page,      setPage]      = useState(1);
   const [showAdd,   setShowAdd]   = useState(false);
   const [editEvent, setEditEvent] = useState<WeddingEvent | null>(null);
   const [filter,    setFilter]    = useState<EventFilter>('all');
   const [query,     setQuery]     = useState('');
   const [view,      setView]      = useState<'list' | 'calendar'>('list');
 
-  useEffect(() => {
-    if (status !== 'idle') return;
-    const thunk = dispatch(fetchEvents({ page: 1, limit: PAGE_LIMIT }));
-    return () => thunk.abort();
-  }, [status, dispatch]);
+  const { data, isLoading } = useGetEventsQuery({ page, limit: PAGE_LIMIT });
+
+  const events     = data?.events     ?? [];
+  const total      = data?.total      ?? 0;
+  const totalPages = data?.totalPages ?? 0;
+  const confirmed  = data?.confirmed  ?? 0;
+  const planning   = data?.planning   ?? 0;
+  const pending    = data?.pending    ?? 0;
 
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages) return;
-    dispatch(fetchEvents({ page: p, limit: PAGE_LIMIT }));
+    setPage(p);
   };
 
-  const loading = status === 'loading';
   const q = query.trim().toLowerCase();
   const filteredByStatus = filter === 'all' ? events : events.filter(e => e.status === filter);
   const visibleEvents = q
     ? filteredByStatus.filter(e => [e.name, e.venue ?? ''].some(f => f.toLowerCase().includes(q)))
     : filteredByStatus;
 
-  // Filter pill counts come from the server (global, not just current page)
   const filters = [
     { value: 'all'       as EventFilter, label: 'All',       count: total },
     { value: 'pending'   as EventFilter, label: 'Pending',   count: pending },
@@ -103,7 +87,7 @@ const EventsPage = () => {
       <EventsHeader
         confirmed={confirmed}
         total={total}
-        loading={loading}
+        loading={isLoading}
         onAddEvent={() => setShowAdd(true)}
       />
 
@@ -113,10 +97,9 @@ const EventsPage = () => {
         inPlanning={total - confirmed}
       />
 
-      {loading && <EventsSkeleton />}
+      {isLoading && <EventsSkeleton />}
 
-      {/* ── List mode controls + view toggle ── */}
-      {!loading && view === 'list' && events.length > 0 && (
+      {!isLoading && view === 'list' && events.length > 0 && (
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <EventFilterPills filters={filters} activeFilter={filter} onChange={setFilter} />
           <div className="flex items-center gap-2 sm:ml-auto">
@@ -138,23 +121,19 @@ const EventsPage = () => {
         </div>
       )}
 
-      {/* View toggle alone when in calendar mode */}
-      {!loading && view === 'calendar' && (
+      {!isLoading && view === 'calendar' && (
         <div className="flex justify-end">{viewToggle}</div>
       )}
 
-      {/* ── Empty state (list mode) ── */}
-      {!loading && events.length === 0 && view === 'list' && (
+      {!isLoading && events.length === 0 && view === 'list' && (
         <EventsEmptyState onAddEvent={() => setShowAdd(true)} />
       )}
 
-      {/* ── Filtered empty (list mode) ── */}
-      {!loading && events.length > 0 && visibleEvents.length === 0 && view === 'list' && (
+      {!isLoading && events.length > 0 && visibleEvents.length === 0 && view === 'list' && (
         <EventFilteredEmpty filter={filter} onReset={() => { setFilter('all'); setQuery(''); }} />
       )}
 
-      {/* ── List view ── */}
-      {!loading && visibleEvents.length > 0 && view === 'list' && (
+      {!isLoading && visibleEvents.length > 0 && view === 'list' && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-children">
             {visibleEvents.map(event => (
@@ -179,8 +158,7 @@ const EventsPage = () => {
         </>
       )}
 
-      {/* ── Calendar view ── */}
-      {!loading && view === 'calendar' && (
+      {!isLoading && view === 'calendar' && (
         <EventsCalendar
           events={events}
           onEdit={setEditEvent}
