@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes        from './authRoutes';
+import publicRoutes      from './publicRoutes';
 import onboardingRoutes  from './onboardingRoutes';
 import eventRoutes       from './eventRoutes';
 import checklistRoutes   from './checklistRoutes';
@@ -26,5 +27,6 @@ router.use('/settings',    settingsRoutes);
 router.use('/dashboard',      dashboardRoutes);
 router.use('/notifications',   notificationRoutes);
 router.use('/collaborators',   collaboratorRoutes);
+router.use('/public',          publicRoutes);
 
 export default router;

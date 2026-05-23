@@ -180,6 +180,11 @@ export const api = createApi({
       query: (id) => ({ url: API.collaborators.byId(id), method: "DELETE" }),
       invalidatesTags: ["Collaborator"],
     }),
+
+    // ── Public wedding page ───────────────────────────────────────────────────
+    generatePublicSlug: build.mutation<{ slug: string }, void>({
+      query: () => ({ url: API.public.generateSlug, method: "POST" }),
+    }),
   }),
 });
 
@@ -202,4 +207,5 @@ export const {
   useInviteCollaboratorMutation,
   useAcceptCollaboratorInviteMutation,
   useRemoveCollaboratorMutation,
+  useGeneratePublicSlugMutation,
 } = api;

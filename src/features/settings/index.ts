@@ -10,3 +10,4 @@ export { PlanBillingSection   } from './PlanBillingSection';
 export { DangerZone             } from './DangerZone';
 export { PartnerSection         } from './PartnerSection';
 export { CollaboratorsSection   } from './CollaboratorsSection';
+export { ShareWeddingSection    } from './ShareWeddingSection';

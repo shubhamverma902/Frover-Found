@@ -22,6 +22,8 @@ export const PATH = {
     help:      '/dashboard/help',
   },
 
+  wedding: (slug: string) => `/wedding/${slug}`,
+
   // Landing page in-page anchor targets
   landing: {
     services:     '#services',
