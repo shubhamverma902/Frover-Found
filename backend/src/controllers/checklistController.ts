@@ -58,7 +58,8 @@ export const toggleTask = async (req: AuthRequest, res: Response, next: NextFunc
 
     const task = cat.tasks.find(t => String(t._id) === req.params.taskId);
     if (!task) return next(new ApiError(404, 'Task not found'));
-    task.done = !task.done;
+    task.done        = !task.done;
+    task.completedAt = task.done ? new Date() : null as unknown as Date;
     await cat.save();
     if (task.done) logActivity(uid, '✓', `Task completed: ${task.label}`);
     sendSuccess(res, { category: serializeChecklistCategory(cat) });

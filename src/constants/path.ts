@@ -18,6 +18,7 @@ export const PATH = {
     guests:    '/dashboard/guests',
     vendors:   '/dashboard/vendors',
     seating:   '/dashboard/seating',
+    insights:  '/dashboard/insights',
     settings:  '/dashboard/settings',
     help:      '/dashboard/help',
   },

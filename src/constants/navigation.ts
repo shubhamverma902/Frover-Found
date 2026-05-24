@@ -31,6 +31,7 @@ export const SIDEBAR_NAV: NavGroup[] = [
       { icon: '✉', label: 'Guest List', href: PATH.dashboard.guests    },
       { icon: '◈', label: 'Vendors',    href: PATH.dashboard.vendors   },
       { icon: '⬡', label: 'Seating',    href: PATH.dashboard.seating   },
+      { icon: '◉', label: 'Insights',   href: PATH.dashboard.insights  },
     ],
   },
   {

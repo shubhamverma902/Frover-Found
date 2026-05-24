@@ -32,6 +32,7 @@ export interface CollaboratorInviteResult {
 }
 import type { NotificationsData } from "@/api/notifications.api";
 import type { DashboardData } from "@/api/dashboard.api";
+import type { AnalyticsData } from "@/api/analytics.api";
 
 // ── Combined type for the seating query (tables + full guest list) ───────────
 export interface SeatingData {
@@ -181,6 +182,12 @@ export const api = createApi({
       invalidatesTags: ["Collaborator"],
     }),
 
+    // ── Analytics / Insights ─────────────────────────────────────────────────
+    getAnalytics: build.query<AnalyticsData, void>({
+      query: () => ({ url: API.analytics }),
+      providesTags: ["Dashboard"],
+    }),
+
     // ── Public wedding page ───────────────────────────────────────────────────
     generatePublicSlug: build.mutation<{ slug: string }, void>({
       query: () => ({ url: API.public.generateSlug, method: "POST" }),
@@ -207,5 +214,6 @@ export const {
   useInviteCollaboratorMutation,
   useAcceptCollaboratorInviteMutation,
   useRemoveCollaboratorMutation,
+  useGetAnalyticsQuery,
   useGeneratePublicSlugMutation,
 } = api;

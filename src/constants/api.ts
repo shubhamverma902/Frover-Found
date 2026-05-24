@@ -81,6 +81,8 @@ export const API = {
     byId:   (id: string) => `/collaborators/${id}`,
   },
 
+  analytics: '/analytics',
+
   public: {
     weddingBySlug:   (slug: string) => `/public/wedding/${slug}`,
     generateSlug:    '/public/wedding/generate',
