@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
@@ -93,6 +94,63 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 export const logout = (_req: Request, res: Response): void => {
   res.clearCookie(REFRESH_COOKIE, { ...cookieOptions });
   res.status(200).json({ success: true, message: 'Logged out' });
+};
+
+// POST /api/v1/auth/forgot-password
+// Always responds 200 regardless of whether the email exists to prevent enumeration.
+// In production, send resetUrl via email instead of returning it in the response.
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email: email?.trim().toLowerCase() });
+
+    if (!user) {
+      sendSuccess(res, null, 'If that email is registered, a reset link has been sent');
+      return;
+    }
+
+    const rawToken    = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expiry      = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await User.findByIdAndUpdate(user._id, {
+      passwordResetToken:  hashedToken,
+      passwordResetExpiry: expiry,
+    });
+
+    const appUrl   = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const resetUrl = `${appUrl}/auth/reset-password?token=${rawToken}`;
+
+    sendSuccess(res, { resetUrl, expiresAt: expiry.toISOString() }, 'Password reset link generated');
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /api/v1/auth/reset-password
+export const resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { token, password } = req.body;
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Select the token field back (it is select:false by default)
+    const user = await User.findOne({
+      passwordResetToken:  hashedToken,
+      passwordResetExpiry: { $gt: new Date() },
+    }).select('+passwordResetToken');
+
+    if (!user) return next(new ApiError(400, 'Reset token is invalid or has expired'));
+
+    user.password            = password;
+    user.passwordResetToken  = null;
+    user.passwordResetExpiry = null;
+    await user.save(); // bcrypt pre-save hook re-hashes the new password
+
+    sendSuccess(res, null, 'Password reset successfully. Please log in.');
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getMe = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {

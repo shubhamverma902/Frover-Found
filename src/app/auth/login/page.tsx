@@ -152,9 +152,9 @@ const LoginPage = () => {
               </label>
 
               <div className="flex justify-end -mt-1">
-                <a href="#" className="text-xs text-[#DFB3AE] hover:underline font-medium">
+                <Link href={PATH.auth.forgotPassword} className="text-xs text-[#DFB3AE] hover:underline font-medium">
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               <button

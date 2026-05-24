@@ -4,11 +4,13 @@
 export const API = {
 
   auth: {
-    login:    '/auth/login',
-    register: '/auth/register',
-    me:       '/auth/me',
-    refresh:  '/auth/refresh',
-    logout:   '/auth/logout',
+    login:           '/auth/login',
+    register:        '/auth/register',
+    me:              '/auth/me',
+    refresh:         '/auth/refresh',
+    logout:          '/auth/logout',
+    forgotPassword:  '/auth/forgot-password',
+    resetPassword:   '/auth/reset-password',
   },
 
   onboarding: '/onboarding',

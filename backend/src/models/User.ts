@@ -72,6 +72,8 @@ export interface IUser extends Document {
   dataOwner?:           mongoose.Types.ObjectId; // set on secondary account; primary has none
   collaboratorRole?:    'planner' | 'viewer';    // set on collaborator accounts
   collaborators:        mongoose.Types.DocumentArray<ICollaborator>;
+  passwordResetToken?:  string | null;
+  passwordResetExpiry?: Date | null;
   createdAt:            Date;
   updatedAt:            Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -96,6 +98,8 @@ const userSchema = new Schema<IUser>(
     dataOwner:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     collaboratorRole:    { type: String, enum: ['planner', 'viewer'], default: null },
     collaborators:       { type: [collaboratorSchema], default: [] },
+    passwordResetToken:  { type: String, default: null, select: false },
+    passwordResetExpiry: { type: Date,   default: null },
   },
   { timestamps: true }
 );

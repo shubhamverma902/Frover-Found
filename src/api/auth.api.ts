@@ -37,6 +37,20 @@ export interface RegisterPayload {
   plan?:    'free' | 'premium';
 }
 
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ForgotPasswordResult {
+  resetUrl:  string;
+  expiresAt: string;
+}
+
+export interface ResetPasswordPayload {
+  token:    string;
+  password: string;
+}
+
 // ── API calls ────────────────────────────────────────────────
 
 const toAuthUser = (u: BackendUser, plan: AuthUser['plan'] = 'free'): AuthUser => ({
@@ -79,4 +93,13 @@ export const refreshTokenApi = async (): Promise<string> => {
 
 export const logoutApi = async (): Promise<void> => {
   await axiosInstance.post(API.auth.logout, {}, { withCredentials: true });
+};
+
+export const forgotPasswordApi = async (payload: ForgotPasswordPayload): Promise<ForgotPasswordResult> => {
+  const { data } = await axiosInstance.post<ApiResponse<ForgotPasswordResult>>(API.auth.forgotPassword, payload);
+  return data.data;
+};
+
+export const resetPasswordApi = async (payload: ResetPasswordPayload): Promise<void> => {
+  await axiosInstance.post(API.auth.resetPassword, payload);
 };
