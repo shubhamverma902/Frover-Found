@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,7 +10,7 @@ import { Form, Input } from '@/components/elements';
 import { EyeIcon, EyeOffIcon } from '@/components/icons';
 import { LOGIN_PANEL_IMAGE, LOGIN_PANEL_TESTIMONIAL } from '@/constants/auth';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser, clearError, selectIsAuthenticated, selectUser, selectAuthStatus, selectAuthError } from '@/store/slices/authSlice';
+import { loginUser, clearError, selectIsAuthenticated, selectUser, selectAuthStatus, selectAuthError, selectAuthErrorCode } from '@/store/slices/authSlice';
 
 const LoginPage = () => {
   const router   = useRouter();
@@ -20,6 +20,8 @@ const LoginPage = () => {
   const user            = useAppSelector(selectUser);
   const status          = useAppSelector(selectAuthStatus);
   const error           = useAppSelector(selectAuthError);
+  const errorCode       = useAppSelector(selectAuthErrorCode);
+  const isLocked        = errorCode === 429;
 
   const [email,       setEmail]       = useState('');
   const [password,    setPassword]    = useState('');
@@ -42,7 +44,8 @@ const LoginPage = () => {
     dispatch(loginUser({ email, password }));
   };
 
-  const loading = status === 'loading';
+  const loading  = status === 'loading';
+  const disabled = loading || isLocked;
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -101,8 +104,19 @@ const LoginPage = () => {
               </p>
             </div>
 
-            {/* Error message */}
-            {error && (
+            {/* Lockout banner — gold/warning, no dismiss (they must wait out the window) */}
+            {isLocked && error && (
+              <div role="alert" className="mb-5 px-4 py-3 border border-[#E4BC62]/50 bg-[#E4BC62]/8 text-xs text-[#23292E] flex items-start gap-3">
+                <span className="text-[#E4BC62] text-sm leading-none mt-px shrink-0">⊘</span>
+                <div>
+                  <p className="font-semibold mb-0.5">Account temporarily locked</p>
+                  <p className="text-zinc-500 leading-relaxed">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Regular error banner */}
+            {!isLocked && error && (
               <div role="alert" className="mb-5 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
                 <span>{error}</span>
                 <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors">✕</button>
@@ -159,10 +173,10 @@ const LoginPage = () => {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={disabled}
                 className="w-full h-12 bg-[#23292E] text-white font-semibold text-sm hover:bg-[#23292E]/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
               >
-                {loading ? 'Signing in…' : 'Sign In \u2746'}
+                {loading ? 'Signing in…' : isLocked ? '⊛ Account Locked' : 'Sign In ❆'}
               </button>
             </Form>
 

@@ -74,6 +74,8 @@ export interface IUser extends Document {
   collaborators:        mongoose.Types.DocumentArray<ICollaborator>;
   passwordResetToken?:  string | null;
   passwordResetExpiry?: Date | null;
+  loginAttempts?:       number;
+  lockUntil?:           Date | null;
   createdAt:            Date;
   updatedAt:            Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -100,6 +102,8 @@ const userSchema = new Schema<IUser>(
     collaborators:       { type: [collaboratorSchema], default: [] },
     passwordResetToken:  { type: String, default: null, select: false },
     passwordResetExpiry: { type: Date,   default: null },
+    loginAttempts:       { type: Number, default: 0,    select: false },
+    lockUntil:           { type: Date,   default: null,  select: false },
   },
   { timestamps: true }
 );

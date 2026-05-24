@@ -7,7 +7,9 @@ import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { signToken, signRefreshToken, userPayload } from '../helpers/authHelpers';
 
-const REFRESH_COOKIE = 'refreshToken';
+const REFRESH_COOKIE     = 'refreshToken';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_WINDOW_MS     = 15 * 60 * 1000; // 15 minutes
 
 const cookieOptions = {
   httpOnly: true,
@@ -44,9 +46,34 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
-    if (!user || !(await user.comparePassword(password))) {
+    const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil');
+
+    // Locked account — check before the password comparison to avoid timing leaks
+    if (user?.lockUntil && user.lockUntil > new Date()) {
+      const minsLeft = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60_000);
+      return next(new ApiError(429, `Too many failed attempts. Try again in ${minsLeft} minute${minsLeft === 1 ? '' : 's'}.`));
+    }
+
+    // Evaluate credentials (run comparePassword even when user is null to keep
+    // response time uniform and avoid user-enumeration via timing)
+    const passwordOk = user ? await user.comparePassword(password) : false;
+
+    if (!user || !passwordOk) {
+      if (user) {
+        const newAttempts = (user.loginAttempts ?? 0) + 1;
+        const lock        = newAttempts >= MAX_LOGIN_ATTEMPTS;
+        await User.findByIdAndUpdate(user._id, {
+          // Reset counter to 0 on lock so the user gets a fresh window after lockout expires
+          loginAttempts: lock ? 0 : newAttempts,
+          lockUntil:     lock ? new Date(Date.now() + LOCK_WINDOW_MS) : null,
+        });
+      }
       return next(new ApiError(401, 'Invalid email or password'));
+    }
+
+    // Successful login — clear any residual lockout state
+    if (user.loginAttempts || user.lockUntil) {
+      await User.findByIdAndUpdate(user._id, { loginAttempts: 0, lockUntil: null });
     }
 
     const id           = String(user._id);
@@ -146,6 +173,9 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     user.passwordResetToken  = null;
     user.passwordResetExpiry = null;
     await user.save(); // bcrypt pre-save hook re-hashes the new password
+
+    // Account ownership proven via reset token — clear any active lockout
+    await User.findByIdAndUpdate(user._id, { loginAttempts: 0, lockUntil: null });
 
     sendSuccess(res, null, 'Password reset successfully. Please log in.');
   } catch (err) {

@@ -23,6 +23,9 @@ interface AuthState {
   hydrated:        boolean;
   status:          'idle' | 'loading' | 'succeeded' | 'failed';
   error:           string | null;
+  // HTTP status code for the last login error (null = no error or non-login error).
+  // 429 means the account is temporarily locked out.
+  errorCode:       number | null;
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -43,7 +46,10 @@ export const loginUser = createAsyncThunk(
       saveToken(result.token);
       return result.user;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message ?? 'Login failed. Please try again.');
+      return rejectWithValue({
+        message: err.response?.data?.message ?? 'Login failed. Please try again.',
+        code:    err.response?.status         ?? 0,
+      });
     }
   }
 );
@@ -93,6 +99,7 @@ const initialState: AuthState = {
   hydrated:        false,
   status:          'idle',
   error:           null,
+  errorCode:       null,
 };
 
 const authSlice = createSlice({
@@ -106,29 +113,40 @@ const authSlice = createSlice({
       state.hydrated        = true;
       state.status          = 'idle';
       state.error           = null;
+      state.errorCode       = null;
     },
     clearError(state) {
-      state.error  = null;
-      state.status = 'idle';
+      state.error     = null;
+      state.errorCode = null;
+      state.status    = 'idle';
     },
   },
   extraReducers: builder => {
-    const pending   = (state: AuthState) => { state.status = 'loading'; state.error = null; };
+    const pending   = (state: AuthState) => { state.status = 'loading'; state.error = null; state.errorCode = null; };
     const fulfilled = (state: AuthState, action: { payload: AuthUser }) => {
       state.status          = 'succeeded';
       state.user            = action.payload;
       state.isAuthenticated = true;
       state.hydrated        = true;
     };
-    const rejected  = (state: AuthState, action: any) => {
-      state.status = 'failed';
-      state.error  = action.payload as string;
+    const rejected = (state: AuthState, action: { payload: unknown }) => {
+      state.status    = 'failed';
+      state.error     = typeof action.payload === 'string' ? action.payload : 'Something went wrong.';
+      state.errorCode = null;
+    };
+    // loginUser carries { message, code } so we can distinguish a 429 lockout from a 401
+    interface LoginErrorPayload { message: string; code: number; }
+    const loginRejected = (state: AuthState, action: { payload: unknown }) => {
+      const p         = action.payload as LoginErrorPayload | undefined;
+      state.status    = 'failed';
+      state.error     = p?.message ?? 'Login failed. Please try again.';
+      state.errorCode = p?.code    ?? null;
     };
 
     builder
       .addCase(loginUser.pending,   pending)
       .addCase(loginUser.fulfilled, fulfilled)
-      .addCase(loginUser.rejected,  rejected)
+      .addCase(loginUser.rejected,  loginRejected)
 
       .addCase(signupUser.pending,   pending)
       .addCase(signupUser.fulfilled, fulfilled)
@@ -154,6 +172,7 @@ export const selectIsAuthenticated   = (state: RootState) => state.auth.isAuthen
 export const selectHydrated          = (state: RootState) => state.auth.hydrated;
 export const selectAuthStatus        = (state: RootState) => state.auth.status;
 export const selectAuthError         = (state: RootState) => state.auth.error;
+export const selectAuthErrorCode     = (state: RootState) => state.auth.errorCode;
 export const selectCollaboratorRole  = (state: RootState) => state.auth.user?.collaboratorRole ?? null;
 
 export default authSlice.reducer;
