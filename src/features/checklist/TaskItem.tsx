@@ -32,7 +32,8 @@ export const TaskItem = ({ task, index, onToggle, onEdit }: TaskItemProps) => (
 
     {/* Label */}
     <span
-      className={`flex-1 text-sm transition-all duration-200 ${
+      onClick={onToggle}
+      className={`flex-1 text-sm transition-all duration-200 cursor-pointer select-none ${
         task.done
           ? 'text-zinc-400 dark:text-zinc-500 line-through decoration-[#E4BC62]/40'
           : 'text-[#23292E] dark:text-[#FDFDF8] font-medium'

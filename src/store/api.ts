@@ -137,7 +137,14 @@ export const api = createApi({
     // ── Dashboard ────────────────────────────────────────────────────────────
     getDashboard: build.query<DashboardData, void>({
       query: () => ({ url: API.dashboard }),
-      providesTags: ["Dashboard"],
+      providesTags: [
+        "Dashboard",
+        "Checklist",
+        "Budget",
+        { type: "Guest",  id: "LIST" },
+        { type: "Vendor", id: "LIST" },
+        { type: "Event",  id: "LIST" },
+      ],
     }),
 
     // ── Partner ──────────────────────────────────────────────────────────────
@@ -185,7 +192,14 @@ export const api = createApi({
     // ── Analytics / Insights ─────────────────────────────────────────────────
     getAnalytics: build.query<AnalyticsData, void>({
       query: () => ({ url: API.analytics }),
-      providesTags: ["Dashboard"],
+      providesTags: [
+        "Dashboard",
+        "Checklist",
+        "Budget",
+        { type: "Guest",  id: "LIST" },
+        { type: "Vendor", id: "LIST" },
+        { type: "Event",  id: "LIST" },
+      ],
     }),
 
     // ── Public wedding page ───────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import { createAppAsyncThunk } from '../thunk';
 import { api } from '../api';
 import { PATH } from '@/constants/path';
+import { toggleTaskApi } from '@/api/checklist.api';
 
 // ── Static data ───────────────────────────────────────────
 
@@ -18,12 +19,20 @@ export const DASHBOARD_ACTIONS = [
 export const toggleDashboardTask = createAppAsyncThunk(
   'dashboard/toggleTask',
   async (taskId: string, { dispatch }) => {
-    dispatch(api.util.updateQueryData('getDashboard', undefined, draft => {
+    // Optimistic update so the UI responds immediately
+    const patch = dispatch(api.util.updateQueryData('getDashboard', undefined, draft => {
       const t = draft.tasks.find(t => t._id === taskId);
       if (t) {
         t.done = !t.done;
         if (draft.stats) draft.stats.tasksDone += t.done ? 1 : -1;
       }
     }));
+    try {
+      await toggleTaskApi(taskId);
+      // Bust both caches so checklist page and insights page reflect the change
+      dispatch(api.util.invalidateTags(['Checklist']));
+    } catch {
+      patch.undo();
+    }
   }
 );
