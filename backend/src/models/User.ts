@@ -108,6 +108,10 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+userSchema.index({ partnerInviteToken: 1 }, { sparse: true });
+userSchema.index({ passwordResetToken: 1 }, { sparse: true });
+userSchema.index({ 'collaborators.inviteToken': 1 }, { sparse: true });
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);

@@ -25,4 +25,7 @@ const guestSchema = new Schema<IGuest>(
   { timestamps: true }
 );
 
+guestSchema.index({ userId: 1, createdAt: 1 });
+guestSchema.index({ userId: 1, rsvp: 1 });
+
 export default mongoose.model<IGuest>('Guest', guestSchema);

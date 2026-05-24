@@ -53,5 +53,8 @@ const eventSchema = new Schema<IEvent>(
   { timestamps: true }
 );
 
+eventSchema.index({ userId: 1, date: 1 });
+eventSchema.index({ userId: 1, status: 1 });
+
 const Event = mongoose.model<IEvent>('Event', eventSchema);
 export default Event;

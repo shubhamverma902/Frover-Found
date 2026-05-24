@@ -37,5 +37,8 @@ const checklistCategorySchema = new Schema<IChecklistCategory>(
   { timestamps: true }
 );
 
+checklistCategorySchema.index({ userId: 1, createdAt: 1 });
+checklistCategorySchema.index({ userId: 1, category: 1 });
+
 const ChecklistCategory = mongoose.model<IChecklistCategory>('ChecklistCategory', checklistCategorySchema);
 export default ChecklistCategory;

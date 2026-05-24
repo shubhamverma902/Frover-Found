@@ -18,6 +18,8 @@ const activitySchema = new Schema<IActivity>(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
+activitySchema.index({ userId: 1, createdAt: -1 });
+
 // keep only last 50 per user — auto-prune oldest
 activitySchema.post('save', async function () {
   const count = await mongoose.model('Activity').countDocuments({ userId: this.userId });

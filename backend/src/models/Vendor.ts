@@ -53,4 +53,7 @@ const vendorSchema = new Schema<IVendor>(
   { timestamps: true }
 );
 
+vendorSchema.index({ userId: 1, createdAt: 1 });
+vendorSchema.index({ userId: 1, status: 1 });
+
 export default mongoose.model<IVendor>('Vendor', vendorSchema);

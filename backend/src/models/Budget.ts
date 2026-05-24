@@ -53,5 +53,7 @@ const budgetCategorySchema = new Schema<IBudgetCategory>(
   { timestamps: true }
 );
 
+budgetCategorySchema.index({ userId: 1, createdAt: 1 });
+
 export const BudgetConfig   = mongoose.model<IBudgetConfig>('BudgetConfig', budgetConfigSchema);
 export const BudgetCategory = mongoose.model<IBudgetCategory>('BudgetCategory', budgetCategorySchema);
