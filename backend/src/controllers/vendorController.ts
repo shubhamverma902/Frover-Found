@@ -9,6 +9,7 @@ import logActivity from '../utils/logActivity';
 import { serializeVendor } from '../helpers/serializers';
 import { UPLOADS_ROOT } from '../middleware/upload';
 import { ownerId } from '../helpers/authHelpers';
+import { sanitize, sanitizeOpt } from '../utils/sanitize';
 
 const MAX_ATTACHMENTS = 5;
 
@@ -47,14 +48,14 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
 
     const vendor = await Vendor.create({
       userId: ownerId(req),
-      icon:     icon     ?? '🏢',
-      category: category.trim(),
-      name:     name.trim(),
-      contact:  contact  ?? '',
-      location: location ?? '',
+      icon:     sanitize(icon) || '🏢',
+      category: sanitize(category),
+      name:     sanitize(name),
+      contact:  sanitize(contact),
+      location: sanitize(location),
       status:   status   ?? 'pending',
       rating:   Number(rating) || 3,
-      notes:    notes    ?? '',
+      notes:    sanitize(notes),
     });
 
     logActivity(ownerId(req), vendor.icon, `Vendor added: ${vendor.name} (${vendor.category})`);
@@ -71,7 +72,16 @@ export const updateVendor = async (req: AuthRequest, res: Response, next: NextFu
 
     const vendor = await Vendor.findOneAndUpdate(
       { _id: req.params.id, userId: ownerId(req) },
-      { icon, category: category.trim(), name: name.trim(), contact, location, status, rating: Number(rating), notes },
+      {
+        icon:     sanitizeOpt(icon),
+        category: sanitize(category),
+        name:     sanitize(name),
+        contact:  sanitizeOpt(contact),
+        location: sanitizeOpt(location),
+        status,
+        rating:   Number(rating),
+        notes:    sanitizeOpt(notes),
+      },
       { new: true, runValidators: true }
     );
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));

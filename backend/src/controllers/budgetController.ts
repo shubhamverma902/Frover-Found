@@ -7,6 +7,7 @@ import { AuthRequest } from "../types";
 import logActivity from "../utils/logActivity";
 import { serializeBudgetCategory } from "../helpers/serializers";
 import { ownerId } from "../helpers/authHelpers";
+import { sanitize } from "../utils/sanitize";
 
 // GET /api/v1/budget
 export const getBudget = async (
@@ -99,7 +100,7 @@ export const addExpense = async (
         $push: {
           expenses: {
             amount: Number(amount),
-            note: note ?? "",
+            note: sanitize(note),
             date: new Date(),
           },
         },

@@ -7,6 +7,7 @@ import logActivity from '../utils/logActivity';
 import { serializeChecklistCategory } from '../helpers/serializers';
 import { SEED_CATEGORIES } from '../constants/checklistSeeds';
 import { ownerId } from '../helpers/authHelpers';
+import { sanitize } from '../utils/sanitize';
 
 // GET /api/v1/checklist
 export const getChecklist = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -35,7 +36,7 @@ export const createTask = async (req: AuthRequest, res: Response, next: NextFunc
 
     const cat = await ChecklistCategory.findOneAndUpdate(
       { userId: ownerId(req), category },
-      { $push: { tasks: { label: label.trim(), due: due ?? 'No due date', done: false } } },
+      { $push: { tasks: { label: sanitize(label), due: sanitize(due) || 'No due date', done: false } } },
       { new: true }
     );
 
@@ -78,7 +79,7 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
     if (!newCategory || !originalCategory || originalCategory === newCategory) {
       const cat = await ChecklistCategory.findOneAndUpdate(
         { userId: uid, 'tasks._id': req.params.taskId },
-        { $set: { 'tasks.$.label': label.trim(), 'tasks.$.due': due ?? 'No due date' } },
+        { $set: { 'tasks.$.label': sanitize(label), 'tasks.$.due': sanitize(due) || 'No due date' } },
         { new: true }
       );
       if (!cat) return next(new ApiError(404, 'Task not found'));
@@ -96,7 +97,7 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
 
       const destCat = await ChecklistCategory.findOneAndUpdate(
         { userId: uid, category: newCategory },
-        { $push: { tasks: { label: label.trim(), due: due ?? 'No due date', done } } },
+        { $push: { tasks: { label: sanitize(label), due: sanitize(due) || 'No due date', done } } },
         { new: true }
       );
       if (!destCat) return next(new ApiError(404, 'Target category not found'));

@@ -10,6 +10,7 @@ import { serializeEvent } from '../helpers/serializers';
 import { EVENT_SEED_NAMES } from '../constants/eventSeeds';
 import { UPLOADS_ROOT } from '../middleware/upload';
 import { ownerId } from '../helpers/authHelpers';
+import { sanitize, sanitizeOpt } from '../utils/sanitize';
 
 const MAX_ATTACHMENTS = 5;
 
@@ -72,13 +73,13 @@ export const createEvent = async (req: AuthRequest, res: Response, next: NextFun
 
     const event = await Event.create({
       userId: ownerId(req),
-      name:   name.trim(),
+      name:   sanitize(name),
       date:   new Date(date),
-      time:   time ?? '',
-      venue:  venue ?? '',
+      time:   sanitize(time),
+      venue:  sanitize(venue),
       guests: Number(guests) || 0,
       status: status ?? 'pending',
-      desc:   desc ?? '',
+      desc:   sanitize(desc),
     });
 
     sendSuccess(res, { event: serializeEvent(event) }, 'Event created', 201);
@@ -95,13 +96,13 @@ export const updateEvent = async (req: AuthRequest, res: Response, next: NextFun
     const event = await Event.findOneAndUpdate(
       { _id: req.params.id, userId: ownerId(req) },
       {
-        name:   name?.trim(),
+        name:   sanitizeOpt(name),
         date:   date ? new Date(date) : undefined,
-        time:   time,
-        venue:  venue,
+        time:   sanitizeOpt(time),
+        venue:  sanitizeOpt(venue),
         guests: Number(guests) || 0,
         status: status,
-        desc:   desc,
+        desc:   sanitizeOpt(desc),
       },
       { new: true, runValidators: true }
     );

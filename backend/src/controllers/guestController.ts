@@ -6,6 +6,7 @@ import { AuthRequest } from '../types';
 import logActivity from '../utils/logActivity';
 import { serializeGuest } from '../helpers/serializers';
 import { ownerId } from '../helpers/authHelpers';
+import { sanitize } from '../utils/sanitize';
 
 // GET /api/v1/guests?page=1&limit=10
 export const getGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -39,9 +40,9 @@ export const createGuest = async (req: AuthRequest, res: Response, next: NextFun
 
     const guest = await Guest.create({
       userId: ownerId(req),
-      name:     name.trim(),
-      relation: relation?.trim() ?? '',
-      phone:    phone?.trim()    ?? '',
+      name:     sanitize(name),
+      relation: sanitize(relation),
+      phone:    sanitize(phone),
       rsvp:     rsvp    ?? 'pending',
       meal:     meal    ?? 'Veg',
       plusOne:  Boolean(plusOne),

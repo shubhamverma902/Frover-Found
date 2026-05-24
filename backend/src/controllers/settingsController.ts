@@ -7,6 +7,7 @@ import { AuthRequest } from '../types';
 import { NOTIFICATION_DEFAULTS } from '../constants/notifications';
 import { fmtDateISO } from '../helpers/dateHelpers';
 import { signToken } from '../helpers/authHelpers';
+import { sanitize } from '../utils/sanitize';
 
 // GET /api/v1/settings
 export const getSettings = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -48,12 +49,12 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
     if (!email?.trim()) return next(new ApiError(422, 'Email is required'));
 
     const updates: Record<string, any> = {
-      name:  name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone?.trim() ?? '',
+      name:  sanitize(name),
+      email: sanitize(email).toLowerCase(),
+      phone: sanitize(phone),
     };
-    if (partnerName !== undefined && partnerName.trim()) {
-      updates['weddingProfile.partner2'] = partnerName.trim();
+    if (partnerName !== undefined && sanitize(partnerName)) {
+      updates['weddingProfile.partner2'] = sanitize(partnerName);
     }
 
     const user = await User.findByIdAndUpdate(req.user!.id, updates, { new: true, runValidators: true });
@@ -77,8 +78,8 @@ export const updateWedding = async (req: AuthRequest, res: Response, next: NextF
       req.user!.id,
       {
         ...(weddingDate && { 'weddingProfile.weddingDate': new Date(weddingDate) }),
-        ...(venue       !== undefined && { 'weddingProfile.venue':      venue.trim()       }),
-        ...(city        && { 'weddingProfile.city':       city.trim()        }),
+        ...(venue       !== undefined && { 'weddingProfile.venue':      sanitize(venue)    }),
+        ...(city        && { 'weddingProfile.city':       sanitize(city)        }),
         ...(guestCount  && { 'weddingProfile.guestCount': Number(guestCount) }),
       },
       { new: true }
