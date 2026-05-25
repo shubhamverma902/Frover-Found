@@ -40,11 +40,11 @@ export const requireOwnerOrPartner = (req: AuthRequest, _res: Response, next: Ne
 export const ownerId = (req: AuthRequest): string =>
   req.user!.dataOwnerId ?? req.user!.id;
 
-export const signRefreshToken = (id: string): string => {
+export const signRefreshToken = (id: string, tokenVersion: number): string => {
   const secret    = process.env.JWT_REFRESH_SECRET;
   const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN ?? '7d';
   if (!secret) throw new Error('JWT_REFRESH_SECRET not defined');
-  return jwt.sign({ id }, secret, { expiresIn } as jwt.SignOptions);
+  return jwt.sign({ id, tokenVersion }, secret, { expiresIn } as jwt.SignOptions);
 };
 
 export const userPayload = (user: InstanceType<typeof User>) => ({

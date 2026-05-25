@@ -1,12 +1,14 @@
 import crypto from 'crypto';
 import { Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
 import User from '../models/User';
+import type { ICollaborator } from '../models/User';
 import ApiError from '../utils/ApiError';
 import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { signToken } from '../helpers/authHelpers';
 
-const serializeCollab = (c: any) => ({
+const serializeCollab = (c: ICollaborator) => ({
   _id:       String(c._id),
   email:     c.email,
   name:      c.name ?? '',
@@ -50,7 +52,7 @@ export const inviteCollaborator = async (req: AuthRequest, res: Response, next: 
       role,
       inviteToken:  token,
       inviteExpiry: expiry,
-    } as any);
+    });
     await user.save();
 
     const appUrl    = process.env.FRONTEND_URL ?? 'http://localhost:3000';
@@ -86,7 +88,7 @@ export const acceptCollaboratorInvite = async (req: AuthRequest, res: Response, 
     const now    = new Date();
 
     // Update collaborator entry on owner's doc
-    collab.userId       = me._id as any;
+    collab.userId       = me._id as Types.ObjectId;
     collab.name         = me.name;
     collab.linkedAt     = now;
     collab.inviteToken  = undefined;
@@ -105,13 +107,36 @@ export const acceptCollaboratorInvite = async (req: AuthRequest, res: Response, 
   } catch (err) { next(err); }
 };
 
+// DELETE /api/v1/collaborators/me  (collaborator removes themselves)
+export const leaveCollaboration = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const ownerId = req.user!.dataOwnerId;
+    if (!ownerId)
+      return next(new ApiError(403, 'Only collaborators can leave a wedding plan'));
+
+    const owner = await User.findById(ownerId);
+    if (!owner) return next(new ApiError(404, 'Owner not found'));
+
+    const collab = owner.collaborators.find(c => String(c.userId) === req.user!.id);
+    if (!collab) return next(new ApiError(404, 'Collaborator entry not found'));
+
+    collab.deleteOne();
+    await owner.save();
+
+    // Clear this account's link so future requests get a fresh token
+    await User.findByIdAndUpdate(req.user!.id, { dataOwner: null, collaboratorRole: null });
+
+    sendSuccess(res, null, 'You have left the wedding plan');
+  } catch (err) { next(err); }
+};
+
 // DELETE /api/v1/collaborators/:id  (the subdoc _id)
 export const removeCollaborator = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const user = await User.findById(req.user!.id);
     if (!user) return next(new ApiError(404, 'User not found'));
 
-    const collab = user.collaborators.id(req.params.id);
+    const collab = user.collaborators.id(String(req.params.id));
     if (!collab) return next(new ApiError(404, 'Collaborator not found'));
 
     const linkedUserId = collab.userId;

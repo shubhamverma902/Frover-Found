@@ -3,7 +3,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 export type EventStatus = 'confirmed' | 'planning' | 'pending';
 
 export interface IAttachment {
-  _id:          Types.ObjectId;
+  _id?:         Types.ObjectId;   // optional: Mongoose generates it on push
   filename:     string;
   originalName: string;
   url:          string;

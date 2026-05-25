@@ -7,14 +7,14 @@ import logActivity from '../utils/logActivity';
 import { serializeGuest } from '../helpers/serializers';
 import { ownerId } from '../helpers/authHelpers';
 import { sanitize } from '../utils/sanitize';
+import { parsePage } from '../utils/parsePage';
 
 // GET /api/v1/guests?page=1&limit=10
 export const getGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const uid   = ownerId(req);
-    const page  = Math.max(1, Number(req.query.page)  || 1);
-    const limit = Math.max(1, Number(req.query.limit) || 10);
-    const skip  = (page - 1) * limit;
+    // maxLimit=1000: seating chart fetches all guests in one request
+    const { page, limit, skip } = parsePage(req.query, 10, 1000);
 
     const [guests, total] = await Promise.all([
       Guest.find({ userId: uid }).sort({ createdAt: 1 }).skip(skip).limit(limit),

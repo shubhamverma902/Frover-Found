@@ -32,8 +32,9 @@ export const register = async (req: Request, res: Response, next: NextFunction):
 
     const user         = await User.create({ name, email, password });
     const id           = String(user._id);
-    const accessToken  = signToken(id, user.email, user.role); // new user — no dataOwner yet
-    const refreshToken = signRefreshToken(id);
+    const accessToken  = signToken(id, user.email, user.role);
+    // New accounts start at version 0 — tokenVersion field default
+    const refreshToken = signRefreshToken(id, 0);
 
     setRefreshCookie(res, refreshToken);
     sendSuccess(res, { token: accessToken, user: userPayload(user) }, 'Registered successfully', 201);
@@ -46,7 +47,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil');
+    const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil +tokenVersion');
 
     // Locked account — check before the password comparison to avoid timing leaks
     if (user?.lockUntil && user.lockUntil > new Date()) {
@@ -78,7 +79,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
     const id           = String(user._id);
     const accessToken  = signToken(id, user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
-    const refreshToken = signRefreshToken(id);
+    const refreshToken = signRefreshToken(id, user.tokenVersion ?? 0);
 
     setRefreshCookie(res, refreshToken);
     sendSuccess(res, { token: accessToken, user: userPayload(user) }, 'Logged in successfully');
@@ -99,18 +100,28 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
     try {
       payload = jwt.verify(token, secret) as jwt.JwtPayload;
     } catch {
-      // Cookie is stale — clear it so the browser doesn't keep sending it
       res.clearCookie(REFRESH_COOKIE, { ...cookieOptions });
       return next(new ApiError(401, 'Refresh token expired or invalid'));
     }
 
-    const user = await User.findById(payload.id);
+    const user = await User.findById(payload.id).select('+tokenVersion');
     if (!user) return next(new ApiError(401, 'User not found'));
 
-    const newAccessToken  = signToken(String(user._id), user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
-    const newRefreshToken = signRefreshToken(String(user._id));
+    // Version mismatch means this token was already rotated — possible replay attack.
+    // Bump the version immediately so every currently-valid token for this user is killed.
+    if ((payload.tokenVersion ?? 0) !== (user.tokenVersion ?? 0)) {
+      await User.findByIdAndUpdate(user._id, { $inc: { tokenVersion: 1 } });
+      res.clearCookie(REFRESH_COOKIE, { ...cookieOptions });
+      return next(new ApiError(401, 'Refresh token already used'));
+    }
 
-    // Rotate: issue a fresh refresh token on every use
+    // Valid — rotate: increment version so this token can never be reused
+    const newVersion      = (user.tokenVersion ?? 0) + 1;
+    await User.findByIdAndUpdate(user._id, { tokenVersion: newVersion });
+
+    const newAccessToken  = signToken(String(user._id), user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
+    const newRefreshToken = signRefreshToken(String(user._id), newVersion);
+
     setRefreshCookie(res, newRefreshToken);
     sendSuccess(res, { token: newAccessToken });
   } catch (err) {
@@ -118,7 +129,16 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const logout = (_req: Request, res: Response): void => {
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  const token = req.cookies?.[REFRESH_COOKIE];
+  if (token) {
+    try {
+      const secret  = process.env.JWT_REFRESH_SECRET!;
+      const payload = jwt.verify(token, secret) as jwt.JwtPayload;
+      // Invalidate all outstanding refresh tokens for this user
+      await User.findByIdAndUpdate(payload.id, { $inc: { tokenVersion: 1 } });
+    } catch { /* token already expired — nothing to invalidate */ }
+  }
   res.clearCookie(REFRESH_COOKIE, { ...cookieOptions });
   res.status(200).json({ success: true, message: 'Logged out' });
 };
@@ -174,8 +194,11 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     user.passwordResetExpiry = null;
     await user.save(); // bcrypt pre-save hook re-hashes the new password
 
-    // Account ownership proven via reset token — clear any active lockout
-    await User.findByIdAndUpdate(user._id, { loginAttempts: 0, lockUntil: null });
+    // Account ownership proven — clear lockout and invalidate all active sessions
+    await User.findByIdAndUpdate(user._id, {
+      $set: { loginAttempts: 0, lockUntil: null },
+      $inc: { tokenVersion: 1 },
+    });
 
     sendSuccess(res, null, 'Password reset successfully. Please log in.');
   } catch (err) {

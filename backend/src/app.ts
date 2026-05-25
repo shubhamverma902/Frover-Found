@@ -2,12 +2,13 @@ import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
+import pinoHttp from 'pino-http';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import notFound from './middleware/notFound';
+import logger from './utils/logger';
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(
 );
 
 // Logging & parsing
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(pinoHttp({ logger }));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

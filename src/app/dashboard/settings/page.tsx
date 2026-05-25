@@ -24,6 +24,7 @@ import {
   PartnerSection,
   CollaboratorsSection,
   ShareWeddingSection,
+  LeaveCollaborationSection,
   PlanBillingSection,
   DangerZone,
 } from '@/features/settings';
@@ -78,6 +79,7 @@ const SettingsPage = () => {
           <NotificationsSection notifications={notifications} onToggle={handleToggle} />
           {!isCollaborator && <PartnerSection />}
           {!isCollaborator && <CollaboratorsSection />}
+          {isCollaborator && <LeaveCollaborationSection />}
           <PlanBillingSection />
           <DangerZone         onSignOut={handleSignOut} onDeleteAccount={handleDeleteAccount} />
         </>

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 // ── Collaborator sub-document ────────────────────────────────
 export interface ICollaborator {
-  _id:           mongoose.Types.ObjectId;
+  _id?:          mongoose.Types.ObjectId;  // optional: Mongoose generates it on push
   userId?:       mongoose.Types.ObjectId; // set once invite is accepted
   email:         string;
   name?:         string;
@@ -76,6 +76,7 @@ export interface IUser extends Document {
   passwordResetExpiry?: Date | null;
   loginAttempts?:       number;
   lockUntil?:           Date | null;
+  tokenVersion:         number;
   createdAt:            Date;
   updatedAt:            Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -104,6 +105,7 @@ const userSchema = new Schema<IUser>(
     passwordResetExpiry: { type: Date,   default: null },
     loginAttempts:       { type: Number, default: 0,    select: false },
     lockUntil:           { type: Date,   default: null,  select: false },
+    tokenVersion:        { type: Number, default: 0,    select: false },
   },
   { timestamps: true }
 );

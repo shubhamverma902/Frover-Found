@@ -11,6 +11,7 @@ import { EVENT_SEED_NAMES } from '../constants/eventSeeds';
 import { UPLOADS_ROOT } from '../middleware/upload';
 import { ownerId } from '../helpers/authHelpers';
 import { sanitize, sanitizeOpt } from '../utils/sanitize';
+import { parsePage } from '../utils/parsePage';
 
 const MAX_ATTACHMENTS = 5;
 
@@ -20,9 +21,7 @@ const MAX_ATTACHMENTS = 5;
 export const getEvents = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const uid   = ownerId(req);
-    const page  = Math.max(1, Number(req.query.page)  || 1);
-    const limit = Math.max(1, Number(req.query.limit) || 20);
-    const skip  = (page - 1) * limit;
+    const { page, limit, skip } = parsePage(req.query, 20);
 
     // Auto-seed on first ever call before running the paginated query
     const existingCount = await Event.countDocuments({ userId: uid });
@@ -140,6 +139,12 @@ export const deleteEvent = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const event = await Event.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!event) return next(new ApiError(404, 'Event not found'));
+
+    if (event.attachments.length > 0) {
+      const dir = path.join(UPLOADS_ROOT, 'events', String(req.params.id));
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* dir may not exist */ }
+    }
+
     sendSuccess(res, { id: req.params.id }, 'Event deleted');
   } catch (err) {
     next(err);
@@ -163,7 +168,7 @@ export const addEventAttachment = async (req: AuthRequest, res: Response, next: 
       mimetype:     req.file.mimetype,
       size:         req.file.size,
       uploadedAt:   new Date(),
-    } as any);
+    });
 
     await event.save();
     sendSuccess(res, { event: serializeEvent(event) }, 'File uploaded');

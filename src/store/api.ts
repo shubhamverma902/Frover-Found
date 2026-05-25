@@ -189,6 +189,11 @@ export const api = createApi({
       invalidatesTags: ["Collaborator"],
     }),
 
+    leaveCollaboration: build.mutation<void, void>({
+      query: () => ({ url: API.collaborators.leave, method: "DELETE" }),
+      invalidatesTags: ["Collaborator", "Dashboard"],
+    }),
+
     // ── Analytics / Insights ─────────────────────────────────────────────────
     getAnalytics: build.query<AnalyticsData, void>({
       query: () => ({ url: API.analytics }),
@@ -228,6 +233,7 @@ export const {
   useInviteCollaboratorMutation,
   useAcceptCollaboratorInviteMutation,
   useRemoveCollaboratorMutation,
+  useLeaveCollaborationMutation,
   useGetAnalyticsQuery,
   useGeneratePublicSlugMutation,
 } = api;

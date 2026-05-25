@@ -80,6 +80,7 @@ export const API = {
     base:   '/collaborators',
     invite: '/collaborators/invite',
     accept: '/collaborators/accept',
+    leave:  '/collaborators/me',
     byId:   (id: string) => `/collaborators/${id}`,
   },
 

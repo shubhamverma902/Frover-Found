@@ -10,6 +10,7 @@ import { serializeVendor } from '../helpers/serializers';
 import { UPLOADS_ROOT } from '../middleware/upload';
 import { ownerId } from '../helpers/authHelpers';
 import { sanitize, sanitizeOpt } from '../utils/sanitize';
+import { parsePage } from '../utils/parsePage';
 
 const MAX_ATTACHMENTS = 5;
 
@@ -17,9 +18,7 @@ const MAX_ATTACHMENTS = 5;
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const uid   = ownerId(req);
-    const page  = Math.max(1, Number(req.query.page)  || 1);
-    const limit = Math.max(1, Number(req.query.limit) || 10);
-    const skip  = (page - 1) * limit;
+    const { page, limit, skip } = parsePage(req.query, 10);
 
     const [vendors, total, booked, shortlisted] = await Promise.all([
       Vendor.find({ userId: uid }).sort({ createdAt: 1 }).skip(skip).limit(limit),
@@ -112,6 +111,12 @@ export const deleteVendor = async (req: AuthRequest, res: Response, next: NextFu
   try {
     const vendor = await Vendor.findOneAndDelete({ _id: req.params.id, userId: ownerId(req) });
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
+
+    if (vendor.attachments.length > 0) {
+      const dir = path.join(UPLOADS_ROOT, 'vendors', String(req.params.id));
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* dir may not exist */ }
+    }
+
     sendSuccess(res, null, 'Vendor removed');
   } catch (err) { next(err); }
 };
@@ -133,7 +138,7 @@ export const addVendorAttachment = async (req: AuthRequest, res: Response, next:
       mimetype:     req.file.mimetype,
       size:         req.file.size,
       uploadedAt:   new Date(),
-    } as any);
+    });
 
     await vendor.save();
     sendSuccess(res, { vendor: serializeVendor(vendor) }, 'File uploaded');

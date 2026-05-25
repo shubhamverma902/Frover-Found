@@ -88,11 +88,11 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
       const srcCat = await ChecklistCategory.findOne({ userId: uid, 'tasks._id': req.params.taskId });
       if (!srcCat) return next(new ApiError(404, 'Task not found'));
 
-      const task = srcCat.tasks.find(t => String(t._id) === req.params.taskId);
-      if (!task) return next(new ApiError(404, 'Task not found'));
-      const { done } = task;
+      const taskIdx = srcCat.tasks.findIndex(t => String(t._id) === String(req.params.taskId));
+      if (taskIdx === -1) return next(new ApiError(404, 'Task not found'));
+      const { done } = srcCat.tasks[taskIdx];
 
-      (srcCat.tasks as any).pull(req.params.taskId);
+      srcCat.tasks.splice(taskIdx, 1);
       await srcCat.save();
 
       const destCat = await ChecklistCategory.findOneAndUpdate(

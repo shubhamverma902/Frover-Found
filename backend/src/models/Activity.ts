@@ -19,18 +19,8 @@ const activitySchema = new Schema<IActivity>(
 );
 
 activitySchema.index({ userId: 1, createdAt: -1 });
-
-// keep only last 50 per user — auto-prune oldest
-activitySchema.post('save', async function () {
-  const count = await mongoose.model('Activity').countDocuments({ userId: this.userId });
-  if (count > 50) {
-    const oldest = await mongoose.model('Activity')
-      .find({ userId: this.userId })
-      .sort({ createdAt: 1 })
-      .limit(count - 50)
-      .select('_id');
-    await mongoose.model('Activity').deleteMany({ _id: { $in: oldest.map(d => d._id) } });
-  }
-});
+// TTL: expire activity documents after 90 days.
+// Must be a single-field index — compound indexes cannot carry expireAfterSeconds.
+activitySchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });
 
 export default mongoose.model<IActivity>('Activity', activitySchema);
