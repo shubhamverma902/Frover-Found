@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import axiosInstance from '@/api/axiosInstance';
 import { useGetGuestsQuery } from '@/store/api';
 import {
@@ -20,31 +21,58 @@ import { API } from '@/constants/api';
 const PAGE_LIMIT = 10;
 
 const GuestsPage = () => {
-  const [page,           setPage]           = useState(1);
-  const [addOpen,        setAddOpen]        = useState(false);
-  const [importOpen,     setImportOpen]     = useState(false);
-  const [rsvpGuest,      setRsvpGuest]      = useState<Guest | null>(null);
-  const [query,          setQuery]          = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [exporting,      setExporting]      = useState(false);
+  const router       = useRouter();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
 
+  const page           = Math.max(1, Number(searchParams.get('page') ?? '1'));
+  const committedQuery = searchParams.get('q') ?? '';
+
+  // Local input value drives the debounce; initialised from URL so back-navigation restores it
+  const [inputValue, setInputValue] = useState(committedQuery);
+
+  // Modal / transient state
+  const [addOpen,    setAddOpen]    = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [rsvpGuest,  setRsvpGuest]  = useState<Guest | null>(null);
+  const [exporting,  setExporting]  = useState(false);
+
+  // Debounce input → URL (also resets page to 1)
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    const trimmed = inputValue.trim();
+    const t = setTimeout(() => {
+      if (trimmed === committedQuery) return;
+      const next = new URLSearchParams(searchParams.toString());
+      if (trimmed) next.set('q', trimmed); else next.delete('q');
+      next.delete('page');
+      router.replace(`${pathname}?${next.toString()}`);
+    }, 350);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [inputValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Reset to page 1 whenever the search term changes
-  useEffect(() => { setPage(1); }, [debouncedQuery]);
+  const goToPage = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    const next = new URLSearchParams(searchParams.toString());
+    if (p === 1) next.delete('page'); else next.set('page', String(p));
+    router.replace(`${pathname}?${next.toString()}`);
+  };
 
   const { data, isLoading } = useGetGuestsQuery({
     page,
     limit: PAGE_LIMIT,
-    query: debouncedQuery || undefined,
+    query: committedQuery || undefined,
   });
 
   const guests     = data?.guests     ?? [];
   const total      = data?.total      ?? 0;
   const totalPages = data?.totalPages ?? 0;
+
+  // Redirect to last valid page if a mutation shrinks the list (e.g. bulk delete)
+  useEffect(() => {
+    if (!isLoading && page > 1 && guests.length === 0 && totalPages > 0) {
+      goToPage(totalPages);
+    }
+  }, [isLoading, guests.length, page, totalPages]); // eslint-disable-line react-hooks/exhaustive-deps
   const grandTotal = data?.grandTotal ?? 0;
   const confirmed  = data?.confirmed  ?? 0;
   const pending    = data?.pending    ?? 0;
@@ -67,15 +95,10 @@ const GuestsPage = () => {
 
   const responsePct = grandTotal > 0 ? Math.round(((confirmed + declined) / grandTotal) * 100) : 0;
 
-  const goToPage = (p: number) => {
-    if (p < 1 || p > totalPages) return;
-    setPage(p);
-  };
-
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
 
-      {addOpen    && <AddGuestModal   onClose={() => setAddOpen(false)} />}
+      {addOpen    && <AddGuestModal    onClose={() => setAddOpen(false)} onSuccess={() => { setAddOpen(false); goToPage(1); }} />}
       {importOpen && <ImportGuestModal onClose={() => setImportOpen(false)} />}
       {rsvpGuest  && <GuestRsvpModal  guest={rsvpGuest} onClose={() => setRsvpGuest(null)} />}
 
@@ -124,13 +147,13 @@ const GuestsPage = () => {
                 <input
                   type="text"
                   aria-label="Search guests"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
                   placeholder="Search guests…"
                   className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
                 />
-                {query && (
-                  <button aria-label="Clear search" onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+                {inputValue && (
+                  <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
                 )}
               </div>
             </div>

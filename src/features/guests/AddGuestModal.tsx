@@ -8,6 +8,7 @@ import type { Guest } from '@/constants/dashboard-pages';
 
 interface AddGuestModalProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const MEAL_OPTIONS: Guest['meal'][] = ['Veg', 'Non-veg', 'Jain'];
@@ -17,7 +18,7 @@ const RSVP_OPTIONS: { value: Guest['rsvp']; label: string }[] = [
   { value: 'declined',  label: 'Declined'  },
 ];
 
-const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
+const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
   const [createGuest, { isLoading: mutating }] = useCreateGuestMutation();
 
   const [name,      setName]      = useState('');
@@ -33,7 +34,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
     if (!name.trim()) { setNameError('Required'); return; }
     try {
       await createGuest({ name: name.trim(), relation, phone, rsvp, meal, plusOne }).unwrap();
-      onClose();
+      (onSuccess ?? onClose)();
     } catch { }
   };
 

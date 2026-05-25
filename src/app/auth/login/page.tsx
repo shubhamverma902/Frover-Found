@@ -110,7 +110,7 @@ const LoginPage = () => {
                 <span className="text-[#E4BC62] text-sm leading-none mt-px shrink-0">⊘</span>
                 <div>
                   <p className="font-semibold mb-0.5">Account temporarily locked</p>
-                  <p className="text-zinc-500 leading-relaxed">{error}</p>
+                  <p className="text-zinc-500 leading-relaxed">{error?.message}</p>
                 </div>
               </div>
             )}
@@ -118,7 +118,7 @@ const LoginPage = () => {
             {/* Regular error banner */}
             {!isLocked && error && (
               <div role="alert" className="mb-5 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
-                <span>{error}</span>
+                <span>{error.message}</span>
                 <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors">✕</button>
               </div>
             )}

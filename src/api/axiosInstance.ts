@@ -23,13 +23,22 @@ interface Deferred {
 
 const inFlight = new Map<string, Deferred>();
 
+// JSON.stringify is key-order-sensitive; this produces the same string regardless
+// of the order in which object keys were added.
+function stableStringify(val: unknown): string {
+  if (val === null || typeof val !== 'object') return JSON.stringify(val);
+  if (Array.isArray(val)) return '[' + val.map(stableStringify).join(',') + ']';
+  const keys = Object.keys(val as Record<string, unknown>).sort();
+  return '{' + keys.map(k => `${JSON.stringify(k)}:${stableStringify((val as Record<string, unknown>)[k])}`).join(',') + '}';
+}
+
 function dedupKey(config: AxiosRequestConfig): string | null {
   if (config.data instanceof FormData) return null; // uploads are always unique
   return [
     (config.method ?? 'get').toUpperCase(),
     config.url ?? '',
-    JSON.stringify(config.params ?? null),
-    typeof config.data === 'string' ? config.data : JSON.stringify(config.data ?? null),
+    stableStringify(config.params ?? null),
+    typeof config.data === 'string' ? config.data : stableStringify(config.data ?? null),
   ].join('::');
 }
 

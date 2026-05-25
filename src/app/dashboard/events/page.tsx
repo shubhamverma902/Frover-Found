@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useGetEventsQuery, usePatchEventStatusMutation } from '@/store/api';
 import {
   AddEventModal,
@@ -23,25 +24,64 @@ const PAGE_LIMIT = 20;
 const EventsPage = () => {
   const [patchEventStatus] = usePatchEventStatusMutation();
 
-  const [page,           setPage]           = useState(1);
-  const [showAdd,        setShowAdd]        = useState(false);
-  const [editEvent,      setEditEvent]      = useState<WeddingEvent | null>(null);
-  const [filter,         setFilter]         = useState<EventFilter>('all');
-  const [query,          setQuery]          = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [view,           setView]           = useState<'list' | 'calendar'>('list');
+  const router       = useRouter();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
+
+  const page           = Math.max(1, Number(searchParams.get('page') ?? '1'));
+  const committedQuery = searchParams.get('q') ?? '';
+  const filter         = (searchParams.get('filter') ?? 'all') as EventFilter;
+  const view           = (searchParams.get('view') ?? 'list') as 'list' | 'calendar';
+
+  const [inputValue, setInputValue] = useState(committedQuery);
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [editEvent,  setEditEvent]  = useState<WeddingEvent | null>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    const trimmed = inputValue.trim();
+    const t = setTimeout(() => {
+      if (trimmed === committedQuery) return;
+      const next = new URLSearchParams(searchParams.toString());
+      if (trimmed) next.set('q', trimmed); else next.delete('q');
+      next.delete('page');
+      router.replace(`${pathname}?${next.toString()}`);
+    }, 350);
     return () => clearTimeout(t);
-  }, [query]);
+  }, [inputValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { setPage(1); }, [debouncedQuery, filter]);
+  const goToPage = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    const next = new URLSearchParams(searchParams.toString());
+    if (p === 1) next.delete('page'); else next.set('page', String(p));
+    router.replace(`${pathname}?${next.toString()}`);
+  };
+
+  const setFilter = (f: EventFilter) => {
+    const next = new URLSearchParams(searchParams.toString());
+    if (f === 'all') next.delete('filter'); else next.set('filter', f);
+    next.delete('page');
+    router.replace(`${pathname}?${next.toString()}`);
+  };
+
+  const setView = (v: 'list' | 'calendar') => {
+    const next = new URLSearchParams(searchParams.toString());
+    if (v === 'list') next.delete('view'); else next.set('view', v);
+    router.replace(`${pathname}?${next.toString()}`);
+  };
+
+  const resetFilters = () => {
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete('filter');
+    next.delete('q');
+    next.delete('page');
+    router.replace(`${pathname}?${next.toString()}`);
+    setInputValue('');
+  };
 
   const { data, isLoading } = useGetEventsQuery({
     page,
     limit: PAGE_LIMIT,
-    query:  debouncedQuery || undefined,
+    query:  committedQuery || undefined,
     status: filter !== 'all' ? filter : undefined,
   });
 
@@ -52,11 +92,6 @@ const EventsPage = () => {
   const confirmed  = data?.confirmed  ?? 0;
   const planning   = data?.planning   ?? 0;
   const pending    = data?.pending    ?? 0;
-
-  const goToPage = (p: number) => {
-    if (p < 1 || p > totalPages) return;
-    setPage(p);
-  };
 
   const filters = [
     { value: 'all'       as EventFilter, label: 'All',       count: grandTotal },
@@ -114,13 +149,13 @@ const EventsPage = () => {
               <input
                 type="text"
                 aria-label="Search events"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
                 placeholder="Search events…"
                 className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
               />
-              {query && (
-                <button aria-label="Clear search" onClick={() => setQuery('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+              {inputValue && (
+                <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
               )}
             </div>
             {viewToggle}
@@ -137,7 +172,7 @@ const EventsPage = () => {
       )}
 
       {!isLoading && grandTotal > 0 && events.length === 0 && view === 'list' && (
-        <EventFilteredEmpty filter={filter} onReset={() => { setFilter('all'); setQuery(''); }} />
+        <EventFilteredEmpty filter={filter} onReset={resetFilters} />
       )}
 
       {!isLoading && events.length > 0 && view === 'list' && (

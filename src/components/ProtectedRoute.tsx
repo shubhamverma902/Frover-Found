@@ -21,8 +21,11 @@ const ProtectedRoute = ({ children }: Props) => {
     }
   }, [hydrated, isAuthenticated, router]);
 
-  // Don't render anything until the initial token check is complete
-  if (!hydrated) return null;
+  if (!hydrated) return (
+    <div className="min-h-screen bg-[#FDFDF8] dark:bg-[#1A1F23] flex items-center justify-center">
+      <div className="w-7 h-7 border-2 border-[#E4BC62]/30 border-t-[#E4BC62] rounded-full animate-spin" />
+    </div>
+  );
 
   // Token check done — not authenticated, redirect in progress
   if (!isAuthenticated) return null;

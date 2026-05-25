@@ -2,9 +2,9 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import type { Attachment } from '@/constants/dashboard-pages';
+import { ATTACHMENT_ALLOWED_TYPES, ATTACHMENT_MAX_BYTES } from '@/utils/validate';
 
-const MAX_FILES   = 5;
-const ACCEPT_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+const MAX_FILES = 5;
 
 const fmtBytes = (n: number) => {
   if (n < 1024)           return `${n} B`;
@@ -12,6 +12,7 @@ const fmtBytes = (n: number) => {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 };
 
+const ACCEPT_MIME = ATTACHMENT_ALLOWED_TYPES as readonly string[];
 const isImage = (mime: string) => mime.startsWith('image/');
 
 interface LightboxProps {
@@ -137,11 +138,30 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
 
   const canUpload = !uploading && attachments.length < MAX_FILES;
 
+  const [validationError, setValidationError] = useState('');
+
   const handleFiles = (list: FileList | null) => {
     if (!list || !canUpload) return;
-    const valid = Array.from(list)
-      .filter(f => ACCEPT_MIME.includes(f.type))
-      .slice(0, MAX_FILES - attachments.length);
+    setValidationError('');
+
+    let typeSkipped = 0;
+    let sizeSkipped = 0;
+    const valid: File[] = [];
+
+    for (const f of Array.from(list)) {
+      if (!ACCEPT_MIME.includes(f.type))    { typeSkipped++; continue; }
+      if (f.size > ATTACHMENT_MAX_BYTES)    { sizeSkipped++; continue; }
+      if (valid.length < MAX_FILES - attachments.length) valid.push(f);
+    }
+
+    const skipped = typeSkipped + sizeSkipped;
+    if (skipped > 0) {
+      const reasons: string[] = [];
+      if (typeSkipped > 0) reasons.push('unsupported type');
+      if (sizeSkipped > 0) reasons.push('over 10 MB');
+      setValidationError(`${skipped} file${skipped > 1 ? 's' : ''} skipped: ${reasons.join(', ')}.`);
+    }
+
     if (valid.length > 0) onUpload(valid);
   };
 
@@ -219,6 +239,9 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
         )}
         {!uploading && uploadError && (
           <p className="text-[10px] text-red-400 text-center">{uploadError}</p>
+        )}
+        {validationError && (
+          <p className="text-[10px] text-red-400 text-center">{validationError}</p>
         )}
 
         {/* File list */}

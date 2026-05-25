@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { axiosBaseQuery } from "./axiosBaseQuery";
+import { axiosBaseQueryWithRetry } from "./axiosBaseQuery";
 import type { AxiosBaseQueryError } from "./axiosBaseQuery";
 import { API } from "@/constants/api";
 import type {
@@ -63,7 +63,7 @@ export interface SeatingData {
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: axiosBaseQuery,
+  baseQuery: axiosBaseQueryWithRetry,
   refetchOnFocus: true,
   refetchOnReconnect: true,
   tagTypes: [
@@ -76,6 +76,7 @@ export const api = createApi({
     "Settings",
     "Notifications",
     "Dashboard",
+    "Analytics",
     "Partner",
     "Collaborator",
   ],
@@ -93,17 +94,17 @@ export const api = createApi({
 
     createGuest: build.mutation<void, CreateGuestPayload>({
       query: (body) => ({ url: API.guests.base, method: 'POST', data: body }),
-      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     patchGuestRsvp: build.mutation<void, { guestId: string; rsvp: Guest['rsvp'] }>({
       query: ({ guestId, rsvp }) => ({ url: API.guests.rsvp(guestId), method: 'PATCH', data: { rsvp } }),
-      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteGuest: build.mutation<void, string>({
       query: (guestId) => ({ url: API.guests.byId(guestId), method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     // ── Vendors ──────────────────────────────────────────────────────────────
@@ -118,22 +119,22 @@ export const api = createApi({
 
     createVendor: build.mutation<void, VendorPayload>({
       query: (body) => ({ url: API.vendors.base, method: 'POST', data: body }),
-      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     updateVendor: build.mutation<void, { vendorId: string; payload: VendorPayload }>({
       query: ({ vendorId, payload }) => ({ url: API.vendors.byId(vendorId), method: 'PUT', data: payload }),
-      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     patchVendorStatus: build.mutation<void, { vendorId: string; status: Vendor['status'] }>({
       query: ({ vendorId, status }) => ({ url: API.vendors.status(vendorId), method: 'PATCH', data: { status } }),
-      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteVendor: build.mutation<void, string>({
       query: (vendorId) => ({ url: API.vendors.byId(vendorId), method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     addVendorAttachment: build.mutation<Vendor, { vendorId: string; file: File }>({
@@ -164,22 +165,22 @@ export const api = createApi({
 
     createEvent: build.mutation<void, Omit<WeddingEvent, '_id'>>({
       query: (body) => ({ url: API.events.base, method: 'POST', data: body }),
-      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     updateEvent: build.mutation<void, { id: string; payload: Omit<WeddingEvent, '_id'> }>({
       query: ({ id, payload }) => ({ url: API.events.byId(id), method: 'PUT', data: payload }),
-      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     patchEventStatus: build.mutation<void, { id: string; status: WeddingEvent['status'] }>({
       query: ({ id, status }) => ({ url: API.events.status(id), method: 'PATCH', data: { status } }),
-      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteEvent: build.mutation<void, string>({
       query: (id) => ({ url: API.events.byId(id), method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     addEventAttachment: build.mutation<WeddingEvent, { eventId: string; file: File }>({
@@ -295,7 +296,7 @@ export const api = createApi({
         try { await queryFulfilled; }
         catch { patch.undo(); }
       },
-      invalidatesTags: ['Budget', 'Dashboard'],
+      invalidatesTags: ['Budget', 'Dashboard', 'Analytics'],
     }),
 
     updateAllocated: build.mutation<void, { categoryId: string; allocated: number }>({
@@ -308,12 +309,12 @@ export const api = createApi({
         try { await queryFulfilled; }
         catch { patch.undo(); }
       },
-      invalidatesTags: ['Budget', 'Dashboard'],
+      invalidatesTags: ['Budget', 'Dashboard', 'Analytics'],
     }),
 
     addExpense: build.mutation<void, { categoryId: string; amount: number; note: string }>({
       query: ({ categoryId, amount, note }) => ({ url: API.budget.expenses(categoryId), method: 'POST', data: { amount, note } }),
-      invalidatesTags: ['Budget', 'Dashboard'],
+      invalidatesTags: ['Budget', 'Dashboard', 'Analytics'],
     }),
 
     deleteExpense: build.mutation<void, { categoryId: string; expenseId: string }>({
@@ -329,7 +330,7 @@ export const api = createApi({
         try { await queryFulfilled; }
         catch { patch.undo(); }
       },
-      invalidatesTags: ['Budget', 'Dashboard'],
+      invalidatesTags: ['Budget', 'Dashboard', 'Analytics'],
     }),
 
     // ── Checklist ────────────────────────────────────────────────────────────
@@ -341,7 +342,7 @@ export const api = createApi({
 
     createTask: build.mutation<void, { category: string; label: string; due: string }>({
       query: (body) => ({ url: API.checklist.tasks, method: 'POST', data: body }),
-      invalidatesTags: ['Checklist', 'Dashboard'],
+      invalidatesTags: ['Checklist', 'Dashboard', 'Analytics'],
     }),
 
     toggleTask: build.mutation<void, string>({
@@ -358,7 +359,7 @@ export const api = createApi({
         catch { patch.undo(); }
         finally { dispatch(finishToggle(taskId)); }
       },
-      invalidatesTags: ['Checklist', 'Dashboard'],
+      invalidatesTags: ['Checklist', 'Dashboard', 'Analytics'],
     }),
 
     updateTask: build.mutation<void, { taskId: string; label: string; due: string; category: string; originalCategory: string }>({
@@ -367,12 +368,12 @@ export const api = createApi({
         method: 'PUT',
         data: { label, due, category, originalCategory },
       }),
-      invalidatesTags: ['Checklist', 'Dashboard'],
+      invalidatesTags: ['Checklist', 'Dashboard', 'Analytics'],
     }),
 
     deleteTask: build.mutation<void, string>({
       query: (taskId) => ({ url: API.checklist.task(taskId), method: 'DELETE' }),
-      invalidatesTags: ['Checklist', 'Dashboard'],
+      invalidatesTags: ['Checklist', 'Dashboard', 'Analytics'],
     }),
 
     // ── Settings ─────────────────────────────────────────────────────────────
@@ -393,14 +394,7 @@ export const api = createApi({
     getDashboard: build.query<DashboardData, void>({
       query: () => ({ url: API.dashboard }),
       transformResponse: (raw) => parseResponse(DashboardDataSchema, raw, 'getDashboard'),
-      providesTags: [
-        "Dashboard",
-        "Checklist",
-        "Budget",
-        { type: "Guest",  id: "LIST" },
-        { type: "Vendor", id: "LIST" },
-        { type: "Event",  id: "LIST" },
-      ],
+      providesTags: ["Dashboard"],
     }),
 
     // ── Partner ──────────────────────────────────────────────────────────────
@@ -417,12 +411,12 @@ export const api = createApi({
 
     acceptInvite: build.mutation<{ token: string }, { token: string }>({
       query: (body) => ({ url: API.settings.partnerAccept, method: "POST", data: body }),
-      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+      invalidatesTags: ["Partner", "Settings", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
     }),
 
     removePartner: build.mutation<{ token: string }, void>({
       query: () => ({ url: API.settings.partner, method: "DELETE" }),
-      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+      invalidatesTags: ["Partner", "Settings", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
     }),
 
     // ── Collaborators ─────────────────────────────────────────────────────────
@@ -439,7 +433,7 @@ export const api = createApi({
 
     acceptCollaboratorInvite: build.mutation<{ token: string; role: 'planner' | 'viewer' }, { token: string }>({
       query: (body) => ({ url: API.collaborators.accept, method: "POST", data: body }),
-      invalidatesTags: ["Collaborator", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard"],
+      invalidatesTags: ["Collaborator", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
     }),
 
     removeCollaborator: build.mutation<{ collaborators: CollaboratorEntry[] }, string>({
@@ -456,14 +450,7 @@ export const api = createApi({
     getAnalytics: build.query<AnalyticsData, void>({
       query: () => ({ url: API.analytics }),
       transformResponse: (raw) => parseResponse(AnalyticsDataSchema, raw, 'getAnalytics'),
-      providesTags: [
-        "Dashboard",
-        "Checklist",
-        "Budget",
-        { type: "Guest",  id: "LIST" },
-        { type: "Vendor", id: "LIST" },
-        { type: "Event",  id: "LIST" },
-      ],
+      providesTags: ["Analytics"],
     }),
 
     // ── Public wedding page ───────────────────────────────────────────────────
@@ -474,7 +461,7 @@ export const api = createApi({
     // ── Guest CSV import ──────────────────────────────────────────────────────
     importGuests: build.mutation<{ imported: number; skipped: number; errors: string[] }, FormData>({
       query: (formData) => ({ url: API.guests.import, method: "POST", data: formData }),
-      invalidatesTags: [{ type: "Guest", id: "LIST" }],
+      invalidatesTags: [{ type: "Guest", id: "LIST" }, "Dashboard"],
     }),
   }),
 });

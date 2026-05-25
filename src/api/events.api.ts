@@ -3,6 +3,7 @@ import type { WeddingEvent } from '@/constants/dashboard-pages';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { EventsDataSchema, WeddingEventSchema } from './schemas';
+import { validateAttachment } from '@/utils/validate';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -45,6 +46,7 @@ export const deleteEventApi = async (id: string): Promise<void> => {
 };
 
 export const addEventAttachmentApi = async (eventId: string, file: File): Promise<WeddingEvent> => {
+  validateAttachment(file);
   const form = new FormData();
   form.append('file', file);
   const { data } = await axiosInstance.post<ApiResponse<{ event: WeddingEvent }>>(

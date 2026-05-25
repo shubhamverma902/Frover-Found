@@ -3,6 +3,7 @@ import type { Vendor } from '@/constants/dashboard-pages';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { VendorsDataSchema, VendorSchema } from './schemas';
+import { validateAttachment } from '@/utils/validate';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -57,6 +58,7 @@ export const deleteVendorApi = async (vendorId: string): Promise<void> => {
 };
 
 export const addVendorAttachmentApi = async (vendorId: string, file: File): Promise<Vendor> => {
+  validateAttachment(file);
   const form = new FormData();
   form.append('file', file);
   const { data } = await axiosInstance.post<ApiResponse<{ vendor: Vendor }>>(

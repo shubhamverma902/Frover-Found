@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import type { AxiosError } from 'axios';
 import type { RootState } from '../store';
 import {
   updateProfileApi,
@@ -11,17 +10,17 @@ import {
   type WeddingData,
 } from '@/api/settings.api';
 import { api } from '../api';
-
-type ApiErr = AxiosError<{ message?: string }>;
+import { type SliceError, extractError } from '../sliceError';
 
 // ── State ─────────────────────────────────────────────────
 
 interface SettingsState {
   notifications: NotificationPref[];
   saving:        'idle' | 'profile' | 'wedding' | 'notifications';
+  error:         SliceError | null;
 }
 
-const initialState: SettingsState = { notifications: [], saving: 'idle' };
+const initialState: SettingsState = { notifications: [], saving: 'idle', error: null };
 
 // ── Thunks ────────────────────────────────────────────────
 
@@ -32,7 +31,7 @@ export const saveProfile = createAsyncThunk(
       const result = await updateProfileApi(payload);
       dispatch(api.util.invalidateTags(['Settings']));
       return result;
-    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update profile'); }
+    } catch (e) { return rejectWithValue(extractError(e, 'Failed to update profile')); }
   }
 );
 
@@ -43,7 +42,7 @@ export const saveWedding = createAsyncThunk(
       const result = await updateWeddingApi(payload);
       dispatch(api.util.invalidateTags(['Settings']));
       return result;
-    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update wedding details'); }
+    } catch (e) { return rejectWithValue(extractError(e, 'Failed to update wedding details')); }
   }
 );
 
@@ -54,7 +53,7 @@ export const saveNotifications = createAsyncThunk(
       await updateNotificationsApi(prefs);
       dispatch(api.util.invalidateTags(['Settings']));
       return prefs;
-    } catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update notifications'); }
+    } catch (e) { return rejectWithValue(extractError(e, 'Failed to update notifications')); }
   }
 );
 
@@ -62,7 +61,7 @@ export const removeAccount = createAsyncThunk(
   'settings/deleteAccount',
   async (_, { rejectWithValue }) => {
     try { await deleteAccountApi(); }
-    catch (e) { return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to delete account'); }
+    catch (e) { return rejectWithValue(extractError(e, 'Failed to delete account')); }
   }
 );
 
@@ -76,22 +75,25 @@ const settingsSlice = createSlice({
       const n = state.notifications.find(n => n.key === payload);
       if (n) n.on = !n.on;
     },
+    clearSettingsError(state) {
+      state.error = null;
+    },
   },
   extraReducers: builder => {
     builder
-      .addCase(saveProfile.pending,   state => { state.saving = 'profile'; })
+      .addCase(saveProfile.pending,   state => { state.saving = 'profile'; state.error = null; })
       .addCase(saveProfile.fulfilled, state => { state.saving = 'idle'; })
-      .addCase(saveProfile.rejected,  state => { state.saving = 'idle'; });
+      .addCase(saveProfile.rejected,  (state, { payload }) => { state.saving = 'idle'; state.error = payload as SliceError; });
 
     builder
-      .addCase(saveWedding.pending,   state => { state.saving = 'wedding'; })
+      .addCase(saveWedding.pending,   state => { state.saving = 'wedding'; state.error = null; })
       .addCase(saveWedding.fulfilled, state => { state.saving = 'idle'; })
-      .addCase(saveWedding.rejected,  state => { state.saving = 'idle'; });
+      .addCase(saveWedding.rejected,  (state, { payload }) => { state.saving = 'idle'; state.error = payload as SliceError; });
 
     builder
-      .addCase(saveNotifications.pending,   state => { state.saving = 'notifications'; })
+      .addCase(saveNotifications.pending,   state => { state.saving = 'notifications'; state.error = null; })
       .addCase(saveNotifications.fulfilled, state => { state.saving = 'idle'; })
-      .addCase(saveNotifications.rejected,  state => { state.saving = 'idle'; });
+      .addCase(saveNotifications.rejected,  (state, { payload }) => { state.saving = 'idle'; state.error = payload as SliceError; });
 
     builder.addMatcher(
       api.endpoints.getSettings.matchFulfilled,
@@ -100,11 +102,12 @@ const settingsSlice = createSlice({
   },
 });
 
-export const { toggleNotification } = settingsSlice.actions;
+export const { toggleNotification, clearSettingsError } = settingsSlice.actions;
 
 // ── Selectors ─────────────────────────────────────────────
 
 export const selectSettingsSaving  = (state: RootState) => state.settings.saving;
 export const selectNotifications   = (state: RootState) => state.settings.notifications;
+export const selectSettingsError   = (state: RootState) => state.settings.error;
 
 export default settingsSlice.reducer;

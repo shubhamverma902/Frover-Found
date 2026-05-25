@@ -4,6 +4,7 @@ import { loginApi, registerApi, getMeApi, logoutApi, refreshTokenApi } from '@/a
 import type { LoginPayload, RegisterPayload } from '@/api/auth.api';
 import { setAccessToken, getAccessToken, clearAccessToken } from '@/api/tokenStore';
 import { submitOnboarding } from './onboardingSlice';
+import { type SliceError, extractError } from '../sliceError';
 
 // ── Types ────────────────────────────────────────────────────
 
@@ -23,10 +24,7 @@ interface AuthState {
   // Used by ProtectedRoute to avoid flashing a redirect before the token is validated
   hydrated:        boolean;
   status:          'idle' | 'loading' | 'succeeded' | 'failed';
-  error:           string | null;
-  // HTTP status code for the last login error (null = no error or non-login error).
-  // 429 means the account is temporarily locked out.
-  errorCode:       number | null;
+  error:           SliceError | null;
 }
 
 // ── Helpers (thin wrappers kept so thunk bodies read the same) ───────────────
@@ -44,11 +42,8 @@ export const loginUser = createAsyncThunk(
       const result = await loginApi(credentials);
       saveToken(result.token);
       return result.user;
-    } catch (err: any) {
-      return rejectWithValue({
-        message: err.response?.data?.message ?? 'Login failed. Please try again.',
-        code:    err.response?.status         ?? 0,
-      });
+    } catch (err) {
+      return rejectWithValue(extractError(err, 'Login failed. Please try again.'));
     }
   }
 );
@@ -60,8 +55,8 @@ export const signupUser = createAsyncThunk(
       const result = await registerApi(payload);
       saveToken(result.token);
       return result.user;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message ?? 'Sign up failed. Please try again.');
+    } catch (err) {
+      return rejectWithValue(extractError(err, 'Sign up failed. Please try again.'));
     }
   }
 );
@@ -94,6 +89,19 @@ export const restoreAuth = createAsyncThunk(
   }
 );
 
+// Call after a plan upgrade to pull fresh user data from the server.
+// Failure is silent — the user stays logged in with whatever plan they had.
+export const refreshUser = createAsyncThunk(
+  'auth/refreshUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getMeApi();
+    } catch {
+      return rejectWithValue('refresh failed');
+    }
+  }
+);
+
 // ── Slice ─────────────────────────────────────────────────────
 
 const initialState: AuthState = {
@@ -102,7 +110,6 @@ const initialState: AuthState = {
   hydrated:        false,
   status:          'idle',
   error:           null,
-  errorCode:       null,
 };
 
 const authSlice = createSlice({
@@ -116,16 +123,14 @@ const authSlice = createSlice({
       state.hydrated        = true;
       state.status          = 'idle';
       state.error           = null;
-      state.errorCode       = null;
     },
     clearError(state) {
-      state.error     = null;
-      state.errorCode = null;
-      state.status    = 'idle';
+      state.error  = null;
+      state.status = 'idle';
     },
   },
   extraReducers: builder => {
-    const pending   = (state: AuthState) => { state.status = 'loading'; state.error = null; state.errorCode = null; };
+    const pending   = (state: AuthState) => { state.status = 'loading'; state.error = null; };
     const fulfilled = (state: AuthState, action: { payload: AuthUser }) => {
       state.status          = 'succeeded';
       state.user            = action.payload;
@@ -133,23 +138,15 @@ const authSlice = createSlice({
       state.hydrated        = true;
     };
     const rejected = (state: AuthState, action: { payload: unknown }) => {
-      state.status    = 'failed';
-      state.error     = typeof action.payload === 'string' ? action.payload : 'Something went wrong.';
-      state.errorCode = null;
-    };
-    // loginUser carries { message, code } so we can distinguish a 429 lockout from a 401
-    interface LoginErrorPayload { message: string; code: number; }
-    const loginRejected = (state: AuthState, action: { payload: unknown }) => {
-      const p         = action.payload as LoginErrorPayload | undefined;
-      state.status    = 'failed';
-      state.error     = p?.message ?? 'Login failed. Please try again.';
-      state.errorCode = p?.code    ?? null;
+      const p      = action.payload as SliceError | undefined;
+      state.status = 'failed';
+      state.error  = p ?? { message: 'Something went wrong.', code: null };
     };
 
     builder
       .addCase(loginUser.pending,   pending)
       .addCase(loginUser.fulfilled, fulfilled)
-      .addCase(loginUser.rejected,  loginRejected)
+      .addCase(loginUser.rejected,  rejected)
 
       .addCase(signupUser.pending,   pending)
       .addCase(signupUser.fulfilled, fulfilled)
@@ -162,7 +159,10 @@ const authSlice = createSlice({
       // Keep auth user in sync after onboarding completes in the same session
       .addCase(submitOnboarding.fulfilled, state => {
         if (state.user) state.user.onboardingCompleted = true;
-      });
+      })
+
+      .addCase(refreshUser.fulfilled, fulfilled)
+      .addCase(refreshUser.rejected,  () => { /* silent — stale plan is better than logout */ });
   },
 });
 
@@ -175,7 +175,7 @@ export const selectIsAuthenticated   = (state: RootState) => state.auth.isAuthen
 export const selectHydrated          = (state: RootState) => state.auth.hydrated;
 export const selectAuthStatus        = (state: RootState) => state.auth.status;
 export const selectAuthError         = (state: RootState) => state.auth.error;
-export const selectAuthErrorCode     = (state: RootState) => state.auth.errorCode;
+export const selectAuthErrorCode     = (state: RootState) => state.auth.error?.code ?? null;
 export const selectCollaboratorRole  = (state: RootState) => state.auth.user?.collaboratorRole ?? null;
 
 export default authSlice.reducer;

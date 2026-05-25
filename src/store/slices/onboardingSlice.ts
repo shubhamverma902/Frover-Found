@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 import { saveOnboardingApi, getOnboardingApi } from '@/api/onboarding.api';
 import type { WeddingProfile } from '@/types/onboarding';
+import { type SliceError, extractError } from '../sliceError';
 
 // ── State ────────────────────────────────────────────────────
 
@@ -9,7 +10,7 @@ interface OnboardingState {
   completed:      boolean;
   profile:        WeddingProfile | null;
   status:         'idle' | 'loading' | 'succeeded' | 'failed';
-  error:          string | null;
+  error:          SliceError | null;
 }
 
 const initialState: OnboardingState = {
@@ -26,8 +27,8 @@ export const submitOnboarding = createAsyncThunk(
   async (profile: WeddingProfile, { rejectWithValue }) => {
     try {
       return await saveOnboardingApi(profile);
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message ?? 'Failed to save onboarding details.');
+    } catch (err) {
+      return rejectWithValue(extractError(err, 'Failed to save onboarding details.'));
     }
   }
 );
@@ -37,8 +38,8 @@ export const fetchOnboarding = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       return await getOnboardingApi();
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message ?? 'Failed to load onboarding details.');
+    } catch (err) {
+      return rejectWithValue(extractError(err, 'Failed to load onboarding details.'));
     }
   }
 );
@@ -68,10 +69,10 @@ const onboardingSlice = createSlice({
       })
       .addCase(submitOnboarding.rejected, (state, { payload }) => {
         state.status = 'failed';
-        state.error  = payload as string;
+        state.error  = payload as SliceError;
       })
 
-      // fetch
+      // fetch is silent on failure — page renders without pre-filled data
       .addCase(fetchOnboarding.pending, state => {
         state.status = 'loading';
       })
@@ -89,7 +90,6 @@ const onboardingSlice = createSlice({
 export const { clearOnboardingError } = onboardingSlice.actions;
 
 // ── Selectors ────────────────────────────────────────────────
-// Import these in any feature that needs wedding details
 
 export const selectOnboardingCompleted = (state: RootState) => state.onboarding.completed;
 export const selectWeddingProfile      = (state: RootState) => state.onboarding.profile;

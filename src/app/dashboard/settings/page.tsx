@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PATH } from '@/constants/path';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -44,8 +44,15 @@ const SettingsPage = () => {
   const wedding = data?.wedding ?? null;
 
   const [saved, setSaved] = useState<string | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const flash = (key: string) => { setSaved(key); setTimeout(() => setSaved(null), 2500); };
+  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
+
+  const flash = (key: string) => {
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    setSaved(key);
+    flashTimer.current = setTimeout(() => setSaved(null), 2500);
+  };
 
   const handleSaveProfile = async (d: { name: string; partnerName: string; email: string; phone: string }) => {
     const result = await dispatch(saveProfile(d));
