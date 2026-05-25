@@ -2,8 +2,13 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import type { RequestHandler } from 'express';
+import Vendor from '../models/Vendor';
+import Event from '../models/Event';
+import ApiError from '../utils/ApiError';
 
 export const UPLOADS_ROOT = path.join(__dirname, '../../uploads');
+
+const QUOTA_BYTES = 500 * 1024 * 1024; // 500 MB per account
 
 // ── Allowed MIME types ────────────────────────────────────────────────────────
 
@@ -60,6 +65,31 @@ function detectMime(buffer: Buffer): string | null {
   return null;
 }
 
+// ── Per-user disk quota ───────────────────────────────────────────────────────
+// Sums byte usage across every vendor and event directory owned by the user.
+// Directories are keyed by entity ID, so we query the DB for the user's IDs
+// then walk each directory synchronously (fast for small attachment counts).
+
+function dirBytes(dir: string): number {
+  if (!fs.existsSync(dir)) return 0;
+  return fs.readdirSync(dir).reduce((sum, file) => {
+    try { return sum + fs.statSync(path.join(dir, file)).size; }
+    catch { return sum; }
+  }, 0);
+}
+
+async function getUserDiskBytes(userId: string): Promise<number> {
+  const [vendors, events] = await Promise.all([
+    Vendor.find({ userId }).select('_id').lean(),
+    Event.find({ userId }).select('_id').lean(),
+  ]);
+
+  let total = 0;
+  for (const v of vendors) total += dirBytes(path.join(UPLOADS_ROOT, 'vendors', String(v._id)));
+  for (const e of events)  total += dirBytes(path.join(UPLOADS_ROOT, 'events',  String(e._id)));
+  return total;
+}
+
 // ── CSV upload (memory only — no disk write, no magic-byte check) ─────────────
 
 export const csvUpload = multer({
@@ -83,8 +113,9 @@ export const csvUpload = multer({
 //      allowlist as a first gate)
 //   2. Magic bytes in the buffer are verified against the declared MIME — this
 //      is the gate that prevents a PHP shell renamed to photo.jpg from passing
-//   3. File is written to disk only after both checks pass
-//   4. req.file.filename is set so controllers can use it unchanged
+//   3. Per-user disk quota is checked against current usage + incoming file size
+//   4. File is written to disk only after all three gates pass
+//   5. req.file.filename is set so controllers can use it unchanged
 
 export const makeUpload = (entity: 'vendors' | 'events'): RequestHandler => {
   const multerInstance = multer({
@@ -97,7 +128,7 @@ export const makeUpload = (entity: 'vendors' | 'events'): RequestHandler => {
   });
 
   return (req, res, next) => {
-    multerInstance.single('file')(req, res, (err) => {
+    multerInstance.single('file')(req, res, async (err) => {
       if (err) return next(err);
       if (!req.file) return next();
 
@@ -109,7 +140,23 @@ export const makeUpload = (entity: 'vendors' | 'events'): RequestHandler => {
         );
       }
 
-      // ── Write to disk (only after both gates pass) ────────────────────────────
+      // ── Gate 3: per-user disk quota ───────────────────────────────────────────
+      // req.user is guaranteed here because protect() runs before this middleware.
+      // dataOwnerId is set for collaborators so their uploads count against the
+      // owner's quota rather than their own (shadow) account.
+      try {
+        const userId = (req as any).user?.dataOwnerId ?? (req as any).user?.id;
+        if (userId) {
+          const used = await getUserDiskBytes(userId);
+          if (used + req.file.buffer.length > QUOTA_BYTES) {
+            return next(new ApiError(413, `Storage quota exceeded. Maximum ${QUOTA_BYTES / (1024 * 1024)} MB per account.`));
+          }
+        }
+      } catch (quotaErr) {
+        return next(quotaErr);
+      }
+
+      // ── Write to disk (only after all gates pass) ─────────────────────────────
       const dir  = path.join(UPLOADS_ROOT, entity, String(req.params.id));
       fs.mkdirSync(dir, { recursive: true });
 
