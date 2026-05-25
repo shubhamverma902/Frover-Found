@@ -13,11 +13,34 @@ import logger from './utils/logger';
 
 const app = express();
 
+const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:3000';
+
 // Security
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc:     ["'self'"],
+        scriptSrc:      ["'self'"],
+        styleSrc:       ["'self'", "'unsafe-inline'"],
+        imgSrc:         ["'self'", 'data:', 'blob:'],
+        connectSrc:     ["'self'", CLIENT_URL],
+        fontSrc:        ["'self'"],
+        objectSrc:      ["'none'"],
+        frameAncestors: ["'none'"],  // stronger than X-Frame-Options
+      },
+    },
+    // HSTS: enforce HTTPS for 1 year in production; off in dev (HTTP is fine locally)
+    hsts: process.env.NODE_ENV === 'production'
+      ? { maxAge: 31_536_000, includeSubDomains: true, preload: true }
+      : false,
+    referrerPolicy: { policy: 'no-referrer' },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+  })
+);
 app.use(
   cors({
-    origin: process.env.CLIENT_URL ?? 'http://localhost:3000',
+    origin: CLIENT_URL,
     credentials: true,
   })
 );
