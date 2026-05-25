@@ -211,6 +211,12 @@ export const api = createApi({
     generatePublicSlug: build.mutation<{ slug: string }, void>({
       query: () => ({ url: API.public.generateSlug, method: "POST" }),
     }),
+
+    // ── Guest CSV import ──────────────────────────────────────────────────────
+    importGuests: build.mutation<{ imported: number; skipped: number; errors: string[] }, FormData>({
+      query: (formData) => ({ url: API.guests.import, method: "POST", data: formData }),
+      invalidatesTags: [{ type: "Guest", id: "LIST" }],
+    }),
   }),
 });
 
@@ -236,4 +242,5 @@ export const {
   useLeaveCollaborationMutation,
   useGetAnalyticsQuery,
   useGeneratePublicSlugMutation,
+  useImportGuestsMutation,
 } = api;

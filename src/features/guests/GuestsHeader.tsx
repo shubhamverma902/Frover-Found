@@ -4,11 +4,12 @@ interface GuestsHeaderProps {
   declined:   number;
   loading:    boolean;
   exporting?: boolean;
-  onAddGuest: () => void;
-  onExport?:  () => void;
+  onAddGuest:  () => void;
+  onImport?:   () => void;
+  onExport?:   () => void;
 }
 
-export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting, onAddGuest, onExport }: GuestsHeaderProps) => (
+export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting, onAddGuest, onImport, onExport }: GuestsHeaderProps) => (
   <div className="bg-[#23292E] p-[3px] glow-gold-strong relative">
     <span className="absolute top-2 left-2 text-[#E4BC62]/25 text-[10px]">◆</span>
     <span className="absolute top-2 right-2 text-[#E4BC62]/25 text-[10px]">◆</span>
@@ -25,13 +26,22 @@ export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting,
         </p>
       </div>
       <div className="relative self-start sm:self-auto flex items-center gap-2">
+        {onImport && (
+          <button
+            onClick={onImport}
+            disabled={loading}
+            className="px-4 py-2.5 text-xs font-bold border border-[#E4BC62]/25 text-[#E4BC62]/65 hover:border-[#E4BC62]/50 hover:text-[#E4BC62] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ↑ Import
+          </button>
+        )}
         {onExport && (
           <button
             onClick={onExport}
             disabled={loading || exporting}
             className="px-4 py-2.5 text-xs font-bold border border-[#E4BC62]/25 text-[#E4BC62]/65 hover:border-[#E4BC62]/50 hover:text-[#E4BC62] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {exporting ? 'Exporting…' : '↓ PDF'}
+            {exporting ? 'Exporting…' : '↓ CSV'}
           </button>
         )}
         <button

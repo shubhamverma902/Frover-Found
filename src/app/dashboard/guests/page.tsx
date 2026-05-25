@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { exportGuestListPDF } from '@/utils/exportPdf';
+import axiosInstance from '@/api/axiosInstance';
 import { useAppDispatch } from '@/store/hooks';
 import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
   GuestRsvpModal,
+  ImportGuestModal,
   GuestsHeader,
   GuestStatCards,
   ResponseRateBar,
@@ -15,17 +16,19 @@ import {
   GuestsSkeleton,
 } from '@/features/guests';
 import type { Guest } from '@/constants/dashboard-pages';
+import { API } from '@/constants/api';
 
 const PAGE_LIMIT = 10;
 
 const GuestsPage = () => {
   const dispatch = useAppDispatch();
 
-  const [page,      setPage]      = useState(1);
-  const [addOpen,   setAddOpen]   = useState(false);
-  const [rsvpGuest, setRsvpGuest] = useState<Guest | null>(null);
-  const [query,     setQuery]     = useState('');
-  const [exporting, setExporting] = useState(false);
+  const [page,        setPage]        = useState(1);
+  const [addOpen,     setAddOpen]     = useState(false);
+  const [importOpen,  setImportOpen]  = useState(false);
+  const [rsvpGuest,   setRsvpGuest]   = useState<Guest | null>(null);
+  const [query,       setQuery]       = useState('');
+  const [exporting,   setExporting]   = useState(false);
 
   const { data, isLoading } = useGetGuestsQuery({ page, limit: PAGE_LIMIT });
 
@@ -39,7 +42,13 @@ const GuestsPage = () => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportGuestListPDF({ total, confirmed, pending, declined });
+      const res = await axiosInstance.get(API.guests.export, { responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }));
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = 'guests.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setExporting(false);
     }
@@ -62,8 +71,9 @@ const GuestsPage = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
 
-      {addOpen   && <AddGuestModal  onClose={() => setAddOpen(false)} />}
-      {rsvpGuest && <GuestRsvpModal guest={rsvpGuest} onClose={() => setRsvpGuest(null)} />}
+      {addOpen    && <AddGuestModal   onClose={() => setAddOpen(false)} />}
+      {importOpen && <ImportGuestModal onClose={() => setImportOpen(false)} />}
+      {rsvpGuest  && <GuestRsvpModal  guest={rsvpGuest} onClose={() => setRsvpGuest(null)} />}
 
       <GuestsHeader
         confirmed={confirmed}
@@ -72,6 +82,7 @@ const GuestsPage = () => {
         loading={isLoading}
         exporting={exporting}
         onAddGuest={() => setAddOpen(true)}
+        onImport={() => setImportOpen(true)}
         onExport={handleExport}
       />
 

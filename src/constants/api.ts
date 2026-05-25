@@ -41,9 +41,11 @@ export const API = {
   },
 
   guests: {
-    base: '/guests',
-    rsvp: (id: string) => `/guests/${id}/rsvp`,
-    byId: (id: string) => `/guests/${id}`,
+    base:   '/guests',
+    rsvp:   (id: string) => `/guests/${id}/rsvp`,
+    byId:   (id: string) => `/guests/${id}`,
+    import: '/guests/import',
+    export: '/guests/export',
   },
 
   vendors: {

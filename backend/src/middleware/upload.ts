@@ -12,6 +12,18 @@ const ALLOWED_TYPES = new Set([
   'application/pdf',
 ]);
 
+export const csvUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const okMime = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+    if (okMime.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.csv'))
+      cb(null, true);
+    else
+      cb(new Error('Only CSV files are allowed'));
+  },
+});
+
 export const makeUpload = (entity: 'vendors' | 'events') =>
   multer({
     storage: multer.diskStorage({

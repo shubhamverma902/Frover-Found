@@ -9,6 +9,51 @@ import { ownerId } from '../helpers/authHelpers';
 import { sanitize } from '../utils/sanitize';
 import { parsePage } from '../utils/parsePage';
 
+// ── CSV helpers ───────────────────────────────────────────────────────────────
+
+function splitCsvRow(line: string): string[] {
+  const fields: string[] = [];
+  let i = 0;
+  while (i <= line.length) {
+    if (i === line.length) { fields.push(''); break; }
+    if (line[i] === '"') {
+      let field = '';
+      i++;
+      while (i < line.length) {
+        if (line[i] === '"' && line[i + 1] === '"') { field += '"'; i += 2; }
+        else if (line[i] === '"') { i++; break; }
+        else { field += line[i++]; }
+      }
+      fields.push(field);
+      if (line[i] === ',') i++;
+    } else {
+      const end = line.indexOf(',', i);
+      if (end === -1) { fields.push(line.slice(i)); break; }
+      fields.push(line.slice(i, end));
+      i = end + 1;
+    }
+  }
+  return fields;
+}
+
+function parseCsv(text: string): Record<string, string>[] {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = splitCsvRow(lines[0]).map(h => h.trim().toLowerCase());
+  const result: Record<string, string>[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = splitCsvRow(lines[i]);
+    const row: Record<string, string> = {};
+    headers.forEach((h, j) => { row[h] = (values[j] ?? '').trim(); });
+    if (Object.values(row).some(v => v)) result.push(row);
+  }
+  return result;
+}
+
+function csvEscape(v: string): string {
+  return `"${v.replace(/"/g, '""')}"`;
+}
+
 // GET /api/v1/guests?page=1&limit=10
 export const getGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -72,6 +117,61 @@ export const patchGuestRsvp = async (req: AuthRequest, res: Response, next: Next
     if (rsvp === 'confirmed') logActivity(uid, '✉', `${guest.name} confirmed attendance`);
     if (rsvp === 'declined')  logActivity(uid, '✉', `${guest.name} declined invitation`);
     sendSuccess(res, { guest: serializeGuest(guest) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /api/v1/guests/import
+export const importGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (!req.file) return next(new ApiError(400, 'CSV file is required'));
+    const uid  = ownerId(req);
+    const text = req.file.buffer.toString('utf8');
+    const rows = parseCsv(text);
+    if (rows.length === 0) return next(new ApiError(422, 'CSV has no valid data rows'));
+
+    const VALID_RSVP = new Set(['confirmed', 'pending', 'declined']);
+    const VALID_MEAL = new Set(['Veg', 'Non-veg', 'Jain']);
+    const docs: object[] = [];
+    const errors: string[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row  = rows[i];
+      const name = sanitize(row['name'] ?? '').trim();
+      if (!name) { errors.push(`Row ${i + 2}: name is required`); continue; }
+      docs.push({
+        userId:   uid,
+        name,
+        relation: sanitize(row['relation'] ?? ''),
+        phone:    sanitize(row['phone']    ?? ''),
+        rsvp:     VALID_RSVP.has(row['rsvp']) ? row['rsvp'] : 'pending',
+        meal:     VALID_MEAL.has(row['meal']) ? row['meal'] : 'Veg',
+        plusOne:  ['true', '1', 'yes'].includes((row['plusone'] ?? '').toLowerCase()),
+      });
+    }
+
+    const inserted = await Guest.insertMany(docs, { ordered: false });
+    logActivity(uid, '👥', `Imported ${inserted.length} guests via CSV`);
+    sendSuccess(res, { imported: inserted.length, skipped: errors.length, errors }, 'Guests imported', 201);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /api/v1/guests/export
+export const exportGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const guests = await Guest.find({ userId: ownerId(req) }).sort({ createdAt: 1 }).lean();
+    const header = 'name,relation,phone,rsvp,meal,plusOne\n';
+    const body   = guests.map(g =>
+      [g.name, g.relation, g.phone, g.rsvp, g.meal, String(g.plusOne)]
+        .map(v => csvEscape(String(v ?? '')))
+        .join(',')
+    ).join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="guests.csv"');
+    res.send(header + body);
   } catch (err) {
     next(err);
   }
