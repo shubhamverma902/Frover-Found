@@ -52,9 +52,9 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
 
   return (
     <Modal onClose={onClose} aria-label="Add vendor" className="flex flex-col max-h-[90svh]">
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Vendors</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Vendors</p>
           <h2 className="text-base font-bold text-white">Add Vendor</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -63,14 +63,14 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
       <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
         <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
-            <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
+            <div className="flex-1 h-px bg-gold/15" />
+            <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+            <div className="flex-1 h-px bg-gold/15" />
           </div>
 
           {/* Name */}
           <div>
-            <FieldLabel>Vendor Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Vendor Name <span className="text-blush">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Floral Dreams by Sunita"
               value={name} maxLength={100}
               onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
@@ -81,7 +81,7 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
 
           {/* Category */}
           <div>
-            <FieldLabel>Category <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             <div className="grid grid-cols-2 gap-1.5">
               {CATEGORY_ICONS.map(opt => (
                 <button
@@ -90,8 +90,8 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
                   onClick={() => handleCategoryChange(opt.label)}
                   className={`flex items-center gap-2 px-3 py-2 border text-xs font-semibold transition-colors ${
                     category === opt.label
-                      ? 'border-[#E4BC62]/50 bg-[#E4BC62]/10 text-[#E4BC62]'
-                      : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/50 bg-gold/10 text-gold'
+                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
                   }`}
                 >
                   <span>{opt.icon}</span>
@@ -124,8 +124,8 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
                   onClick={() => setStatus(opt)}
                   className={`flex-1 px-3 py-2 text-[11px] font-bold border capitalize transition-colors ${
                     status === opt
-                      ? 'border-[#E4BC62]/50 bg-[#E4BC62]/10 text-[#E4BC62]'
-                      : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/50 bg-gold/10 text-gold'
+                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
                   }`}
                 >
                   {opt}
@@ -143,23 +143,23 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
                   key={n}
                   type="button"
                   onClick={() => setRating(n)}
-                  className={`text-xl transition-transform hover:scale-110 ${n <= rating ? 'text-[#E4BC62]' : 'text-[#DDDED9]/20'}`}
+                  className={`text-xl transition-transform hover:scale-110 ${n <= rating ? 'text-gold' : 'text-silver/20'}`}
                 >
                   ★
                 </button>
               ))}
-              <span className="ml-1 text-xs text-[#DDDED9]/40 self-center">{rating}.0</span>
+              <span className="ml-1 text-xs text-silver/40 self-center">{rating}.0</span>
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <FieldLabel>Notes <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
+            <FieldLabel>Notes <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Spoke with Sunita, price negotiable" value={notes} maxLength={2000} onChange={e => setNotes(e.target.value)} />
           </div>
         </div>
 
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
+        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!name.trim() || mutating}>
             {mutating ? 'Adding…' : 'Add Vendor ✦'}

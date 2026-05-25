@@ -34,9 +34,9 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
     <Modal onClose={onClose} aria-label="Add new task" className="flex flex-col max-h-[90svh]">
 
       {/* Header — fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Planning</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Planning</p>
           <h2 className="text-base font-bold text-white">Add New Task</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -49,14 +49,14 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
 
           {/* Ornament */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
-            <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
+            <div className="flex-1 h-px bg-gold/15" />
+            <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+            <div className="flex-1 h-px bg-gold/15" />
           </div>
 
           {/* Task label */}
           <div>
-            <FieldLabel>Task <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Task <span className="text-blush">*</span></FieldLabel>
             <Input
               variant="dark"
               placeholder="e.g. Book florist for mandap"
@@ -82,15 +82,15 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
 
           {/* Category */}
           <div>
-            <FieldLabel>Category <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             <div className="flex flex-col gap-1.5">
               {categories.map(cat => (
                 <label
                   key={cat.category}
                   className={`flex items-center gap-3 px-3 py-2.5 border cursor-pointer transition-colors ${
                     category === cat.category
-                      ? 'border-[#E4BC62]/40 bg-[#E4BC62]/8'
-                      : 'border-[#DDDED9]/15 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/40 bg-gold/8'
+                      : 'border-silver/15 hover:border-silver/30'
                   }`}
                 >
                   <input
@@ -102,11 +102,11 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
                     className="sr-only"
                   />
                   <span className="text-base leading-none">{cat.icon}</span>
-                  <span className={`text-xs font-semibold ${category === cat.category ? 'text-[#E4BC62]' : 'text-[#DDDED9]/50'}`}>
+                  <span className={`text-xs font-semibold ${category === cat.category ? 'text-gold' : 'text-silver/50'}`}>
                     {cat.category}
                   </span>
                   {category === cat.category && (
-                    <CheckIcon size={10} className="ml-auto shrink-0 text-[#E4BC62]" strokeWidth={1.8} />
+                    <CheckIcon size={10} className="ml-auto shrink-0 text-gold" strokeWidth={1.8} />
                   )}
                 </label>
               ))}
@@ -116,7 +116,7 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
         </div>
 
         {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
+        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={mutating}>{mutating ? 'Saving…' : 'Add Task ✦'}</Button>
         </div>

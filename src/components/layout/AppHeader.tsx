@@ -83,24 +83,24 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
     : null;
 
   return (
-    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 bg-white dark:bg-[#1a1f23] border-b border-[#DDDED9] dark:border-[#2a2f33] shrink-0">
+    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 bg-white dark:bg-[#1a1f23] border-b border-silver dark:border-[#2a2f33] shrink-0">
 
       {/* Left — mobile menu + breadcrumb */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 text-[#23292E]/50 dark:text-[#DDDED9]/50 hover:text-[#23292E] dark:hover:text-[#DDDED9] transition-colors"
+          className="lg:hidden p-1.5 text-dark/50 dark:text-silver/50 hover:text-dark dark:hover:text-silver transition-colors"
           aria-label="Toggle sidebar"
         >
           <MenuIcon size={20} />
         </button>
 
         <div className="flex items-center gap-2 text-sm">
-          <Link href={PATH.home} className="text-[#DFB3AE] hover:text-[#23292E] dark:hover:text-white transition-colors font-medium">
+          <Link href={PATH.home} className="text-blush hover:text-dark dark:hover:text-white transition-colors font-medium">
             Forever Found
           </Link>
-          <span className="text-[#DDDED9] dark:text-[#DDDED9]/30">/</span>
-          <span className="text-[#23292E] dark:text-[#FDFDF8] font-semibold">Dashboard</span>
+          <span className="text-silver dark:text-silver/30">/</span>
+          <span className="text-dark dark:text-background font-semibold">Dashboard</span>
         </div>
       </div>
 
@@ -110,7 +110,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         {/* Main site link */}
         <Link
           href={PATH.home}
-          className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-[#23292E]/50 dark:text-[#DDDED9]/50 hover:text-[#23292E] dark:hover:text-[#DDDED9] border border-[#DDDED9] dark:border-[#2a2f33] hover:border-[#DFB3AE] px-3 py-1.5 transition-all duration-200"
+          className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-dark/50 dark:text-silver/50 hover:text-dark dark:hover:text-silver border border-silver dark:border-[#2a2f33] hover:border-blush px-3 py-1.5 transition-all duration-200"
         >
           <ArrowLeftIcon size={12} />
           Main Site
@@ -122,27 +122,27 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         <div className="relative" ref={notifRef}>
           <button
             onClick={handleBellClick}
-            className="relative p-2 text-[#23292E]/40 hover:text-[#23292E] dark:text-[#DDDED9]/40 dark:hover:text-[#DDDED9] transition-colors"
+            className="relative p-2 text-dark/40 hover:text-dark dark:text-silver/40 dark:hover:text-silver transition-colors"
             aria-label="Notifications"
           >
             <BellIcon size={18} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[1rem] h-4 flex items-center justify-center rounded-full bg-[#E4BC62] border-2 border-white dark:border-[#1a1f23] text-[9px] font-black text-[#23292E] px-0.5 leading-none">
+              <span className="absolute top-1 right-1 min-w-[1rem] h-4 flex items-center justify-center rounded-full bg-gold border-2 border-white dark:border-[#1a1f23] text-[9px] font-black text-dark px-0.5 leading-none">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-80 bg-white dark:bg-[#1a1f23] border border-[#DDDED9] dark:border-[#2a2f33] shadow-xl shadow-[#23292E]/12 z-50 animate-fade-in-up">
+            <div className="absolute right-0 top-full mt-1.5 w-80 bg-white dark:bg-[#1a1f23] border border-silver dark:border-[#2a2f33] shadow-xl shadow-dark/12 z-50 animate-fade-in-up">
 
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 bg-[#23292E] border-b border-[#E4BC62]/15">
+              <div className="flex items-center justify-between px-4 py-3 bg-dark border-b border-gold/15">
                 <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 bg-[#E4BC62]" />
+                  <div className="w-1 h-4 bg-gold" />
                   <p className="text-xs font-bold text-white uppercase tracking-widest">Notifications</p>
                   {unreadCount > 0 && (
-                    <span className="text-[9px] font-black text-[#23292E] bg-[#E4BC62] px-1.5 py-0.5 rounded-full leading-none">
+                    <span className="text-[9px] font-black text-dark bg-gold px-1.5 py-0.5 rounded-full leading-none">
                       {unreadCount}
                     </span>
                   )}
@@ -150,7 +150,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                 {notifications.length > 0 && (
                   <button
                     onClick={() => dispatch(markAllRead())}
-                    className="text-[9px] font-bold text-[#E4BC62]/60 hover:text-[#E4BC62] uppercase tracking-widest transition-colors"
+                    className="text-[9px] font-bold text-gold/60 hover:text-gold uppercase tracking-widest transition-colors"
                   >
                     Mark all read
                   </button>
@@ -163,40 +163,40 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                   <div className="space-y-3 p-4 animate-pulse">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-7 h-7 bg-[#DDDED9]/20 rounded shrink-0" />
+                        <div className="w-7 h-7 bg-silver/20 rounded shrink-0" />
                         <div className="flex-1 space-y-1.5 pt-0.5">
-                          <div className="h-2.5 bg-[#DDDED9]/15 rounded w-4/5" />
-                          <div className="h-2 bg-[#DDDED9]/10 rounded w-1/3" />
+                          <div className="h-2.5 bg-silver/15 rounded w-4/5" />
+                          <div className="h-2 bg-silver/10 rounded w-1/3" />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center gap-2 py-10">
-                    <span className="text-2xl text-[#DFB3AE]/40">🔔</span>
-                    <p className="text-xs text-zinc-400 dark:text-[#DDDED9]/30">No notifications yet</p>
-                    <p className="text-[10px] text-zinc-300 dark:text-[#DDDED9]/20 text-center px-6 leading-relaxed">
+                    <span className="text-2xl text-blush/40">🔔</span>
+                    <p className="text-xs text-zinc-400 dark:text-silver/30">No notifications yet</p>
+                    <p className="text-[10px] text-zinc-300 dark:text-silver/20 text-center px-6 leading-relaxed">
                       Activity will appear here as you add guests, tasks, and vendors.
                     </p>
                   </div>
                 ) : (
-                  <ul className="divide-y divide-[#DDDED9]/60 dark:divide-[#2a2f33]">
+                  <ul className="divide-y divide-silver/60 dark:divide-[#2a2f33]">
                     {notifications.map(n => (
                       <li
                         key={n._id}
                         className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                          !n.read ? 'bg-[#E4BC62]/5' : ''
+                          !n.read ? 'bg-gold/5' : ''
                         }`}
                       >
-                        <div className="w-7 h-7 shrink-0 bg-[#23292E] border border-[#E4BC62]/20 flex items-center justify-center text-xs">
+                        <div className="w-7 h-7 shrink-0 bg-dark border border-gold/20 flex items-center justify-center text-xs">
                           {n.icon}
                         </div>
                         <div className="flex-1 min-w-0 pt-0.5">
-                          <p className="text-xs text-[#23292E] dark:text-[#FDFDF8] leading-snug">{n.text}</p>
-                          <p className="text-[10px] text-zinc-400 dark:text-[#DFB3AE]/70 mt-0.5">{n.time}</p>
+                          <p className="text-xs text-dark dark:text-background leading-snug">{n.text}</p>
+                          <p className="text-[10px] text-zinc-400 dark:text-blush/70 mt-0.5">{n.time}</p>
                         </div>
                         {!n.read && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#E4BC62] shrink-0 mt-2" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-2" />
                         )}
                       </li>
                     ))}
@@ -205,11 +205,11 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-[#DDDED9] dark:border-[#2a2f33] bg-zinc-50 dark:bg-[#DDDED9]/5">
+              <div className="px-4 py-2.5 border-t border-silver dark:border-[#2a2f33] bg-zinc-50 dark:bg-silver/5">
                 <Link
                   href={PATH.dashboard.settings}
                   onClick={() => setNotifOpen(false)}
-                  className="text-[9px] font-bold text-zinc-400 dark:text-[#DDDED9]/40 hover:text-[#23292E] dark:hover:text-[#DDDED9] uppercase tracking-widest transition-colors"
+                  className="text-[9px] font-bold text-zinc-400 dark:text-silver/40 hover:text-dark dark:hover:text-silver uppercase tracking-widest transition-colors"
                 >
                   Manage notification preferences →
                 </Link>
@@ -226,47 +226,47 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
             onClick={() => setProfileOpen(!profileOpen)}
             className={`flex items-center gap-2.5 pl-3 pr-2 py-1.5 border transition-all duration-200 ${
               profileOpen
-                ? 'border-[#23292E] bg-[#23292E]'
-                : 'border-[#DDDED9] dark:border-[#2a2f33] hover:border-[#DFB3AE]'
+                ? 'border-dark bg-dark'
+                : 'border-silver dark:border-[#2a2f33] hover:border-blush'
             }`}
           >
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
-              profileOpen ? 'bg-[#E4BC62] text-[#23292E]' : 'bg-[#23292E] text-[#E4BC62]'
+              profileOpen ? 'bg-gold text-dark' : 'bg-dark text-gold'
             }`}>
               {initials}
             </div>
-            <span className={`text-sm font-semibold transition-colors ${profileOpen ? 'text-white' : 'text-[#23292E] dark:text-[#FDFDF8]'}`}>
+            <span className={`text-sm font-semibold transition-colors ${profileOpen ? 'text-white' : 'text-dark dark:text-background'}`}>
               {firstName}
             </span>
             <ChevronDownIcon
               size={12}
-              className={`transition-transform duration-200 ${profileOpen ? 'rotate-180 text-[#E4BC62]' : 'text-[#23292E]'}`}
+              className={`transition-transform duration-200 ${profileOpen ? 'rotate-180 text-gold' : 'text-dark'}`}
             />
           </button>
 
           {/* Dropdown panel */}
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-64 bg-white dark:bg-[#1a1f23] border border-[#DDDED9] dark:border-[#2a2f33] shadow-xl shadow-[#23292E]/12 z-50 animate-fade-in-up">
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-white dark:bg-[#1a1f23] border border-silver dark:border-[#2a2f33] shadow-xl shadow-dark/12 z-50 animate-fade-in-up">
 
               {/* User info */}
-              <div className="px-4 py-4 bg-[#23292E] border-b border-[#E4BC62]/20">
+              <div className="px-4 py-4 bg-dark border-b border-gold/20">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#E4BC62] flex items-center justify-center text-sm font-black text-[#23292E] shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center text-sm font-black text-dark shrink-0">
                     {initials}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-white truncate">{user?.name ?? 'Guest'}</p>
-                    <p className="text-[11px] text-[#DDDED9]/50 truncate">{user?.email ?? ''}</p>
+                    <p className="text-[11px] text-silver/50 truncate">{user?.email ?? ''}</p>
                   </div>
-                  <span className="ml-auto shrink-0 text-[9px] font-bold text-[#E4BC62] border border-[#E4BC62]/40 px-1.5 py-0.5 uppercase tracking-widest">
+                  <span className="ml-auto shrink-0 text-[9px] font-bold text-gold border border-gold/40 px-1.5 py-0.5 uppercase tracking-widest">
                     {planLabel}
                   </span>
                 </div>
 
                 {weddingCountdown && (
                   <div className="mt-3 flex items-center justify-between text-[10px]">
-                    <span className="text-[#DDDED9]/40 uppercase tracking-widest">Wedding in</span>
-                    <span className="font-bold text-[#E4BC62]">
+                    <span className="text-silver/40 uppercase tracking-widest">Wedding in</span>
+                    <span className="font-bold text-gold">
                       {weddingCountdown.days > 0
                         ? `${weddingCountdown.days} days — ${weddingCountdown.date}`
                         : weddingCountdown.date}
@@ -283,15 +283,15 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                     key={href}
                     href={href}
                     onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-[#DDDED9]/75 hover:bg-[#DDDED9]/30 dark:hover:bg-[#DDDED9]/8 hover:text-[#23292E] dark:hover:text-white transition-colors"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-silver/75 hover:bg-silver/30 dark:hover:bg-silver/8 hover:text-dark dark:hover:text-white transition-colors"
                   >
-                    <span className="text-[#DFB3AE] w-4 text-center text-xs">{icon}</span>
+                    <span className="text-blush w-4 text-center text-xs">{icon}</span>
                     {label}
                   </Link>
                 ))}
               </div>
 
-              <div className="mx-4 h-px bg-[#DDDED9] dark:bg-[#2a2f33]" />
+              <div className="mx-4 h-px bg-silver dark:bg-[#2a2f33]" />
 
               {/* Account links */}
               <div className="py-1.5">
@@ -299,32 +299,32 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                 <Link
                   href={PATH.dashboard.settings}
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-[#DDDED9]/75 hover:bg-[#DDDED9]/30 dark:hover:bg-[#DDDED9]/8 hover:text-[#23292E] dark:hover:text-white transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-silver/75 hover:bg-silver/30 dark:hover:bg-silver/8 hover:text-dark dark:hover:text-white transition-colors"
                 >
-                  <span className="text-[#DFB3AE] w-4 text-center text-xs">◎</span>
+                  <span className="text-blush w-4 text-center text-xs">◎</span>
                   Settings
                 </Link>
                 <Link
                   href={PATH.dashboard.help}
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-[#DDDED9]/75 hover:bg-[#DDDED9]/30 dark:hover:bg-[#DDDED9]/8 hover:text-[#23292E] dark:hover:text-white transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-600 dark:text-silver/75 hover:bg-silver/30 dark:hover:bg-silver/8 hover:text-dark dark:hover:text-white transition-colors"
                 >
-                  <span className="text-[#DFB3AE] w-4 text-center text-xs">?</span>
+                  <span className="text-blush w-4 text-center text-xs">?</span>
                   Help &amp; Support
                 </Link>
               </div>
 
-              <div className="mx-4 h-px bg-[#DDDED9] dark:bg-[#2a2f33]" />
+              <div className="mx-4 h-px bg-silver dark:bg-[#2a2f33]" />
 
               {/* Upgrade + Sign out */}
               <div className="p-3 space-y-2">
-                <button className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold bg-[#E4BC62]/10 border border-[#E4BC62]/30 text-[#23292E] hover:bg-[#E4BC62]/20 transition-colors">
+                <button className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold bg-gold/10 border border-gold/30 text-dark hover:bg-gold/20 transition-colors">
                   <span>Upgrade to Premium</span>
-                  <span className="text-[#E4BC62]">✦</span>
+                  <span className="text-gold">✦</span>
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold border border-[#DFB3AE]/30 text-[#DFB3AE] hover:bg-[#DFB3AE]/10 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold border border-blush/30 text-blush hover:bg-blush/10 transition-colors"
                 >
                   <LogoutIcon size={13} />
                   Sign Out

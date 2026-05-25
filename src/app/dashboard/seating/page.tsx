@@ -101,10 +101,10 @@ const SeatingPage = () => {
       {/* ── Page header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-1">Planning</p>
-          <h1 className="text-2xl font-black text-[#23292E] dark:text-white">Seating Planner</h1>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-1">Planning</p>
+          <h1 className="text-2xl font-black text-dark dark:text-white">Seating Planner</h1>
           {!isLoading && (
-            <p className="text-xs text-[#23292E]/50 dark:text-[#DDDED9]/40 mt-1">
+            <p className="text-xs text-dark/50 dark:text-silver/40 mt-1">
               {assignedCount} of {allGuests.length} guests seated
               {tables.length > 0 && ` · ${totalSeats} seats across ${tables.length} table${tables.length !== 1 ? 's' : ''}`}
             </p>
@@ -113,7 +113,7 @@ const SeatingPage = () => {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#E4BC62] text-[#23292E] text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[#d4ac52] transition-colors shrink-0"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gold text-dark text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[#d4ac52] transition-colors shrink-0"
         >
           <span>+</span> Add Table
         </button>
@@ -123,12 +123,12 @@ const SeatingPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-10 bg-[#23292E] animate-pulse" />
+              <div key={i} className="h-10 bg-dark animate-pulse" />
             ))}
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-40 bg-[#23292E] animate-pulse" />
+              <div key={i} className="h-40 bg-dark animate-pulse" />
             ))}
           </div>
         </div>
@@ -136,9 +136,9 @@ const SeatingPage = () => {
 
       {!isLoading && allGuests.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <span className="text-5xl text-[#23292E]/10 dark:text-[#DDDED9]/10">⬡</span>
-          <p className="text-sm font-bold text-[#23292E]/40 dark:text-[#DDDED9]/40">No guests added yet</p>
-          <p className="text-xs text-[#23292E]/30 dark:text-[#DDDED9]/25">Add guests in the Guest List section first.</p>
+          <span className="text-5xl text-dark/10 dark:text-silver/10">⬡</span>
+          <p className="text-sm font-bold text-dark/40 dark:text-silver/40">No guests added yet</p>
+          <p className="text-xs text-dark/30 dark:text-silver/25">Add guests in the Guest List section first.</p>
         </div>
       )}
 
@@ -154,13 +154,13 @@ const SeatingPage = () => {
 
             {/* ── Tables grid ── */}
             {tables.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-[#23292E]/10 dark:border-[#DDDED9]/10 gap-3">
-                <span className="text-4xl text-[#23292E]/10 dark:text-[#DDDED9]/10">⬡</span>
-                <p className="text-sm font-bold text-[#23292E]/30 dark:text-[#DDDED9]/30">No tables yet</p>
+              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-dark/10 dark:border-silver/10 gap-3">
+                <span className="text-4xl text-dark/10 dark:text-silver/10">⬡</span>
+                <p className="text-sm font-bold text-dark/30 dark:text-silver/30">No tables yet</p>
                 <button
                   type="button"
                   onClick={() => setShowAdd(true)}
-                  className="text-xs text-[#E4BC62]/60 underline underline-offset-2 hover:text-[#E4BC62] transition-colors"
+                  className="text-xs text-gold/60 underline underline-offset-2 hover:text-gold transition-colors"
                 >
                   Add your first table
                 </button>

@@ -21,8 +21,8 @@ export const ThemeToggle = ({ className = '' }: { className?: string }) => {
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`flex items-center justify-center w-8 h-8 border transition-all duration-200 ${
         isDark
-          ? 'border-[#E4BC62]/30 text-[#E4BC62] hover:bg-[#E4BC62]/10'
-          : 'border-[#DDDED9] text-[#23292E]/60 hover:border-[#DFB3AE] hover:text-[#23292E]'
+          ? 'border-gold/30 text-gold hover:bg-gold/10'
+          : 'border-silver text-dark/60 hover:border-blush hover:text-dark'
       } ${className}`}
     >
       {isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}

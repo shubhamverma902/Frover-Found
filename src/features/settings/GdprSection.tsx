@@ -24,14 +24,14 @@ export const GdprSection = ({ onExport }: Props) => {
 
   return (
     <div className="bg-card px-6 py-5">
-      <h3 className="text-sm font-bold text-[#23292E] dark:text-[#FDFDF8] mb-1">Your Data</h3>
-      <p className="text-xs text-zinc-400 dark:text-[#DDDED9]/50 mb-4">
+      <h3 className="text-sm font-bold text-dark dark:text-background mb-1">Your Data</h3>
+      <p className="text-xs text-zinc-400 dark:text-silver/50 mb-4">
         Download a copy of all personal data we hold for your account — your profile, events, guests, vendors, budget, and more.
       </p>
       <button
         onClick={handleExport}
         disabled={exporting}
-        className="px-5 py-2.5 text-xs font-semibold border border-[#DDDED9] dark:border-[#2a2f33] text-zinc-500 dark:text-[#DDDED9]/60 hover:border-[#23292E] hover:text-[#23292E] dark:hover:border-[#FDFDF8] dark:hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-5 py-2.5 text-xs font-semibold border border-silver dark:border-[#2a2f33] text-zinc-500 dark:text-silver/60 hover:border-dark hover:text-dark dark:hover:border-background dark:hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {exporting ? 'Preparing download…' : 'Export My Data'}
       </button>

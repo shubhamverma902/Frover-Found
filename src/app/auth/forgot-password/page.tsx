@@ -42,9 +42,9 @@ const ForgotPasswordPage = () => {
         priority
         className="scale-105"
       />
-      <div className="absolute inset-0 bg-[#23292E]/78" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E4BC62]/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-[#DFB3AE]/6 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-dark/78" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-gold/5 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-blush/6 blur-3xl pointer-events-none" />
 
       <div className="absolute top-6 left-8 z-20">
         <Logo size="md" theme="light" href={PATH.home} />
@@ -56,32 +56,32 @@ const ForgotPasswordPage = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-md px-5 py-8 animate-fade-in-up">
-        <div className="bg-[#FDFDF8] border border-[#E4BC62]/50 shadow-2xl shadow-black/70 p-1">
-          <div className="border border-[#E4BC62]/20 px-8 py-10">
+        <div className="bg-background border border-gold/50 shadow-2xl shadow-black/70 p-1">
+          <div className="border border-gold/20 px-8 py-10">
 
             <div className="flex items-center gap-3 mb-8">
-              <div className="flex-1 h-px bg-[#E4BC62]/40" />
-              <span className="text-[#E4BC62] text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-              <div className="flex-1 h-px bg-[#E4BC62]/40" />
+              <div className="flex-1 h-px bg-gold/40" />
+              <span className="text-gold text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+              <div className="flex-1 h-px bg-gold/40" />
             </div>
 
             {result ? (
               <div className="text-center animate-fade-in-up">
-                <div className="w-14 h-14 rounded-full bg-[#E4BC62]/10 border border-[#E4BC62]/30 flex items-center justify-center mx-auto mb-5">
-                  <span className="text-[#E4BC62] text-2xl">✉</span>
+                <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center mx-auto mb-5">
+                  <span className="text-gold text-2xl">✉</span>
                 </div>
-                <h1 className="text-2xl font-bold text-[#23292E] mb-2">Reset Link Ready</h1>
+                <h1 className="text-2xl font-bold text-dark mb-2">Reset Link Ready</h1>
                 <p className="text-sm text-zinc-400 leading-relaxed mb-6">
                   Your password reset link has been generated. Use it within 1 hour.
                 </p>
 
-                <div className="bg-[#F5F5F0] border border-[#DDDED9] px-4 py-3 text-left mb-6">
+                <div className="bg-subtle border border-silver px-4 py-3 text-left mb-6">
                   <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">
                     Reset Link
                   </p>
                   <a
                     href={result.resetUrl}
-                    className="text-xs text-[#23292E] break-all hover:text-[#E4BC62] transition-colors font-mono leading-relaxed"
+                    className="text-xs text-dark break-all hover:text-gold transition-colors font-mono leading-relaxed"
                   >
                     {result.resetUrl}
                   </a>
@@ -96,7 +96,7 @@ const ForgotPasswordPage = () => {
 
                 <Link
                   href={PATH.auth.login}
-                  className="text-sm font-semibold text-[#23292E] hover:underline"
+                  className="text-sm font-semibold text-dark hover:underline"
                 >
                   ← Back to Sign In
                 </Link>
@@ -107,19 +107,19 @@ const ForgotPasswordPage = () => {
                   <p className="text-[10px] font-semibold text-zinc-400 tracking-[0.35em] uppercase mb-3">
                     Account Recovery
                   </p>
-                  <h1 className="text-3xl font-bold text-[#23292E] leading-tight">Forgot Password?</h1>
+                  <h1 className="text-3xl font-bold text-dark leading-tight">Forgot Password?</h1>
                   <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
                     Enter your email and we&rsquo;ll generate a secure reset link.
                   </p>
                 </div>
 
                 {error && (
-                  <div role="alert" className="mb-5 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
+                  <div role="alert" className="mb-5 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-dark flex items-center justify-between gap-3">
                     <span>{error}</span>
                     <button
                       aria-label="Dismiss error"
                       onClick={() => setError(null)}
-                      className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors"
+                      className="shrink-0 text-blush hover:text-dark transition-colors"
                     >
                       ✕
                     </button>
@@ -138,28 +138,28 @@ const ForgotPasswordPage = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                       width="100%"
                       height={48}
-                      className="focus:border-[#23292E] focus:ring-[#DFB3AE]/30"
+                      className="focus:border-dark focus:ring-blush/30"
                     />
                   </label>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 bg-[#23292E] text-white font-semibold text-sm hover:bg-[#23292E]/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
+                    className="w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
                   >
                     {loading ? 'Generating…' : 'Send Reset Link ✦'}
                   </button>
                 </Form>
 
                 <div className="flex items-center gap-3 my-6">
-                  <div className="flex-1 h-px bg-[#E4BC62]/25" />
-                  <span className="text-[#E4BC62]/40 text-[10px]">◆</span>
-                  <div className="flex-1 h-px bg-[#E4BC62]/25" />
+                  <div className="flex-1 h-px bg-gold/25" />
+                  <span className="text-gold/40 text-[10px]">◆</span>
+                  <div className="flex-1 h-px bg-gold/25" />
                 </div>
 
                 <p className="text-center text-sm text-zinc-400">
                   Remember your password?{' '}
-                  <Link href={PATH.auth.login} className="font-semibold text-[#23292E] hover:underline">
+                  <Link href={PATH.auth.login} className="font-semibold text-dark hover:underline">
                     Sign in →
                   </Link>
                 </p>

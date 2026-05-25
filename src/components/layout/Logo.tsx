@@ -16,7 +16,7 @@ export function Logo({ size = 'md', theme = 'dark', href = '/' }: LogoProps) {
       ? 'text-3xl'
       : 'text-xl';
 
-  const nameColor = theme === 'light' ? 'text-white' : 'text-[#23292E]';
+  const nameColor = theme === 'light' ? 'text-white' : 'text-dark';
 
   return (
     <Link href={href} className="inline-flex items-center gap-2.5 group select-none">
@@ -50,7 +50,7 @@ export function Logo({ size = 'md', theme = 'dark', href = '/' }: LogoProps) {
       {/* Wordmark */}
       <span className={`font-bold tracking-tight leading-none ${textClass} ${nameColor}`}>
         <span className="italic">Forever</span>
-        <span className="text-[#E4BC62]"> Found</span>
+        <span className="text-gold"> Found</span>
       </span>
     </Link>
   );

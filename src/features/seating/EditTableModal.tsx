@@ -28,9 +28,9 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
 
   return (
     <Modal onClose={onClose} maxWidth="max-w-sm" aria-label="Edit table" className="flex flex-col max-h-[90svh]">
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Seating</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Seating</p>
           <h2 className="text-base font-bold text-white">Edit Table</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -40,7 +40,7 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
         <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
 
           <div>
-            <FieldLabel>Table Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Table Name <span className="text-blush">*</span></FieldLabel>
             <Input
               variant="dark"
               value={name}
@@ -74,8 +74,8 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
                   className={[
                     'flex-1 flex items-center justify-center gap-2 px-3 py-2.5 border text-[11px] font-bold capitalize transition-colors',
                     shape === s
-                      ? 'border-[#E4BC62]/50 bg-[#E4BC62]/10 text-[#E4BC62]'
-                      : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30',
+                      ? 'border-gold/50 bg-gold/10 text-gold'
+                      : 'border-silver/15 text-silver/40 hover:border-silver/30',
                   ].join(' ')}
                 >
                   <span>{s === 'round' ? '●' : '■'}</span>
@@ -85,12 +85,12 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#DDDED9]/10">
+          <div className="pt-2 border-t border-silver/10">
             {confirmDelete ? (
               <div className="flex items-center gap-2">
                 <p className="flex-1 text-xs text-red-300/80">Remove this table?</p>
                 <button type="button" onClick={() => setConfirmDelete(false)}
-                  className="px-2.5 py-1 text-[11px] border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors">
+                  className="px-2.5 py-1 text-[11px] border border-silver/20 text-silver/50 hover:text-white transition-colors">
                   No
                 </button>
                 <button type="button" onClick={onDelete} disabled={saving}
@@ -108,7 +108,7 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
 
         </div>
 
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
+        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!name.trim() || saving}>
             {saving ? 'Saving…' : 'Save ✦'}

@@ -101,7 +101,7 @@ const EventsPage = () => {
   ];
 
   const viewToggle = (
-    <div className="flex items-center gap-px border border-[#23292E]/20 dark:border-[#DDDED9]/15 self-start sm:self-auto">
+    <div className="flex items-center gap-px border border-dark/20 dark:border-silver/15 self-start sm:self-auto">
       {(['list', 'calendar'] as const).map(v => (
         <button
           key={v}
@@ -109,8 +109,8 @@ const EventsPage = () => {
           className={[
             'px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.3em] transition-colors',
             view === v
-              ? 'bg-[#E4BC62] text-[#23292E]'
-              : 'text-[#23292E]/50 dark:text-[#DDDED9]/50 hover:text-[#23292E] dark:hover:text-[#DDDED9] hover:bg-[#23292E]/8 dark:hover:bg-[#DDDED9]/5',
+              ? 'bg-gold text-dark'
+              : 'text-dark/50 dark:text-silver/50 hover:text-dark dark:hover:text-silver hover:bg-dark/8 dark:hover:bg-silver/5',
           ].join(' ')}
         >
           {v === 'list' ? '≡ List' : '▦ Calendar'}
@@ -145,17 +145,17 @@ const EventsPage = () => {
           <EventFilterPills filters={filters} activeFilter={filter} onChange={setFilter} />
           <div className="flex items-center gap-2 sm:ml-auto">
             <div className="relative sm:w-56">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 text-sm pointer-events-none">⌕</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-silver/40 text-sm pointer-events-none">⌕</span>
               <input
                 type="text"
                 aria-label="Search events"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 placeholder="Search events…"
-                className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
+                className="w-full pl-8 pr-7 py-2 text-xs bg-dark border border-silver/15 text-silver placeholder:text-silver/30 focus:outline-none focus:border-gold/50 transition-colors"
               />
               {inputValue && (
-                <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+                <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-silver/40 hover:text-silver text-xs leading-none">✕</button>
               )}
             </div>
             {viewToggle}

@@ -5,10 +5,10 @@ import type { IconProps } from './types';
  *
  * @example
  * // Checkbox (dark fill on gold bg)
- * <CheckIcon size={11} className="text-[#23292E]" strokeWidth={2.2} />
+ * <CheckIcon size={11} className="text-dark" strokeWidth={2.2} />
  *
  * // Selection confirmation (gold)
- * <CheckIcon size={10} className="text-[#E4BC62]" strokeWidth={1.8} />
+ * <CheckIcon size={10} className="text-gold" strokeWidth={1.8} />
  */
 export function CheckIcon({ size = 11, ...props }: IconProps) {
   return (

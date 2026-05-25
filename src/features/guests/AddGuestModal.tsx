@@ -42,9 +42,9 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
     <Modal onClose={onClose} aria-label="Add guest" className="flex flex-col max-h-[90svh]">
 
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Guests</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Guests</p>
           <h2 className="text-base font-bold text-white">Add Guest</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -55,14 +55,14 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
 
           {/* Ornament */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
-            <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
+            <div className="flex-1 h-px bg-gold/15" />
+            <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+            <div className="flex-1 h-px bg-gold/15" />
           </div>
 
           {/* Name */}
           <div>
-            <FieldLabel>Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Name <span className="text-blush">*</span></FieldLabel>
             <Input
               variant="dark"
               placeholder="e.g. Anjali Sharma"
@@ -76,7 +76,7 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
 
           {/* Relation */}
           <div>
-            <FieldLabel>Relation <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
+            <FieldLabel>Relation <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input
               variant="dark"
               placeholder="e.g. Sister, Friend, Colleague"
@@ -87,7 +87,7 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
 
           {/* Phone */}
           <div>
-            <FieldLabel>Phone <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
+            <FieldLabel>Phone <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input
               variant="dark"
               placeholder="e.g. +91 98765 43210"
@@ -107,8 +107,8 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
                   onClick={() => setRsvp(opt.value)}
                   className={`flex-1 px-3 py-2 text-[11px] font-bold border transition-colors ${
                     rsvp === opt.value
-                      ? 'border-[#E4BC62]/50 bg-[#E4BC62]/10 text-[#E4BC62]'
-                      : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/50 bg-gold/10 text-gold'
+                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
                   }`}
                 >
                   {opt.label}
@@ -128,8 +128,8 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
                   onClick={() => setMeal(opt)}
                   className={`flex-1 px-3 py-2 text-[11px] font-bold border transition-colors ${
                     meal === opt
-                      ? 'border-[#E4BC62]/50 bg-[#E4BC62]/10 text-[#E4BC62]'
-                      : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/50 bg-gold/10 text-gold'
+                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
                   }`}
                 >
                   {opt}
@@ -145,13 +145,13 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
               onClick={() => setPlusOne(p => !p)}
               className={`w-full flex items-center justify-between px-4 py-3 border transition-colors ${
                 plusOne
-                  ? 'border-[#E4BC62]/40 bg-[#E4BC62]/8 text-[#E4BC62]'
-                  : 'border-[#DDDED9]/15 text-[#DDDED9]/40 hover:border-[#DDDED9]/30'
+                  ? 'border-gold/40 bg-gold/8 text-gold'
+                  : 'border-silver/15 text-silver/40 hover:border-silver/30'
               }`}
             >
               <span className="text-xs font-semibold">Bringing a +1?</span>
               <span className={`w-5 h-5 border flex items-center justify-center text-[11px] font-bold transition-colors ${
-                plusOne ? 'border-[#E4BC62]/50 bg-[#E4BC62]/15 text-[#E4BC62]' : 'border-[#DDDED9]/20'
+                plusOne ? 'border-gold/50 bg-gold/15 text-gold' : 'border-silver/20'
               }`}>
                 {plusOne ? '✓' : ''}
               </span>
@@ -161,7 +161,7 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
+        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!name.trim() || mutating}>
             {mutating ? 'Adding…' : 'Add Guest ✦'}

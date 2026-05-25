@@ -13,9 +13,9 @@ export const Toggle = ({ checked, onChange, id }: ToggleProps) => (
     id={id}
     type="button"
     onClick={onChange}
-    className={`relative w-11 h-6 shrink-0 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E4BC62]/60 ${
+    className={`relative w-11 h-6 shrink-0 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${
       checked
-        ? 'bg-[#E4BC62]'
+        ? 'bg-gold'
         : 'bg-zinc-300 dark:bg-zinc-600'
     }`}
   >
@@ -26,7 +26,7 @@ export const Toggle = ({ checked, onChange, id }: ToggleProps) => (
     >
       {checked && (
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="w-1.5 h-1.5 bg-[#23292E]" />
+          <span className="w-1.5 h-1.5 bg-dark" />
         </span>
       )}
     </span>

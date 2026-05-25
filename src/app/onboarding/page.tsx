@@ -127,7 +127,7 @@ const OnboardingPage = () => {
   if (status === 'succeeded') return <SuccessScreen />;
 
   return (
-    <div className="min-h-screen bg-[#FDFDF8] flex flex-col items-center justify-start py-12 px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start py-12 px-4">
 
       <OnboardingHero />
 

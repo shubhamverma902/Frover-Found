@@ -45,7 +45,7 @@ export const ProfileSection = ({ profile, saving, showSaved, onSave }: Props) =>
         </div>
         <div className="flex items-center gap-3">
           <SettingsSaveBtn saving={saving === 'profile'} label="Save Profile" />
-          {showSaved && <span role="status" className="text-[11px] font-semibold text-[#E4BC62] animate-fade-in-up">✓ Saved</span>}
+          {showSaved && <span role="status" className="text-[11px] font-semibold text-gold animate-fade-in-up">✓ Saved</span>}
         </div>
       </form>
     </SettingsSection>

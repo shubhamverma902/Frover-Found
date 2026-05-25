@@ -22,13 +22,13 @@ export const EventFilterPills = ({ filters, activeFilter, onChange }: EventFilte
         onClick={() => onChange(value)}
         className={`flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest transition-all duration-200 ${
           activeFilter === value
-            ? 'bg-[#E4BC62] text-[#23292E]'
-            : 'bg-[#23292E] text-[#DDDED9]/60 hover:text-[#DDDED9] border border-[#E4BC62]/15 hover:border-[#E4BC62]/40'
+            ? 'bg-gold text-dark'
+            : 'bg-dark text-silver/60 hover:text-silver border border-gold/15 hover:border-gold/40'
         }`}
       >
         {label}
         <span className={`text-[10px] font-black px-1.5 py-0.5 min-w-[18px] text-center leading-none ${
-          activeFilter === value ? 'bg-[#23292E]/20 text-[#23292E]' : 'bg-white/5 text-[#DDDED9]/40'
+          activeFilter === value ? 'bg-dark/20 text-dark' : 'bg-white/5 text-silver/40'
         }`}>
           {count}
         </span>

@@ -32,8 +32,8 @@ export const CategoryCard = ({ cat, expanded, onToggleExpand, onEditCategory, on
 
   return (
     <div
-      className={`group bg-card border border-[#DDDED9] dark:border-[#2a2f33] overflow-hidden lift-deep grad-border ${
-        over ? 'border-l-[3px] border-l-[#DFB3AE]' : 'border-l-[3px] border-l-transparent hover:border-l-[#E4BC62]/50'
+      className={`group bg-card border border-silver dark:border-[#2a2f33] overflow-hidden lift-deep grad-border ${
+        over ? 'border-l-[3px] border-l-blush' : 'border-l-[3px] border-l-transparent hover:border-l-gold/50'
       }`}
     >
       {/* Clickable header row */}
@@ -43,47 +43,47 @@ export const CategoryCard = ({ cat, expanded, onToggleExpand, onEditCategory, on
       >
         <div className="flex items-center justify-between mb-3.5">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 bg-[#23292E] border border-[#E4BC62]/12 flex items-center justify-center text-xl shrink-0">
+            <div className="w-10 h-10 bg-dark border border-gold/12 flex items-center justify-center text-xl shrink-0">
               {cat.icon}
             </div>
             <div>
-              <p className="text-sm font-bold text-[#23292E] dark:text-[#FDFDF8]">{cat.category}</p>
-              <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/50">
+              <p className="text-sm font-bold text-dark dark:text-background">{cat.category}</p>
+              <p className="text-[10px] text-zinc-400 dark:text-silver/50">
                 {pct}% utilised · {cat.expenses.length} expense{cat.expenses.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-base font-black text-[#23292E] dark:text-white">{fmt(cat.spent)}</p>
-              <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/50">of {fmt(cat.allocated)} budgeted</p>
+              <p className="text-base font-black text-dark dark:text-white">{fmt(cat.spent)}</p>
+              <p className="text-[10px] text-zinc-400 dark:text-silver/50">of {fmt(cat.allocated)} budgeted</p>
             </div>
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onEditCategory(cat.category); }}
-              className="w-8 h-8 flex items-center justify-center border border-[#E4BC62]/30 text-[#E4BC62]/60 hover:border-[#E4BC62] hover:text-[#E4BC62] hover:bg-[#E4BC62]/10 transition-all duration-200 shrink-0"
+              className="w-8 h-8 flex items-center justify-center border border-gold/30 text-gold/60 hover:border-gold hover:text-gold hover:bg-gold/10 transition-all duration-200 shrink-0"
               title="Edit category"
             >
               <PencilIcon size={13} />
             </button>
             <ChevronDownIcon
               size={14}
-              className={`shrink-0 text-[#DDDED9]/70 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+              className={`shrink-0 text-silver/70 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
             />
           </div>
         </div>
 
-        <div className="relative h-3 bg-[#DDDED9]/25 dark:bg-[#DDDED9]/8 overflow-hidden mb-2">
+        <div className="relative h-3 bg-silver/25 dark:bg-silver/8 overflow-hidden mb-2">
           <div className="absolute inset-0"
             style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 7px, rgba(221,222,217,0.4) 7px, rgba(221,222,217,0.4) 8px)' }}
           />
           <div
             className={`absolute left-0 top-0 h-full bar-animate ${
               over
-                ? 'bg-gradient-to-r from-[#DFB3AE] to-[#DFB3AE]/70'
+                ? 'bg-gradient-to-r from-blush to-blush/70'
                 : pct > 80
-                ? 'bg-gradient-to-r from-[#E4BC62] to-[#DFB3AE]'
-                : 'bg-gradient-to-r from-[#23292E] to-[#E4BC62]'
+                ? 'bg-gradient-to-r from-gold to-blush'
+                : 'bg-gradient-to-r from-dark to-gold'
             }`}
             style={{ width: `${safePct}%` }}
           >
@@ -92,17 +92,17 @@ export const CategoryCard = ({ cat, expanded, onToggleExpand, onEditCategory, on
         </div>
 
         <div className="flex justify-between items-center">
-          <span className={`text-[11px] font-medium ${over ? 'text-[#DFB3AE]' : 'text-zinc-400 dark:text-[#DDDED9]/50'}`}>
+          <span className={`text-[11px] font-medium ${over ? 'text-blush' : 'text-zinc-400 dark:text-silver/50'}`}>
             {over
               ? `⚠ Over by ${fmt(cat.spent - cat.allocated)}`
               : `${fmt(cat.allocated - cat.spent)} remaining`}
           </span>
           <span className={`text-[10px] font-black border px-2 py-0.5 ${
             over
-              ? 'border-[#DFB3AE]/40 bg-[#DFB3AE]/8 text-[#DFB3AE]'
+              ? 'border-blush/40 bg-blush/8 text-blush'
               : pct > 80
-              ? 'border-[#E4BC62]/40 bg-[#E4BC62]/8 text-[#E4BC62]'
-              : 'border-[#DDDED9] dark:border-[#2a2f33] text-zinc-400 dark:text-[#DDDED9]/50'
+              ? 'border-gold/40 bg-gold/8 text-gold'
+              : 'border-silver dark:border-[#2a2f33] text-zinc-400 dark:text-silver/50'
           }`}>
             {pct}%
           </span>
@@ -111,14 +111,14 @@ export const CategoryCard = ({ cat, expanded, onToggleExpand, onEditCategory, on
 
       {/* Expense list — accordion */}
       {expanded && (
-        <div className="border-t border-[#DDDED9]/50 dark:border-[#2a2f33]/80">
+        <div className="border-t border-silver/50 dark:border-[#2a2f33]/80">
           {cat.expenses.length === 0 ? (
             <div className="flex items-center gap-3 px-5 py-4">
-              <span className="text-[#DDDED9]/25 text-lg">◎</span>
-              <p className="text-xs text-zinc-400 dark:text-[#DDDED9]/35">No expenses recorded yet.</p>
+              <span className="text-silver/25 text-lg">◎</span>
+              <p className="text-xs text-zinc-400 dark:text-silver/35">No expenses recorded yet.</p>
               <button
                 onClick={onAddExpense}
-                className="ml-auto text-[10px] font-bold text-[#E4BC62] hover:text-[#E4BC62]/70 transition-colors uppercase tracking-widest"
+                className="ml-auto text-[10px] font-bold text-gold hover:text-gold/70 transition-colors uppercase tracking-widest"
               >
                 + Add
               </button>
@@ -130,27 +130,27 @@ export const CategoryCard = ({ cat, expanded, onToggleExpand, onEditCategory, on
                   key={exp._id}
                   className={`flex items-center gap-4 px-5 py-3 ${
                     i < cat.expenses.length - 1
-                      ? 'border-b border-[#DDDED9]/30 dark:border-[#2a2f33]/60'
+                      ? 'border-b border-silver/30 dark:border-[#2a2f33]/60'
                       : ''
-                  } bg-gradient-to-r from-[#DDDED9]/5 dark:from-[#DDDED9]/3 to-transparent`}
+                  } bg-gradient-to-r from-silver/5 dark:from-silver/3 to-transparent`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E4BC62]/50 shrink-0" />
-                  <p className="flex-1 text-xs text-[#23292E] dark:text-[#FDFDF8]/70 truncate">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50 shrink-0" />
+                  <p className="flex-1 text-xs text-dark dark:text-background/70 truncate">
                     {exp.note || '—'}
                   </p>
-                  <span className="text-[10px] text-[#DDDED9]/40 shrink-0">{exp.date}</span>
-                  <span className="text-xs font-black text-[#E4BC62] shrink-0">{fmt(exp.amount)}</span>
+                  <span className="text-[10px] text-silver/40 shrink-0">{exp.date}</span>
+                  <span className="text-xs font-black text-gold shrink-0">{fmt(exp.amount)}</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between px-5 py-2.5 bg-[#E4BC62]/5 border-t border-[#E4BC62]/10">
-                <p className="text-[10px] text-[#DDDED9]/40 uppercase tracking-widest">
+              <div className="flex items-center justify-between px-5 py-2.5 bg-gold/5 border-t border-gold/10">
+                <p className="text-[10px] text-silver/40 uppercase tracking-widest">
                   {cat.expenses.length} expense{cat.expenses.length !== 1 ? 's' : ''}
                 </p>
                 <div className="flex items-center gap-4">
-                  <p className="text-[10px] font-bold text-[#E4BC62]">Total: {fmt(cat.spent)}</p>
+                  <p className="text-[10px] font-bold text-gold">Total: {fmt(cat.spent)}</p>
                   <button
                     onClick={onAddExpense}
-                    className="text-[10px] font-bold text-[#DDDED9]/40 hover:text-[#E4BC62] transition-colors uppercase tracking-widest"
+                    className="text-[10px] font-bold text-silver/40 hover:text-gold transition-colors uppercase tracking-widest"
                   >
                     + Add
                   </button>

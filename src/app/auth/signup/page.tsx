@@ -73,7 +73,7 @@ const SignupPage = () => {
     <div className="min-h-screen flex">
 
       {/* ── Left — Journey timeline ── */}
-      <div className="hidden lg:flex lg:w-5/12 relative flex-col justify-center bg-[#23292E] text-white overflow-hidden">
+      <div className="hidden lg:flex lg:w-5/12 relative flex-col justify-center bg-dark text-white overflow-hidden">
 
         {/* Faint background image */}
         <Image
@@ -86,14 +86,14 @@ const SignupPage = () => {
         />
 
         {/* Ambient glows */}
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[#E4BC62]/6 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-[#DFB3AE]/8 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-gold/6 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-blush/8 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 px-14 py-16">
           <Logo size="lg" theme="light" href={PATH.home} />
 
           <div className="mt-14">
-            <p className="text-[10px] font-semibold text-[#E4BC62] uppercase tracking-[0.35em] mb-10">
+            <p className="text-[10px] font-semibold text-gold uppercase tracking-[0.35em] mb-10">
               Your Journey
             </p>
 
@@ -103,18 +103,18 @@ const SignupPage = () => {
                 <div key={step.n} className="flex gap-5">
                   {/* Dot + connector line */}
                   <div className="flex flex-col items-center">
-                    <div className="w-9 h-9 rounded-full bg-[#E4BC62] text-[#23292E] text-xs font-black flex items-center justify-center shrink-0 shadow-lg shadow-[#E4BC62]/20">
+                    <div className="w-9 h-9 rounded-full bg-gold text-dark text-xs font-black flex items-center justify-center shrink-0 shadow-lg shadow-gold/20">
                       {step.n}
                     </div>
                     {i < JOURNEY_STEPS.length - 1 && (
-                      <div className="w-px flex-1 bg-gradient-to-b from-[#E4BC62]/40 to-[#E4BC62]/10 my-1 min-h-[36px]" />
+                      <div className="w-px flex-1 bg-gradient-to-b from-gold/40 to-gold/10 my-1 min-h-[36px]" />
                     )}
                   </div>
 
                   {/* Step text */}
                   <div className={i < JOURNEY_STEPS.length - 1 ? 'pb-9' : ''}>
                     <p className="font-semibold text-white leading-tight">{step.title}</p>
-                    <p className="text-sm text-[#DDDED9]/55 mt-1 leading-relaxed">{step.desc}</p>
+                    <p className="text-sm text-silver/55 mt-1 leading-relaxed">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -123,18 +123,18 @@ const SignupPage = () => {
 
           {/* Bottom ornament */}
           <div className="flex items-center gap-3 mt-14">
-            <div className="flex-1 h-px bg-[#DDDED9]/10" />
-            <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-            <div className="flex-1 h-px bg-[#DDDED9]/10" />
+            <div className="flex-1 h-px bg-silver/10" />
+            <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+            <div className="flex-1 h-px bg-silver/10" />
           </div>
-          <p className="mt-4 text-[10px] text-[#DDDED9]/30 tracking-[0.25em] uppercase">
+          <p className="mt-4 text-[10px] text-silver/30 tracking-[0.25em] uppercase">
             Est. 2011 &nbsp;·&nbsp; 500+ Weddings &nbsp;·&nbsp; 50+ Cities
           </p>
         </div>
       </div>
 
       {/* ── Right — Numbered form ── */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#FDFDF8] px-8 py-12 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center bg-background px-8 py-12 overflow-y-auto">
 
         {/* Mobile logo */}
         <div className="lg:hidden mb-10">
@@ -145,18 +145,18 @@ const SignupPage = () => {
 
           {/* Header */}
           <div className="mb-10">
-            <p className="text-[10px] font-semibold text-[#E4BC62] uppercase tracking-[0.35em] mb-3">
+            <p className="text-[10px] font-semibold text-gold uppercase tracking-[0.35em] mb-3">
               Get Started Free
             </p>
-            <h1 className="text-3xl font-bold text-[#23292E]">Create your account</h1>
+            <h1 className="text-3xl font-bold text-dark">Create your account</h1>
             <p className="mt-2 text-sm text-zinc-400">Free forever. No credit card required.</p>
           </div>
 
           {/* Error message */}
           {error && (
-            <div role="alert" className="mb-6 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#23292E] flex items-center justify-between gap-3">
+            <div role="alert" className="mb-6 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-dark flex items-center justify-between gap-3">
               <span>{error.message}</span>
-              <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-[#DFB3AE] hover:text-[#23292E] transition-colors">✕</button>
+              <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-blush hover:text-dark transition-colors">✕</button>
             </div>
           )}
 
@@ -165,8 +165,8 @@ const SignupPage = () => {
             {/* ── 01 Your Identity ── */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl font-black text-[#E4BC62]/35 leading-none tabular-nums">01</span>
-                <div className="flex-1 h-px bg-[#DDDED9]" />
+                <span className="text-2xl font-black text-gold/35 leading-none tabular-nums">01</span>
+                <div className="flex-1 h-px bg-silver" />
                 <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
                   Your Identity
                 </span>
@@ -182,7 +182,7 @@ const SignupPage = () => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                   width="100%"
                   height={48}
-                  className="focus:border-[#23292E] focus:ring-[#DFB3AE]/30"
+                  className="focus:border-dark focus:ring-blush/30"
                 />
               </label>
             </div>
@@ -190,8 +190,8 @@ const SignupPage = () => {
             {/* ── 02 Account Security ── */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl font-black text-[#E4BC62]/35 leading-none tabular-nums">02</span>
-                <div className="flex-1 h-px bg-[#DDDED9]" />
+                <span className="text-2xl font-black text-gold/35 leading-none tabular-nums">02</span>
+                <div className="flex-1 h-px bg-silver" />
                 <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
                   Account Security
                 </span>
@@ -208,7 +208,7 @@ const SignupPage = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                     width="100%"
                     height={48}
-                    className="focus:border-[#23292E] focus:ring-[#DFB3AE]/30"
+                    className="focus:border-dark focus:ring-blush/30"
                   />
                 </label>
                 <label className="block">
@@ -223,12 +223,12 @@ const SignupPage = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       width="100%"
                       height={48}
-                      className="focus:border-[#23292E] focus:ring-[#DFB3AE]/30 pr-11"
+                      className="focus:border-dark focus:ring-blush/30 pr-11"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#23292E] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-dark transition-colors"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
@@ -241,13 +241,13 @@ const SignupPage = () => {
             {/* ── 03 Your Plan ── */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl font-black text-[#E4BC62]/35 leading-none tabular-nums">03</span>
-                <div className="flex-1 h-px bg-[#DDDED9]" />
+                <span className="text-2xl font-black text-gold/35 leading-none tabular-nums">03</span>
+                <div className="flex-1 h-px bg-silver" />
                 <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">
                   Your Plan
                 </span>
               </div>
-              <div className="border border-[#DDDED9] bg-white p-4 space-y-3">
+              <div className="border border-silver bg-white p-4 space-y-3">
                 <Radio
                   name="plan"
                   value="free"
@@ -269,7 +269,7 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#23292E] text-white font-semibold text-sm hover:bg-[#23292E]/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               {loading ? 'Creating account…' : 'Create my account \u2746'}
             </button>
@@ -278,23 +278,23 @@ const SignupPage = () => {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-7">
-            <div className="flex-1 h-px bg-[#DDDED9]" />
-            <span className="text-[#E4BC62]/40 text-[10px]">◆</span>
-            <div className="flex-1 h-px bg-[#DDDED9]" />
+            <div className="flex-1 h-px bg-silver" />
+            <span className="text-gold/40 text-[10px]">◆</span>
+            <div className="flex-1 h-px bg-silver" />
           </div>
 
           <p className="text-center text-sm text-zinc-400">
             Already have an account?{' '}
             <button
               onClick={() => router.push(PATH.auth.login)}
-              className="font-semibold text-[#23292E] hover:underline"
+              className="font-semibold text-dark hover:underline"
             >
               Sign in →
             </button>
           </p>
 
           <div className="mt-6 text-center">
-            <Link href={PATH.home} className="text-xs text-zinc-300 hover:text-[#23292E] transition-colors">
+            <Link href={PATH.home} className="text-xs text-zinc-300 hover:text-dark transition-colors">
               ← Back to Forever Found
             </Link>
           </div>

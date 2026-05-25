@@ -25,7 +25,7 @@ function fmtINR(n: number): string {
 
 function pctColor(pct: number): string {
   if (pct >= 80) return 'text-red-400';
-  if (pct >= 50) return 'text-[#E4BC62]';
+  if (pct >= 50) return 'text-gold';
   return 'text-emerald-400';
 }
 
@@ -34,23 +34,23 @@ function StatCard({
   label, value, sub, accent,
 }: { label: string; value: string; sub: string; accent: string }) {
   return (
-    <div className="bg-card border border-[#DDDED9] dark:border-[#2a2f33] p-5 relative overflow-hidden lift shadow-crystal">
+    <div className="bg-card border border-silver dark:border-[#2a2f33] p-5 relative overflow-hidden lift shadow-crystal">
       <div className="absolute inset-0 shimmer pointer-events-none" />
-      <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 dark:text-[#DDDED9]/40 mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 dark:text-silver/40 mb-2">{label}</p>
       <p className="text-3xl font-bold" style={{ color: accent }}>{value}</p>
-      <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/40 mt-1">{sub}</p>
+      <p className="text-xs text-zinc-500 dark:text-silver/40 mt-1">{sub}</p>
     </div>
   );
 }
 
 function ChartCard({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
   return (
-    <div className="bg-card border border-[#DDDED9] dark:border-[#2a2f33] overflow-hidden shadow-crystal">
-      <div className="px-5 py-4 border-b border-[#DDDED9] dark:border-[#2a2f33] flex items-center gap-3">
-        <div className="w-1 h-4 bg-[#E4BC62]" />
+    <div className="bg-card border border-silver dark:border-[#2a2f33] overflow-hidden shadow-crystal">
+      <div className="px-5 py-4 border-b border-silver dark:border-[#2a2f33] flex items-center gap-3">
+        <div className="w-1 h-4 bg-gold" />
         <div>
-          <h2 className="text-sm font-bold text-[#23292E] dark:text-white uppercase tracking-wider">{title}</h2>
-          {sub && <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/40 mt-0.5">{sub}</p>}
+          <h2 className="text-sm font-bold text-dark dark:text-white uppercase tracking-wider">{title}</h2>
+          {sub && <p className="text-[10px] text-zinc-400 dark:text-silver/40 mt-0.5">{sub}</p>}
         </div>
       </div>
       <div className="px-5 py-5">{children}</div>
@@ -60,7 +60,7 @@ function ChartCard({ title, sub, children }: { title: string; sub?: string; chil
 
 function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
   if (data.length === 0) {
-    return <p className="text-sm text-zinc-400 dark:text-[#DDDED9]/40 py-4 text-center">No checklist categories yet.</p>;
+    return <p className="text-sm text-zinc-400 dark:text-silver/40 py-4 text-center">No checklist categories yet.</p>;
   }
   return (
     <div className="space-y-3">
@@ -69,7 +69,7 @@ function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
         return (
           <div key={category}>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-[#23292E] dark:text-[#DDDED9]/80 font-medium truncate max-w-[70%]">
+              <span className="text-xs text-dark dark:text-silver/80 font-medium truncate max-w-[70%]">
                 {category}
               </span>
               <span className={`text-xs font-semibold tabular-nums ${pctColor(pct)}`}>
@@ -78,7 +78,7 @@ function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
             </div>
             <div className="h-1.5 bg-zinc-200 dark:bg-[#2a2f33] overflow-hidden">
               <div
-                className="h-full bg-[#E4BC62] transition-all duration-700"
+                className="h-full bg-gold transition-all duration-700"
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -92,16 +92,16 @@ function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
 function InsightsSkeleton() {
   return (
     <div className="p-6 lg:p-8 space-y-6">
-      <div className="h-20 bg-[#23292E] animate-pulse" />
+      <div className="h-20 bg-dark animate-pulse" />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[0, 1, 2].map(i => (
-          <div key={i} className="h-24 bg-card border border-[#DDDED9] dark:border-[#2a2f33] animate-pulse" />
+          <div key={i} className="h-24 bg-card border border-silver dark:border-[#2a2f33] animate-pulse" />
         ))}
       </div>
-      <div className="h-64 bg-card border border-[#DDDED9] dark:border-[#2a2f33] animate-pulse" />
+      <div className="h-64 bg-card border border-silver dark:border-[#2a2f33] animate-pulse" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="h-64 bg-card border border-[#DDDED9] dark:border-[#2a2f33] animate-pulse" />
-        <div className="h-64 bg-card border border-[#DDDED9] dark:border-[#2a2f33] animate-pulse" />
+        <div className="h-64 bg-card border border-silver dark:border-[#2a2f33] animate-pulse" />
+        <div className="h-64 bg-card border border-silver dark:border-[#2a2f33] animate-pulse" />
       </div>
     </div>
   );
@@ -121,18 +121,18 @@ const InsightsPage = () => {
     <div className="p-6 lg:p-8 space-y-6 page-sections">
 
       {/* Header */}
-      <div className="bg-[#23292E] p-[3px] glow-gold-strong relative">
-        <span className="absolute top-2 left-2 text-[#E4BC62]/25 text-[10px]">◉</span>
-        <span className="absolute top-2 right-2 text-[#E4BC62]/25 text-[10px]">◉</span>
-        <div className="border border-[#E4BC62]/20 px-6 py-5 relative overflow-hidden">
+      <div className="bg-dark p-[3px] glow-gold-strong relative">
+        <span className="absolute top-2 left-2 text-gold/25 text-[10px]">◉</span>
+        <span className="absolute top-2 right-2 text-gold/25 text-[10px]">◉</span>
+        <div className="border border-gold/20 px-6 py-5 relative overflow-hidden">
           <div className="absolute inset-0 shimmer pointer-events-none" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E4BC62] pulse-dot" />
-              <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em]">Analytics</p>
+              <span className="w-1.5 h-1.5 rounded-full bg-gold pulse-dot" />
+              <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em]">Analytics</p>
             </div>
             <h1 className="text-xl font-bold text-white">Planning Insights</h1>
-            <p className="text-xs text-[#DDDED9]/50 mt-1">
+            <p className="text-xs text-silver/50 mt-1">
               Budget burn, RSVP responses, and task velocity — last 8 weeks
             </p>
           </div>

@@ -76,17 +76,17 @@ const VendorsPage = () => {
 
           {grandTotal > 0 && (
             <div className="relative w-full sm:w-72">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 text-sm pointer-events-none">⌕</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-silver/40 text-sm pointer-events-none">⌕</span>
               <input
                 type="text"
                 aria-label="Search vendors"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 placeholder="Search by name, category, location…"
-                className="w-full pl-8 pr-7 py-2 text-xs bg-[#23292E] border border-[#DDDED9]/15 text-[#DDDED9] placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/50 transition-colors"
+                className="w-full pl-8 pr-7 py-2 text-xs bg-dark border border-silver/15 text-silver placeholder:text-silver/30 focus:outline-none focus:border-gold/50 transition-colors"
               />
               {inputValue && (
-                <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 hover:text-[#DDDED9] text-xs leading-none">✕</button>
+                <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-silver/40 hover:text-silver text-xs leading-none">✕</button>
               )}
             </div>
           )}
@@ -94,10 +94,10 @@ const VendorsPage = () => {
           {grandTotal === 0 && <VendorsEmptyState onAddVendor={() => setAddOpen(true)} />}
 
           {grandTotal > 0 && vendors.length === 0 && (
-            <div className="flex flex-col items-center gap-3 py-16 border border-dashed border-[#E4BC62]/20 bg-[#E4BC62]/3">
-              <span className="text-3xl text-[#E4BC62]/20">⌕</span>
-              <p className="text-sm font-bold text-[#DDDED9]/40">No vendors match &ldquo;{committedQuery}&rdquo;</p>
-              <button onClick={() => setInputValue('')} className="text-xs text-[#E4BC62]/60 hover:text-[#E4BC62] transition-colors">Clear search</button>
+            <div className="flex flex-col items-center gap-3 py-16 border border-dashed border-gold/20 bg-gold/3">
+              <span className="text-3xl text-gold/20">⌕</span>
+              <p className="text-sm font-bold text-silver/40">No vendors match &ldquo;{committedQuery}&rdquo;</p>
+              <button onClick={() => setInputValue('')} className="text-xs text-gold/60 hover:text-gold transition-colors">Clear search</button>
             </div>
           )}
 

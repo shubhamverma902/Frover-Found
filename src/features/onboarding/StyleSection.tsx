@@ -15,8 +15,8 @@ export const StyleSection = ({ style, error, onSelect }: Props) => (
         <button key={s.value} type="button" onClick={() => onSelect(s.value)}
           className={`px-4 py-2 border text-sm font-semibold transition-all duration-150 ${
             style === s.value
-              ? 'border-[#23292E] bg-[#23292E] text-[#E4BC62]'
-              : 'border-[#DDDED9] bg-white text-zinc-500 hover:border-[#23292E]/40'
+              ? 'border-dark bg-dark text-gold'
+              : 'border-silver bg-white text-zinc-500 hover:border-dark/40'
           }`}
         >
           {s.label}

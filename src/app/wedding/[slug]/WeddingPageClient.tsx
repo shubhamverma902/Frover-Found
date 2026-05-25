@@ -58,7 +58,7 @@ function Countdown({ targetDate }: { targetDate: string }) {
   const isPast = Object.values(time).every(v => v === 0);
   if (isPast) {
     return (
-      <p className="text-sm tracking-widest uppercase text-[#E4BC62]/70">
+      <p className="text-sm tracking-widest uppercase text-gold/70">
         Today is the day ✦
       </p>
     );
@@ -80,12 +80,12 @@ function Countdown({ targetDate }: { targetDate: string }) {
           className="flex flex-col items-center gap-2"
           style={anim('weddingFadeUp', '0.6s', `${0.9 + i * 0.08}s`)}
         >
-          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] flex items-center justify-center border border-[#E4BC62]/20 bg-[rgba(228,188,98,0.04)] backdrop-blur-sm">
+          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] flex items-center justify-center border border-gold/20 bg-[rgba(228,188,98,0.04)] backdrop-blur-sm">
             <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
               {pad(v)}
             </span>
           </div>
-          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-[#E4BC62]/50">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-gold/50">
             {l}
           </span>
         </div>
@@ -124,7 +124,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
       {SPARKLES.map((s, i) => (
         <span
           key={i}
-          className="absolute text-[#E4BC62] text-xs pointer-events-none select-none"
+          className="absolute text-gold text-xs pointer-events-none select-none"
           style={{
             top:       s.top,
             left:      s.left,
@@ -139,7 +139,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
       {/* Corner ornaments */}
       {(['top-6 left-6 border-t border-l', 'top-6 right-6 border-t border-r',
          'bottom-6 left-6 border-b border-l', 'bottom-6 right-6 border-b border-r'] as const).map((cls, i) => (
-        <div key={i} className={`absolute w-10 h-10 sm:w-14 sm:h-14 border-[#E4BC62]/15 pointer-events-none ${cls}`} aria-hidden />
+        <div key={i} className={`absolute w-10 h-10 sm:w-14 sm:h-14 border-gold/15 pointer-events-none ${cls}`} aria-hidden />
       ))}
 
       {/* ── Content ── */}
@@ -147,7 +147,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
 
         {/* Eyebrow */}
         <p
-          className="text-[10px] uppercase tracking-[0.45em] text-[#E4BC62]/60 mb-10"
+          className="text-[10px] uppercase tracking-[0.45em] text-gold/60 mb-10"
           style={anim('weddingFadeUp', '0.7s', '0.1s')}
         >
           You are cordially invited
@@ -167,12 +167,12 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
         >
           <div className="relative flex items-center justify-center">
             {/* Outer ring */}
-            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#E4BC62]/20" />
+            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-gold/20" />
             {/* Inner ring */}
-            <div className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-[#E4BC62]/10" />
+            <div className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-gold/10" />
             {/* Symbol */}
             <span
-              className="relative text-4xl sm:text-5xl font-bold text-[#E4BC62] z-10"
+              className="relative text-4xl sm:text-5xl font-bold text-gold z-10"
               style={{ animation: 'goldGlow 3s ease-in-out infinite' }}
             >
               &amp;
@@ -193,12 +193,12 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
           style={anim('weddingFadeUp', '0.6s', '0.9s')}
         >
           <div
-            className="flex-1 h-px bg-gradient-to-r from-transparent to-[#E4BC62]/35 origin-right"
+            className="flex-1 h-px bg-gradient-to-r from-transparent to-gold/35 origin-right"
             style={anim('expandWidth', '1.1s', '1s')}
           />
-          <span className="text-[#E4BC62]/60 text-sm shrink-0">✦</span>
+          <span className="text-gold/60 text-sm shrink-0">✦</span>
           <div
-            className="flex-1 h-px bg-gradient-to-l from-transparent to-[#E4BC62]/35 origin-left"
+            className="flex-1 h-px bg-gradient-to-l from-transparent to-gold/35 origin-left"
             style={anim('expandWidth', '1.1s', '1s')}
           />
         </div>
@@ -212,9 +212,9 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
             {details.map(({ label, value }) => (
               <div
                 key={label}
-                className="flex flex-col items-center gap-2 px-3 py-5 border border-[#E4BC62]/12 bg-[rgba(228,188,98,0.03)] backdrop-blur-sm"
+                className="flex flex-col items-center gap-2 px-3 py-5 border border-gold/12 bg-[rgba(228,188,98,0.03)] backdrop-blur-sm"
               >
-                <span className="text-[9px] uppercase tracking-[0.3em] text-[#E4BC62]/50">
+                <span className="text-[9px] uppercase tracking-[0.3em] text-gold/50">
                   {label}
                 </span>
                 <span className="text-xs sm:text-sm text-white/75 font-medium leading-snug text-center">
@@ -228,7 +228,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
         {/* Countdown */}
         {data.weddingDate && (
           <div style={anim('weddingFadeUp', '0.7s', '1.15s')}>
-            <p className="text-[9px] uppercase tracking-[0.35em] text-[#E4BC62]/40 mb-6">
+            <p className="text-[9px] uppercase tracking-[0.35em] text-gold/40 mb-6">
               Counting down
             </p>
             <Countdown targetDate={data.weddingDate} />
@@ -241,7 +241,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
             className="mt-8"
             style={anim('weddingFadeUp', '0.6s', '1.3s')}
           >
-            <span className="inline-block px-5 py-1.5 border border-[#E4BC62]/20 text-[#E4BC62]/60 text-[10px] uppercase tracking-[0.35em]">
+            <span className="inline-block px-5 py-1.5 border border-gold/20 text-gold/60 text-[10px] uppercase tracking-[0.35em]">
               {data.style}
             </span>
           </div>
@@ -252,9 +252,9 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
           className="mt-14 flex items-center gap-4"
           style={anim('weddingFadeUp', '0.5s', '1.4s')}
         >
-          <div className="flex-1 h-px bg-[#E4BC62]/10" />
-          <span className="text-[#E4BC62]/30 text-xs">✦</span>
-          <div className="flex-1 h-px bg-[#E4BC62]/10" />
+          <div className="flex-1 h-px bg-gold/10" />
+          <span className="text-gold/30 text-xs">✦</span>
+          <div className="flex-1 h-px bg-gold/10" />
         </div>
 
         {/* Branding */}

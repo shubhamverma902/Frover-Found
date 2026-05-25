@@ -91,7 +91,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
             href={att.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[10px] text-[#E4BC62]/60 hover:text-[#E4BC62] underline underline-offset-2 transition-colors shrink-0"
+            className="text-[10px] text-gold/60 hover:text-gold underline underline-offset-2 transition-colors shrink-0"
             onClick={e => e.stopPropagation()}
           >
             open ↗
@@ -180,9 +180,9 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
 
         {/* Section label */}
         <div className="flex items-center gap-2">
-          <span className="text-[#E4BC62]/50 text-[9px]">◈</span>
-          <p className="text-[10px] font-bold text-[#DDDED9]/50 uppercase tracking-[0.35em]">Attachments</p>
-          <span className="text-[9px] text-[#DDDED9]/25 border border-[#DDDED9]/15 px-1.5 py-0.5 ml-0.5">
+          <span className="text-gold/50 text-[9px]">◈</span>
+          <p className="text-[10px] font-bold text-silver/50 uppercase tracking-[0.35em]">Attachments</p>
+          <span className="text-[9px] text-silver/25 border border-silver/15 px-1.5 py-0.5 ml-0.5">
             {attachments.length}/{MAX_FILES}
           </span>
         </div>
@@ -206,20 +206,20 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
             className={[
               'flex flex-col items-center justify-center gap-1.5 p-5 border-2 border-dashed cursor-pointer transition-colors select-none outline-none',
               isDrag
-                ? 'border-[#E4BC62]/50 bg-[#E4BC62]/5'
-                : 'border-[#DDDED9]/15 hover:border-[#DDDED9]/30 hover:bg-[#DDDED9]/3',
+                ? 'border-gold/50 bg-gold/5'
+                : 'border-silver/15 hover:border-silver/30 hover:bg-silver/3',
             ].join(' ')}
           >
-            <span className={`text-xl transition-colors leading-none ${isDrag ? 'text-[#E4BC62]' : 'text-[#DDDED9]/25'}`}>
+            <span className={`text-xl transition-colors leading-none ${isDrag ? 'text-gold' : 'text-silver/25'}`}>
               ↑
             </span>
-            <p className="text-xs font-semibold text-[#DDDED9]/45">
+            <p className="text-xs font-semibold text-silver/45">
               {isDrag ? 'Release to upload' : 'Drop files here'}
             </p>
-            <p className="text-[10px] text-[#DDDED9]/30">
-              or <span className="text-[#E4BC62]/60 underline underline-offset-2">click to browse</span>
+            <p className="text-[10px] text-silver/30">
+              or <span className="text-gold/60 underline underline-offset-2">click to browse</span>
             </p>
-            <p className="text-[9px] text-[#DDDED9]/20 mt-0.5">
+            <p className="text-[9px] text-silver/20 mt-0.5">
               JPG · PNG · WebP · PDF · Max 10 MB
             </p>
             <input
@@ -235,7 +235,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
 
         {/* Upload progress / error feedback */}
         {uploading && (
-          <p className="text-[10px] text-[#E4BC62]/60 text-center animate-pulse">Uploading…</p>
+          <p className="text-[10px] text-gold/60 text-center animate-pulse">Uploading…</p>
         )}
         {!uploading && uploadError && (
           <p className="text-[10px] text-red-400 text-center">{uploadError}</p>
@@ -248,7 +248,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
         {attachments.length > 0 && (
           <div className="space-y-1.5">
             {attachments.map(att => (
-              <div key={att._id} className="flex items-center gap-2.5 px-3 py-2 bg-[#23292E] border border-[#DDDED9]/10">
+              <div key={att._id} className="flex items-center gap-2.5 px-3 py-2 bg-dark border border-silver/10">
 
                 {/* Thumbnail / icon — clickable for images */}
                 {isImage(att.mimetype) ? (
@@ -256,7 +256,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     type="button"
                     onClick={() => openLightbox(att)}
                     aria-label={`Preview ${att.originalName}`}
-                    className="shrink-0 w-9 h-9 overflow-hidden border border-[#DDDED9]/10 hover:border-[#E4BC62]/40 transition-colors group relative"
+                    className="shrink-0 w-9 h-9 overflow-hidden border border-silver/10 hover:border-gold/40 transition-colors group relative"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -285,7 +285,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     <button
                       type="button"
                       onClick={() => openLightbox(att)}
-                      className="text-xs font-semibold text-[#DDDED9]/80 truncate block hover:text-[#E4BC62] transition-colors text-left w-full"
+                      className="text-xs font-semibold text-silver/80 truncate block hover:text-gold transition-colors text-left w-full"
                     >
                       {att.originalName}
                     </button>
@@ -295,12 +295,12 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="text-xs font-semibold text-[#DDDED9]/80 truncate block hover:text-[#E4BC62] transition-colors"
+                      className="text-xs font-semibold text-silver/80 truncate block hover:text-gold transition-colors"
                     >
                       {att.originalName} ↗
                     </a>
                   )}
-                  <p className="text-[9px] text-[#DDDED9]/30 mt-0.5">{fmtBytes(att.size)}</p>
+                  <p className="text-[9px] text-silver/30 mt-0.5">{fmtBytes(att.size)}</p>
                 </div>
 
                 {/* Delete — inline confirm */}
@@ -309,7 +309,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     <button
                       type="button"
                       onClick={() => setPendingDelete(null)}
-                      className="px-1.5 py-1 text-[10px] text-[#DDDED9]/40 hover:text-[#DDDED9] border border-[#DDDED9]/15 transition-colors"
+                      className="px-1.5 py-1 text-[10px] text-silver/40 hover:text-silver border border-silver/15 transition-colors"
                     >
                       No
                     </button>
@@ -328,7 +328,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     onClick={() => setPendingDelete(att._id)}
                     disabled={uploading}
                     aria-label={`Remove ${att.originalName}`}
-                    className="shrink-0 w-6 h-6 flex items-center justify-center text-[#DDDED9]/25 hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 text-[10px] leading-none"
+                    className="shrink-0 w-6 h-6 flex items-center justify-center text-silver/25 hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 text-[10px] leading-none"
                   >
                     ✕
                   </button>
@@ -340,7 +340,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
 
         {/* Cap reached */}
         {attachments.length >= MAX_FILES && (
-          <p className="text-[10px] text-[#DDDED9]/25 text-center">
+          <p className="text-[10px] text-silver/25 text-center">
             Maximum {MAX_FILES} files per record
           </p>
         )}

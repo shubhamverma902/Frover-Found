@@ -76,8 +76,8 @@ export function TaskVelocityChart({ data }: { data: TaskVelocityPoint[] }) {
     return (
       <div className="h-[220px] flex flex-col items-center justify-center gap-2 text-center">
         <p className="text-2xl">✓</p>
-        <p className="text-sm text-zinc-500 dark:text-[#DDDED9]/40">No completions tracked yet</p>
-        <p className="text-xs text-zinc-400 dark:text-[#DDDED9]/30 max-w-[200px]">
+        <p className="text-sm text-zinc-500 dark:text-silver/40">No completions tracked yet</p>
+        <p className="text-xs text-zinc-400 dark:text-silver/30 max-w-[200px]">
           Complete checklist tasks to see velocity build up week by week
         </p>
       </div>

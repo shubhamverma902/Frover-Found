@@ -125,16 +125,16 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
   const isThisMonth = year === nowY && month === nowM;
 
   // ── Nav button shared classes ────────────────────────────────
-  const navBtn = 'w-8 h-8 flex items-center justify-center border border-[#DDDED9]/15 text-[#DDDED9]/60 hover:border-[#E4BC62]/40 hover:text-[#E4BC62] transition-colors text-sm font-bold leading-none';
+  const navBtn = 'w-8 h-8 flex items-center justify-center border border-silver/15 text-silver/60 hover:border-gold/40 hover:text-gold transition-colors text-sm font-bold leading-none';
 
   // ── Event chip colour helper ─────────────────────────────────
   const chipCls = (status: WeddingEvent['status']) =>
-    status === 'confirmed' ? 'bg-[#E4BC62]/15 text-[#E4BC62]' :
-    status === 'planning'  ? 'bg-[#DFB3AE]/15 text-[#DFB3AE]' :
-                             'bg-[#DDDED9]/10 text-[#DDDED9]/55';
+    status === 'confirmed' ? 'bg-gold/15 text-gold' :
+    status === 'planning'  ? 'bg-blush/15 text-blush' :
+                             'bg-silver/10 text-silver/55';
 
   return (
-    <div ref={topRef} className="bg-[#1c2226] border border-[#DDDED9]/10 p-4 sm:p-5 space-y-4">
+    <div ref={topRef} className="bg-[#1c2226] border border-silver/10 p-4 sm:p-5 space-y-4">
 
       {/* ── Navigation bar ── */}
       <div className="flex items-center justify-between">
@@ -144,14 +144,14 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
           <button onClick={prevMonth} aria-label="Previous month" className={navBtn} title="Previous month (←)">‹</button>
           <button
             onClick={() => { setPickerYear(year); setShowPicker(p => !p); }}
-            className="mx-1 flex items-center gap-1.5 px-2 py-1 hover:bg-[#DDDED9]/5 transition-colors group"
+            className="mx-1 flex items-center gap-1.5 px-2 py-1 hover:bg-silver/5 transition-colors group"
             title="Jump to month"
           >
-            <span className="text-sm font-bold text-white group-hover:text-[#E4BC62] transition-colors">
+            <span className="text-sm font-bold text-white group-hover:text-gold transition-colors">
               {MONTH_FULL[month]}
             </span>
-            <span className="text-[#E4BC62] text-sm font-bold">{year}</span>
-            <span className={`text-[10px] text-[#DDDED9]/30 transition-transform duration-200 ${showPicker ? 'rotate-180' : ''}`}>▾</span>
+            <span className="text-gold text-sm font-bold">{year}</span>
+            <span className={`text-[10px] text-silver/30 transition-transform duration-200 ${showPicker ? 'rotate-180' : ''}`}>▾</span>
           </button>
           <button onClick={nextMonth} aria-label="Next month" className={navBtn} title="Next month (→)">›</button>
           <button onClick={nextYear}  aria-label="Next year"  className={navBtn} title="Next year (Shift+→)">»</button>
@@ -162,28 +162,28 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
           {!isThisMonth && (
             <button
               onClick={goToday}
-              className="text-[10px] font-bold text-[#E4BC62]/60 hover:text-[#E4BC62] border border-[#E4BC62]/20 hover:border-[#E4BC62]/40 px-2 py-1 transition-colors"
+              className="text-[10px] font-bold text-gold/60 hover:text-gold border border-gold/20 hover:border-gold/40 px-2 py-1 transition-colors"
             >
               Today
             </button>
           )}
-          <span className="hidden sm:block text-[9px] text-[#DDDED9]/20 tracking-wider">← → keys</span>
+          <span className="hidden sm:block text-[9px] text-silver/20 tracking-wider">← → keys</span>
         </div>
       </div>
 
       {/* ── Inline month picker ── */}
       {showPicker && (
-        <div className="border border-[#E4BC62]/20 bg-[#23292E] p-4">
+        <div className="border border-gold/20 bg-dark p-4">
           {/* Picker year navigation */}
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => setPickerYear(y => y - 1)}
-              className="w-7 h-7 flex items-center justify-center text-[#DDDED9]/50 hover:text-[#E4BC62] transition-colors text-sm"
+              className="w-7 h-7 flex items-center justify-center text-silver/50 hover:text-gold transition-colors text-sm"
             >‹</button>
-            <span className="text-xs font-bold text-[#E4BC62]">{pickerYear}</span>
+            <span className="text-xs font-bold text-gold">{pickerYear}</span>
             <button
               onClick={() => setPickerYear(y => y + 1)}
-              className="w-7 h-7 flex items-center justify-center text-[#DDDED9]/50 hover:text-[#E4BC62] transition-colors text-sm"
+              className="w-7 h-7 flex items-center justify-center text-silver/50 hover:text-gold transition-colors text-sm"
             >›</button>
           </div>
           {/* 4×3 month grid */}
@@ -200,22 +200,22 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
                   className={[
                     'relative flex flex-col items-center justify-center py-2 px-1 text-[11px] font-bold transition-colors border',
                     isCurrent
-                      ? 'bg-[#E4BC62] text-[#23292E] border-[#E4BC62]'
+                      ? 'bg-gold text-dark border-gold'
                       : hasEvts
-                      ? 'border-[#E4BC62]/25 text-[#DDDED9]/80 hover:border-[#E4BC62]/50 hover:text-[#E4BC62]'
-                      : 'border-[#DDDED9]/10 text-[#DDDED9]/30 hover:border-[#DDDED9]/25 hover:text-[#DDDED9]/60',
+                      ? 'border-gold/25 text-silver/80 hover:border-gold/50 hover:text-gold'
+                      : 'border-silver/10 text-silver/30 hover:border-silver/25 hover:text-silver/60',
                   ].join(' ')}
                 >
                   {abbr}
                   {hasEvts && !isCurrent && (
                     <span className="mt-0.5 flex gap-0.5">
                       {Array.from({ length: Math.min(evtCount, 3) }).map((_, j) => (
-                        <span key={j} className="w-1 h-1 rounded-full bg-[#E4BC62]/60" />
+                        <span key={j} className="w-1 h-1 rounded-full bg-gold/60" />
                       ))}
                     </span>
                   )}
                   {isCurrent && (
-                    <span className="mt-0.5 text-[8px] font-semibold text-[#23292E]/70">now</span>
+                    <span className="mt-0.5 text-[8px] font-semibold text-dark/70">now</span>
                   )}
                 </button>
               );
@@ -225,16 +225,16 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
       )}
 
       {/* ── Weekday headers ── */}
-      <div className="grid grid-cols-7 border border-b-0 border-[#DDDED9]/10">
+      <div className="grid grid-cols-7 border border-b-0 border-silver/10">
         {WEEKDAYS.map(d => (
-          <div key={d} className="py-2 text-center text-[9px] font-bold text-[#DDDED9]/35 uppercase tracking-[0.3em]">
+          <div key={d} className="py-2 text-center text-[9px] font-bold text-silver/35 uppercase tracking-[0.3em]">
             {d}
           </div>
         ))}
       </div>
 
       {/* ── Calendar grid ── */}
-      <div className="grid grid-cols-7 gap-px bg-[#2a2f33] border border-[#DDDED9]/10 !mt-0">
+      <div className="grid grid-cols-7 gap-px bg-[#2a2f33] border border-silver/10 !mt-0">
         {cells.map(cell => {
           const evs        = byDate[cell.dateStr] ?? [];
           const hasEvs     = evs.length > 0;
@@ -248,13 +248,13 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
               className={[
                 'relative min-h-[72px] p-1.5 bg-[#1c2226] transition-colors duration-150',
                 !cell.current ? 'opacity-25' : '',
-                hasEvs        ? 'cursor-pointer hover:bg-[#23292E]' : '',
-                isSelected    ? '!bg-[#23292E] ring-1 ring-inset ring-[#E4BC62]/25' : '',
+                hasEvs        ? 'cursor-pointer hover:bg-dark' : '',
+                isSelected    ? '!bg-dark ring-1 ring-inset ring-gold/25' : '',
               ].filter(Boolean).join(' ')}
             >
               <span className={[
                 'flex items-center justify-center w-6 h-6 text-[11px] font-bold mb-1 select-none',
-                isToday ? 'rounded-full bg-[#E4BC62] text-[#23292E]' : 'text-[#DDDED9]/55',
+                isToday ? 'rounded-full bg-gold text-dark' : 'text-silver/55',
               ].join(' ')}>
                 {cell.day}
               </span>
@@ -265,7 +265,7 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
                   </div>
                 ))}
                 {evs.length > 2 && (
-                  <p className="text-[8px] font-semibold text-[#E4BC62]/50 pl-1.5">+{evs.length - 2}</p>
+                  <p className="text-[8px] font-semibold text-gold/50 pl-1.5">+{evs.length - 2}</p>
                 )}
               </div>
             </div>
@@ -276,9 +276,9 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
       {/* ── Legend ── */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-0.5">
         {[
-          { label: 'Confirmed', chip: 'bg-[#E4BC62]/15',  text: 'text-[#E4BC62]'    },
-          { label: 'Planning',  chip: 'bg-[#DFB3AE]/15',  text: 'text-[#DFB3AE]'   },
-          { label: 'Pending',   chip: 'bg-[#DDDED9]/10',  text: 'text-[#DDDED9]/55' },
+          { label: 'Confirmed', chip: 'bg-gold/15',  text: 'text-gold'    },
+          { label: 'Planning',  chip: 'bg-blush/15',  text: 'text-blush'   },
+          { label: 'Pending',   chip: 'bg-silver/10',  text: 'text-silver/55' },
         ].map(({ label, chip, text }) => (
           <div key={label} className="flex items-center gap-1.5">
             <span className={`inline-block w-7 h-1.5 ${chip}`} />
@@ -286,27 +286,27 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
           </div>
         ))}
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="w-5 h-5 rounded-full bg-[#E4BC62] flex items-center justify-center text-[8px] font-black text-[#23292E]">1</span>
-          <span className="text-[9px] text-[#DDDED9]/40 uppercase tracking-widest">Today</span>
+          <span className="w-5 h-5 rounded-full bg-gold flex items-center justify-center text-[8px] font-black text-dark">1</span>
+          <span className="text-[9px] text-silver/40 uppercase tracking-widest">Today</span>
         </div>
       </div>
 
       {/* ── Selected-day panel ── */}
       {selectedDay && selectedEvents.length > 0 && (
-        <div className="border border-[#E4BC62]/20 bg-[#1c2226] p-4 space-y-3">
+        <div className="border border-gold/20 bg-[#1c2226] p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
-            <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] whitespace-nowrap">
+            <div className="flex-1 h-px bg-gold/15" />
+            <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] whitespace-nowrap">
               {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', {
                 weekday: 'long', month: 'long', day: 'numeric',
               })}
             </p>
-            <button aria-label="Clear selected day" onClick={() => setSelectedDay(null)} className="text-[#DDDED9]/30 hover:text-[#DDDED9] transition-colors text-xs ml-1">✕</button>
+            <button aria-label="Clear selected day" onClick={() => setSelectedDay(null)} className="text-silver/30 hover:text-silver transition-colors text-xs ml-1">✕</button>
           </div>
           {selectedEvents.map(e => {
             const meta = STATUS_META[e.status];
             return (
-              <div key={e._id ?? e.name} className={`flex items-start gap-3 px-4 py-3 bg-[#23292E] border-l-2 ${meta.stripe}`}>
+              <div key={e._id ?? e.name} className={`flex items-start gap-3 px-4 py-3 bg-dark border-l-2 ${meta.stripe}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta.dot}`} />
@@ -315,16 +315,16 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
                       {meta.label}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5 text-[10px] text-[#DDDED9]/45 pl-3.5">
+                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5 text-[10px] text-silver/45 pl-3.5">
                     {e.time  && <span>⏱ {toDisplayTime(e.time)}</span>}
                     {e.venue && <span>◎ {e.venue}</span>}
                     {e.guests > 0 && <span>✉ {e.guests} guests</span>}
                   </div>
-                  {e.desc && <p className="text-[10px] text-[#DDDED9]/30 mt-1 pl-3.5 line-clamp-1">{e.desc}</p>}
+                  {e.desc && <p className="text-[10px] text-silver/30 mt-1 pl-3.5 line-clamp-1">{e.desc}</p>}
                 </div>
                 <button
                   onClick={() => onEdit(e)}
-                  className="shrink-0 self-center px-3 py-1.5 text-[10px] font-bold border border-[#DFB3AE]/30 text-[#DFB3AE] hover:bg-[#DFB3AE]/10 transition-colors"
+                  className="shrink-0 self-center px-3 py-1.5 text-[10px] font-bold border border-blush/30 text-blush hover:bg-blush/10 transition-colors"
                 >
                   Edit
                 </button>
@@ -336,16 +336,16 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
 
       {/* ── All Events quick-jump list ── */}
       {events.length > 0 && (
-        <div className="border-t border-[#DDDED9]/10 pt-4">
+        <div className="border-t border-silver/10 pt-4">
           <button
             onClick={() => setShowAllEvts(v => !v)}
             className="w-full flex items-center justify-between mb-3 group"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-[#E4BC62]/70 uppercase tracking-[0.35em]">All Events</span>
-              <span className="text-[10px] text-[#DDDED9]/30 border border-[#DDDED9]/15 px-1.5 py-0.5">{events.length}</span>
+              <span className="text-[10px] font-bold text-gold/70 uppercase tracking-[0.35em]">All Events</span>
+              <span className="text-[10px] text-silver/30 border border-silver/15 px-1.5 py-0.5">{events.length}</span>
             </div>
-            <span className={`text-[#DDDED9]/30 text-xs transition-transform duration-200 ${showAllEvts ? 'rotate-180' : ''}`}>▾</span>
+            <span className={`text-silver/30 text-xs transition-transform duration-200 ${showAllEvts ? 'rotate-180' : ''}`}>▾</span>
           </button>
 
           {showAllEvts && (
@@ -354,17 +354,17 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
               {/* Upcoming */}
               {upcomingEvts.length > 0 && (
                 <div>
-                  <p className="text-[9px] font-bold text-[#E4BC62]/40 uppercase tracking-[0.4em] mb-2">Upcoming</p>
+                  <p className="text-[9px] font-bold text-gold/40 uppercase tracking-[0.4em] mb-2">Upcoming</p>
                   <div className="space-y-1">
                     {upcomingEvts.map(e => {
                       const meta      = STATUS_META[e.status];
                       const isViewing = e.date.slice(0, 7) === `${year}-${pad(month + 1)}`;
                       return (
-                        <div key={e._id ?? e.name} className="flex items-center gap-3 px-3 py-2 bg-[#23292E] hover:bg-[#2a2f33] transition-colors group/row">
+                        <div key={e._id ?? e.name} className="flex items-center gap-3 px-3 py-2 bg-dark hover:bg-[#2a2f33] transition-colors group/row">
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta.dot}`} />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold text-white truncate">{e.name}</p>
-                            <p className="text-[9px] text-[#DDDED9]/35 mt-0.5">{fmtDate(e.date)}{e.venue ? ` · ${e.venue}` : ''}</p>
+                            <p className="text-[9px] text-silver/35 mt-0.5">{fmtDate(e.date)}{e.venue ? ` · ${e.venue}` : ''}</p>
                           </div>
                           <span className={`hidden sm:block text-[9px] font-bold px-2 py-0.5 border uppercase tracking-wide shrink-0 ${meta.badge}`}>
                             {meta.label}
@@ -374,8 +374,8 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
                             className={[
                               'shrink-0 px-2 py-1 text-[9px] font-bold border transition-colors',
                               isViewing
-                                ? 'border-[#E4BC62]/30 text-[#E4BC62]/50 cursor-default'
-                                : 'border-[#E4BC62]/20 text-[#E4BC62]/60 hover:border-[#E4BC62]/50 hover:text-[#E4BC62] hover:bg-[#E4BC62]/5',
+                                ? 'border-gold/30 text-gold/50 cursor-default'
+                                : 'border-gold/20 text-gold/60 hover:border-gold/50 hover:text-gold hover:bg-gold/5',
                             ].join(' ')}
                             disabled={isViewing}
                             title={isViewing ? 'Already on this month' : 'Jump to this month'}
@@ -392,25 +392,25 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
               {/* Past */}
               {pastEvts.length > 0 && (
                 <div>
-                  <p className="text-[9px] font-bold text-[#DDDED9]/25 uppercase tracking-[0.4em] mb-2">Past</p>
+                  <p className="text-[9px] font-bold text-silver/25 uppercase tracking-[0.4em] mb-2">Past</p>
                   <div className="space-y-1">
                     {pastEvts.map(e => {
                       const meta      = STATUS_META[e.status];
                       const isViewing = e.date.slice(0, 7) === `${year}-${pad(month + 1)}`;
                       return (
-                        <div key={e._id ?? e.name} className="flex items-center gap-3 px-3 py-2 bg-[#23292E]/60 hover:bg-[#23292E] transition-colors opacity-60 hover:opacity-100">
+                        <div key={e._id ?? e.name} className="flex items-center gap-3 px-3 py-2 bg-dark/60 hover:bg-dark transition-colors opacity-60 hover:opacity-100">
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta.dot}`} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-[#DDDED9]/70 truncate">{e.name}</p>
-                            <p className="text-[9px] text-[#DDDED9]/30 mt-0.5">{fmtDate(e.date)}{e.venue ? ` · ${e.venue}` : ''}</p>
+                            <p className="text-xs font-semibold text-silver/70 truncate">{e.name}</p>
+                            <p className="text-[9px] text-silver/30 mt-0.5">{fmtDate(e.date)}{e.venue ? ` · ${e.venue}` : ''}</p>
                           </div>
                           <button
                             onClick={() => jumpToEvent(e)}
                             className={[
                               'shrink-0 px-2 py-1 text-[9px] font-bold border transition-colors',
                               isViewing
-                                ? 'border-[#DDDED9]/15 text-[#DDDED9]/25 cursor-default'
-                                : 'border-[#DDDED9]/15 text-[#DDDED9]/35 hover:border-[#DDDED9]/35 hover:text-[#DDDED9]/70',
+                                ? 'border-silver/15 text-silver/25 cursor-default'
+                                : 'border-silver/15 text-silver/35 hover:border-silver/35 hover:text-silver/70',
                             ].join(' ')}
                             disabled={isViewing}
                           >
@@ -430,11 +430,11 @@ export const EventsCalendar = ({ events, onEdit, onAdd }: Props) => {
 
       {/* ── Empty state ── */}
       {events.length === 0 && (
-        <div className="flex flex-col items-center gap-3 py-10 border border-dashed border-[#E4BC62]/15">
-          <p className="text-xs text-[#DDDED9]/30">No events to display</p>
+        <div className="flex flex-col items-center gap-3 py-10 border border-dashed border-gold/15">
+          <p className="text-xs text-silver/30">No events to display</p>
           <button
             onClick={onAdd}
-            className="px-5 py-2 text-xs font-bold bg-[#23292E] text-[#E4BC62] border border-[#E4BC62]/30 hover:bg-[#E4BC62] hover:text-[#23292E] transition-all"
+            className="px-5 py-2 text-xs font-bold bg-dark text-gold border border-gold/30 hover:bg-gold hover:text-dark transition-all"
           >
             + Add First Event
           </button>

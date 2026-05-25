@@ -72,7 +72,7 @@ const Modal = ({ onClose, children, maxWidth = 'max-w-lg', className = '', 'aria
           aria-modal="true"
           aria-label={ariaLabel}
           tabIndex={-1}
-          className={`w-full ${maxWidth} bg-[#23292E] border border-[#E4BC62]/25 shadow-2xl shadow-black/60 outline-none ${className}`}
+          className={`w-full ${maxWidth} bg-dark border border-gold/25 shadow-2xl shadow-black/60 outline-none ${className}`}
         >
           {children}
         </div>

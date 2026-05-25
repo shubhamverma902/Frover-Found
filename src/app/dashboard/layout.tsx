@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen flex bg-[#FDFDF8] dark:bg-[#0f1214]">
+      <div className="min-h-screen flex bg-background dark:bg-[#0f1214]">
         <Sidebar open={sidebarOpen} />
 
         {/* Overlay click to close on mobile */}

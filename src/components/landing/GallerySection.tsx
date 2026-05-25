@@ -3,22 +3,22 @@ import { GALLERY_IMAGES } from '@/constants/landing';
 
 const cardRotations = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2', '-rotate-3', 'rotate-1'];
 const tapeStyles = [
-  'bg-[#E4BC62]/65 -rotate-3',
-  'bg-[#DFB3AE]/80  rotate-2',
-  'bg-[#DDDED9]     -rotate-2',
-  'bg-[#E4BC62]/55  rotate-3',
-  'bg-[#DFB3AE]/70 -rotate-1',
-  'bg-[#E4BC62]/70  rotate-2',
+  'bg-gold/65 -rotate-3',
+  'bg-blush/80  rotate-2',
+  'bg-silver     -rotate-2',
+  'bg-gold/55  rotate-3',
+  'bg-blush/70 -rotate-1',
+  'bg-gold/70  rotate-2',
 ];
 
 export const GallerySection = () => (
-  <section id="gallery" className="py-24 px-6 bg-[#DDDED9]">
+  <section id="gallery" className="py-24 px-6 bg-silver">
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-4">
-        <span className="inline-block mb-3 text-sm font-semibold text-[#E4BC62] uppercase tracking-widest">
+        <span className="inline-block mb-3 text-sm font-semibold text-gold uppercase tracking-widest">
           Our Work
         </span>
-        <h2 className="text-4xl font-bold text-[#23292E]">Magical Moments</h2>
+        <h2 className="text-4xl font-bold text-dark">Magical Moments</h2>
         <p className="mt-4 text-zinc-500 max-w-xl mx-auto">
           A glimpse of the love stories we&apos;ve been honoured to bring to life.
         </p>
@@ -29,7 +29,7 @@ export const GallerySection = () => (
         {GALLERY_IMAGES.map((img, i) => (
           <div
             key={i}
-            className={`group relative bg-white p-2.5 pb-9 rounded-[2px] shadow-2xl shadow-[#23292E]/30 cursor-pointer
+            className={`group relative bg-white p-2.5 pb-9 rounded-[2px] shadow-2xl shadow-dark/30 cursor-pointer
               ${cardRotations[i % cardRotations.length]}
               hover:rotate-0 hover:-translate-y-4
               hover:shadow-[0_24px_60px_-8px_rgba(35,41,46,0.35)]

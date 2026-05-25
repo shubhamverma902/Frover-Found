@@ -31,16 +31,16 @@ export const CategorySection = ({ cat, filter, togglingIds, onToggleTask, onEdit
   const catPct  = cat.tasks.length > 0 ? Math.round((catDone / cat.tasks.length) * 100) : 0;
 
   return (
-    <div className="bg-card border border-[#DDDED9] dark:border-[#2a2f33] overflow-hidden lift shadow-crystal">
+    <div className="bg-card border border-silver dark:border-[#2a2f33] overflow-hidden lift shadow-crystal">
       {/* Category header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDDED9] dark:border-[#2a2f33] bg-gradient-to-r from-[#DDDED9]/15 dark:from-[#DDDED9]/5 via-[#DDDED9]/5 dark:via-transparent to-transparent">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-silver dark:border-[#2a2f33] bg-gradient-to-r from-silver/15 dark:from-silver/5 via-silver/5 dark:via-transparent to-transparent">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#23292E] border border-[#E4BC62]/15 flex items-center justify-center text-lg shrink-0">
+          <div className="w-9 h-9 bg-dark border border-gold/15 flex items-center justify-center text-lg shrink-0">
             {cat.icon}
           </div>
           <div>
-            <p className="text-sm font-bold text-[#23292E] dark:text-[#FDFDF8]">{cat.category}</p>
-            <p className="text-[10px] text-zinc-400 dark:text-[#DDDED9]/50">{catDone} of {cat.tasks.length} done</p>
+            <p className="text-sm font-bold text-dark dark:text-background">{cat.category}</p>
+            <p className="text-[10px] text-zinc-400 dark:text-silver/50">{catDone} of {cat.tasks.length} done</p>
           </div>
         </div>
         <div className="relative w-9 h-9 shrink-0">
@@ -52,7 +52,7 @@ export const CategorySection = ({ cat, filter, togglingIds, onToggleTask, onEdit
             duration="0.8s"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[9px] font-black text-[#23292E] dark:text-white">{catPct}%</span>
+            <span className="text-[9px] font-black text-dark dark:text-white">{catPct}%</span>
           </div>
         </div>
       </div>

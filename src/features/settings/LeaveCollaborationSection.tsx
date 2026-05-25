@@ -29,7 +29,7 @@ export const LeaveCollaborationSection = () => {
 
   return (
     <SettingsSection icon="🚪" title="Wedding Plan Access">
-      <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 leading-relaxed mb-4">
+      <p className="text-xs text-zinc-500 dark:text-silver/60 leading-relaxed mb-4">
         You are a collaborator on this wedding plan. Leaving will immediately revoke your access and you will be signed out. You can only rejoin if the owner sends you a new invite.
       </p>
 
@@ -37,12 +37,12 @@ export const LeaveCollaborationSection = () => {
 
       {confirming ? (
         <div className="flex items-center gap-3">
-          <p className="text-xs text-zinc-500 dark:text-[#DDDED9]/60 flex-1">
+          <p className="text-xs text-zinc-500 dark:text-silver/60 flex-1">
             Are you sure? This cannot be undone.
           </p>
           <button
             onClick={() => setConfirming(false)}
-            className="px-3 py-1.5 text-[11px] border border-zinc-300 dark:border-[#DDDED9]/20 text-zinc-500 dark:text-[#DDDED9]/50 hover:text-[#23292E] dark:hover:text-white transition-colors"
+            className="px-3 py-1.5 text-[11px] border border-zinc-300 dark:border-silver/20 text-zinc-500 dark:text-silver/50 hover:text-dark dark:hover:text-white transition-colors"
           >
             Cancel
           </button>

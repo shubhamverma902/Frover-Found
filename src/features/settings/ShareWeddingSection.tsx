@@ -33,7 +33,7 @@ export const ShareWeddingSection = () => {
   return (
     <SettingsSection icon="🔗" title="Share Your Wedding Page">
       <div className="space-y-4">
-        <p className="text-sm text-zinc-500 dark:text-[#DDDED9]/60 max-w-lg">
+        <p className="text-sm text-zinc-500 dark:text-silver/60 max-w-lg">
           Create a beautiful public page your guests can visit to see your wedding details —
           names, date, venue, and city. No login required.
         </p>
@@ -43,7 +43,7 @@ export const ShareWeddingSection = () => {
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="px-5 py-2 bg-[#E4BC62] text-[#23292E] text-sm font-semibold hover:bg-[#d4ac52] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-5 py-2 bg-gold text-dark text-sm font-semibold hover:bg-[#d4ac52] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? 'Generating…' : 'Get My Wedding Link'}
             </button>
@@ -55,12 +55,12 @@ export const ShareWeddingSection = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex-1 min-w-0 flex items-center gap-2 bg-zinc-100 dark:bg-[#1a1f23] border border-zinc-200 dark:border-[#2a2f33] px-3 py-2">
-                <span className="text-sm text-zinc-600 dark:text-[#DDDED9]/70 truncate flex-1">{url}</span>
+                <span className="text-sm text-zinc-600 dark:text-silver/70 truncate flex-1">{url}</span>
               </div>
               <button
                 onClick={handleCopy}
                 aria-label={copied ? 'Copied' : 'Copy link'}
-                className="shrink-0 px-4 py-2 border border-[#E4BC62]/40 text-[#E4BC62] text-sm font-medium hover:bg-[#E4BC62]/10 transition-colors"
+                className="shrink-0 px-4 py-2 border border-gold/40 text-gold text-sm font-medium hover:bg-gold/10 transition-colors"
               >
                 {copied ? '✓ Copied' : 'Copy Link'}
               </button>
@@ -69,12 +69,12 @@ export const ShareWeddingSection = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open wedding page in new tab"
-                className="shrink-0 px-4 py-2 bg-[#E4BC62] text-[#23292E] text-sm font-semibold hover:bg-[#d4ac52] transition-colors"
+                className="shrink-0 px-4 py-2 bg-gold text-dark text-sm font-semibold hover:bg-[#d4ac52] transition-colors"
               >
                 Preview
               </a>
             </div>
-            <p className="text-xs text-zinc-400 dark:text-[#DDDED9]/40">
+            <p className="text-xs text-zinc-400 dark:text-silver/40">
               Share this link with your guests — it shows your wedding details publicly.
             </p>
           </div>

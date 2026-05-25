@@ -46,11 +46,11 @@ export const WeddingSection = ({ wedding, saving, showSaved, onSave }: Props) =>
           </div>
           <div className="flex items-center gap-3">
             <SettingsSaveBtn saving={saving === 'wedding'} label="Save Details" />
-            {showSaved && <span role="status" className="text-[11px] font-semibold text-[#E4BC62] animate-fade-in-up">✓ Saved</span>}
+            {showSaved && <span role="status" className="text-[11px] font-semibold text-gold animate-fade-in-up">✓ Saved</span>}
           </div>
         </form>
       ) : (
-        <p className="text-sm text-[#DDDED9]/40">Complete onboarding first to manage wedding details.</p>
+        <p className="text-sm text-silver/40">Complete onboarding first to manage wedding details.</p>
       )}
     </SettingsSection>
   );

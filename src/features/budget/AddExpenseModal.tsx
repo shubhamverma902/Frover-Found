@@ -43,9 +43,9 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
     <Modal onClose={onClose} aria-label="Add expense" className="flex flex-col max-h-[90svh]">
 
       {/* Header — fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Budget</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Budget</p>
           <h2 className="text-base font-bold text-white">Add Expense</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -56,7 +56,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
 
           {/* API error */}
           {submitErr && (
-            <div role="alert" className="flex items-center justify-between gap-3 px-4 py-3 border border-[#DFB3AE]/50 bg-[#DFB3AE]/10 text-xs text-[#DFB3AE]">
+            <div role="alert" className="flex items-center justify-between gap-3 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-blush">
               <span>{submitErr}</span>
               <button type="button" aria-label="Dismiss error" onClick={() => setSubmitErr('')} className="shrink-0 hover:text-white transition-colors">✕</button>
             </div>
@@ -64,16 +64,16 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
 
           {/* Ornament */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
-            <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-            <div className="flex-1 h-px bg-[#E4BC62]/15" />
+            <div className="flex-1 h-px bg-gold/15" />
+            <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+            <div className="flex-1 h-px bg-gold/15" />
           </div>
 
           {/* Category */}
           <div>
-            <FieldLabel>Category <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             {categories.length === 0 && (
-              <p className="text-xs text-[#DDDED9]/40 py-3 text-center border border-dashed border-[#DDDED9]/15">
+              <p className="text-xs text-silver/40 py-3 text-center border border-dashed border-silver/15">
                 No categories found. Complete onboarding to auto-populate budget categories.
               </p>
             )}
@@ -83,8 +83,8 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
                   key={cat.category}
                   className={`flex items-center gap-3 px-3 py-2.5 border cursor-pointer transition-colors ${
                     category === cat.category
-                      ? 'border-[#E4BC62]/40 bg-[#E4BC62]/8'
-                      : 'border-[#DDDED9]/15 hover:border-[#DDDED9]/30'
+                      ? 'border-gold/40 bg-gold/8'
+                      : 'border-silver/15 hover:border-silver/30'
                   }`}
                 >
                   <input
@@ -96,14 +96,14 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
                     className="sr-only"
                   />
                   <span className="text-base leading-none shrink-0">{cat.icon}</span>
-                  <span className={`text-xs font-semibold flex-1 ${category === cat.category ? 'text-[#E4BC62]' : 'text-[#DDDED9]/50'}`}>
+                  <span className={`text-xs font-semibold flex-1 ${category === cat.category ? 'text-gold' : 'text-silver/50'}`}>
                     {cat.category}
                   </span>
-                  <span className="text-[10px] text-[#DDDED9]/35 shrink-0">
+                  <span className="text-[10px] text-silver/35 shrink-0">
                     {fmt(cat.allocated - cat.spent)} left
                   </span>
                   {category === cat.category && (
-                    <CheckIcon size={10} className="shrink-0 text-[#E4BC62]" strokeWidth={1.8} />
+                    <CheckIcon size={10} className="shrink-0 text-gold" strokeWidth={1.8} />
                   )}
                 </label>
               ))}
@@ -112,7 +112,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
 
           {/* Amount */}
           <div>
-            <FieldLabel>Amount (₹) <span className="text-[#DFB3AE]">*</span></FieldLabel>
+            <FieldLabel>Amount (₹) <span className="text-blush">*</span></FieldLabel>
             <Input
               variant="dark"
               type="number"
@@ -129,7 +129,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
             />
             {amountError && <p className="text-xs text-red-400 mt-1">{amountError}</p>}
             {selectedCat && (
-              <p className={`text-[10px] mt-1.5 ${Number(amount) > remaining ? 'text-[#DFB3AE]' : 'text-[#DDDED9]/35'}`}>
+              <p className={`text-[10px] mt-1.5 ${Number(amount) > remaining ? 'text-blush' : 'text-silver/35'}`}>
                 {Number(amount) > remaining
                   ? `⚠ Exceeds remaining budget by ${fmt(Number(amount) - remaining)}`
                   : `${fmt(remaining)} remaining in this category`}
@@ -140,7 +140,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
           {/* Note */}
           <div>
             <FieldLabel>
-              Note <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span>
+              Note <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span>
             </FieldLabel>
             <Input
               variant="dark"
@@ -153,7 +153,7 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
         </div>
 
         {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-[#E4BC62]/10">
+        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!category || !amount || Number(amount) <= 0 || mutating}>{mutating ? 'Saving…' : 'Record Expense ✦'}</Button>
         </div>

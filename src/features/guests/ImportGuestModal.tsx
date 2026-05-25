@@ -46,9 +46,9 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
   return (
     <Modal onClose={onClose} aria-label="Import guests">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4BC62]/15">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gold/15">
         <div>
-          <p className="text-[10px] font-bold text-[#E4BC62] uppercase tracking-[0.4em] mb-0.5">Guests</p>
+          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Guests</p>
           <h2 className="text-base font-bold text-white">Import from CSV</h2>
         </div>
         <Button variant="close" onClick={onClose}>✕</Button>
@@ -58,22 +58,22 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
 
         {/* Ornament */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-[#E4BC62]/15" />
-          <span className="text-[#E4BC62]/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
-          <div className="flex-1 h-px bg-[#E4BC62]/15" />
+          <div className="flex-1 h-px bg-gold/15" />
+          <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
+          <div className="flex-1 h-px bg-gold/15" />
         </div>
 
         {/* Format note */}
-        <div className="text-xs text-[#DDDED9]/50 space-y-1">
-          <p>Required column: <span className="text-[#E4BC62]/70">name</span></p>
-          <p>Optional: <span className="text-[#DDDED9]/70">relation, phone, rsvp, meal, plusOne</span></p>
+        <div className="text-xs text-silver/50 space-y-1">
+          <p>Required column: <span className="text-gold/70">name</span></p>
+          <p>Optional: <span className="text-silver/70">relation, phone, rsvp, meal, plusOne</span></p>
           <p>Valid rsvp: confirmed / pending / declined &nbsp;·&nbsp; meal: Veg / Non-veg / Jain</p>
         </div>
 
         {/* Drop zone / file input */}
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="relative flex flex-col items-center justify-center gap-2 px-4 py-8 border border-dashed border-[#E4BC62]/25 cursor-pointer hover:border-[#E4BC62]/50 transition-colors group"
+          className="relative flex flex-col items-center justify-center gap-2 px-4 py-8 border border-dashed border-gold/25 cursor-pointer hover:border-gold/50 transition-colors group"
         >
           <input
             ref={fileInputRef}
@@ -82,25 +82,25 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
             onChange={handleFile}
             className="sr-only"
           />
-          <span className="text-2xl text-[#E4BC62]/40 group-hover:text-[#E4BC62]/70 transition-colors">↑</span>
+          <span className="text-2xl text-gold/40 group-hover:text-gold/70 transition-colors">↑</span>
           {file ? (
-            <p className="text-xs text-[#E4BC62] font-semibold">{file.name}</p>
+            <p className="text-xs text-gold font-semibold">{file.name}</p>
           ) : (
-            <p className="text-xs text-[#DDDED9]/40">Click to choose a CSV file</p>
+            <p className="text-xs text-silver/40">Click to choose a CSV file</p>
           )}
         </div>
 
         {/* Result summary */}
         {result && (
-          <div className={`px-4 py-3 border text-xs space-y-1 ${result.imported > 0 ? 'border-[#E4BC62]/30 bg-[#E4BC62]/5' : 'border-red-500/30 bg-red-500/5'}`}>
-            <p className="font-bold text-[#E4BC62]">
+          <div className={`px-4 py-3 border text-xs space-y-1 ${result.imported > 0 ? 'border-gold/30 bg-gold/5' : 'border-red-500/30 bg-red-500/5'}`}>
+            <p className="font-bold text-gold">
               {result.imported} imported{result.skipped > 0 ? `, ${result.skipped} skipped` : ''}
             </p>
             {result.errors.slice(0, 5).map((err, i) => (
-              <p key={i} className="text-[#DDDED9]/50">{err}</p>
+              <p key={i} className="text-silver/50">{err}</p>
             ))}
             {result.errors.length > 5 && (
-              <p className="text-[#DDDED9]/40">…and {result.errors.length - 5} more</p>
+              <p className="text-silver/40">…and {result.errors.length - 5} more</p>
             )}
           </div>
         )}
@@ -110,7 +110,7 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
           <button
             type="button"
             onClick={handleDownloadTemplate}
-            className="text-xs text-[#DDDED9]/40 hover:text-[#E4BC62]/70 transition-colors underline underline-offset-2"
+            className="text-xs text-silver/40 hover:text-gold/70 transition-colors underline underline-offset-2"
           >
             Download template
           </button>

@@ -7,8 +7,8 @@ import { GuestChip } from './GuestChip';
 
 const ShapeIcon = ({ shape }: { shape: SeatingTable['shape'] }) =>
   shape === 'round'
-    ? <span className="text-[11px] text-[#E4BC62]/50">●</span>
-    : <span className="text-[11px] text-[#E4BC62]/50">■</span>;
+    ? <span className="text-[11px] text-gold/50">●</span>
+    : <span className="text-[11px] text-gold/50">■</span>;
 
 interface Props {
   table:      SeatingTable;
@@ -28,21 +28,21 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
     <div
       ref={setNodeRef}
       className={[
-        'flex flex-col bg-[#23292E] border transition-colors min-h-[180px]',
-        isOver ? 'border-[#E4BC62]/60 bg-[#E4BC62]/5' : 'border-[#DDDED9]/10 hover:border-[#DDDED9]/20',
+        'flex flex-col bg-dark border transition-colors min-h-[180px]',
+        isOver ? 'border-gold/60 bg-gold/5' : 'border-silver/10 hover:border-silver/20',
       ].join(' ')}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[#DDDED9]/8">
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-silver/8">
         <ShapeIcon shape={table.shape} />
-        <p className="text-[11px] font-bold text-[#DDDED9]/80 flex-1 truncate">{table.name}</p>
-        <span className={`text-[10px] font-black px-1.5 py-0.5 ${over ? 'text-red-400 bg-red-900/20' : 'text-[#E4BC62]/60 bg-[#E4BC62]/8'}`}>
+        <p className="text-[11px] font-bold text-silver/80 flex-1 truncate">{table.name}</p>
+        <span className={`text-[10px] font-black px-1.5 py-0.5 ${over ? 'text-red-400 bg-red-900/20' : 'text-gold/60 bg-gold/8'}`}>
           {guests.length}/{table.capacity}
         </span>
         <button
           type="button"
           onClick={() => onEdit(table)}
-          className="text-[#DDDED9]/25 hover:text-[#E4BC62]/60 transition-colors text-[10px] leading-none px-1"
+          className="text-silver/25 hover:text-gold/60 transition-colors text-[10px] leading-none px-1"
           title="Edit table"
         >
           ✎
@@ -50,9 +50,9 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
       </div>
 
       {/* Capacity bar */}
-      <div className="h-[2px] bg-[#DDDED9]/8">
+      <div className="h-[2px] bg-silver/8">
         <div
-          className={`h-full transition-all duration-500 ${over ? 'bg-red-400' : 'bg-[#E4BC62]/50'}`}
+          className={`h-full transition-all duration-500 ${over ? 'bg-red-400' : 'bg-gold/50'}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
@@ -60,7 +60,7 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
       {/* Guest chips */}
       <div className="flex-1 p-3 flex flex-wrap gap-1.5 content-start">
         {guests.length === 0 && !isOver && (
-          <p className="text-[10px] text-[#DDDED9]/20 w-full text-center mt-4">Drop guests here</p>
+          <p className="text-[10px] text-silver/20 w-full text-center mt-4">Drop guests here</p>
         )}
         {guests.map(g => (
           <div
@@ -84,7 +84,7 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
         ))}
         {isOver && (
           <div className="w-full flex items-center justify-center py-2">
-            <span className="text-[10px] text-[#E4BC62]/60 animate-pulse">Release to seat here</span>
+            <span className="text-[10px] text-gold/60 animate-pulse">Release to seat here</span>
           </div>
         )}
       </div>

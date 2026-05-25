@@ -19,14 +19,14 @@ export const BudgetSummaryPanel = ({
   editingTotal, totalInput,
   onStartEdit, onInputChange, onCommit, onCancelEdit,
 }: BudgetSummaryPanelProps) => (
-  <div className="bg-[#23292E] p-[3px] glow-gold relative">
-    <div className="border border-[#E4BC62]/12 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E4BC62]/10">
+  <div className="bg-dark p-[3px] glow-gold relative">
+    <div className="border border-gold/12 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gold/10">
 
       {/* Total Budget — editable */}
       <div className="relative px-6 py-7 overflow-hidden group">
-        <div className="absolute top-3 right-3 text-[10px] text-[#DDDED9]/10">◆</div>
-        <p className="text-sm text-[#DDDED9]/30 mb-3">◆</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-[#DDDED9]/35">Total Budget</p>
+        <div className="absolute top-3 right-3 text-[10px] text-silver/10">◆</div>
+        <p className="text-sm text-silver/30 mb-3">◆</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver/35">Total Budget</p>
         {editingTotal ? (
           <div className="flex items-center gap-2">
             <span className="text-white text-sm">₹</span>
@@ -34,7 +34,7 @@ export const BudgetSummaryPanel = ({
               type="number"
               min={1}
               autoFocus
-              className="flex-1 bg-transparent border-b border-[#E4BC62]/60 text-white text-2xl font-black focus:outline-none pb-0.5 w-0"
+              className="flex-1 bg-transparent border-b border-gold/60 text-white text-2xl font-black focus:outline-none pb-0.5 w-0"
               value={totalInput}
               onChange={e => onInputChange(e.target.value)}
               onBlur={onCommit}
@@ -48,10 +48,10 @@ export const BudgetSummaryPanel = ({
             title="Click to edit total budget"
           >
             <p className="text-4xl font-black num-pop leading-none text-white">{fmt(total)}</p>
-            <PencilIcon size={13} className="opacity-0 group-hover/btn:opacity-100 transition-opacity text-[#E4BC62]/50" />
+            <PencilIcon size={13} className="opacity-0 group-hover/btn:opacity-100 transition-opacity text-gold/50" />
           </button>
         )}
-        <p className="text-xs mt-2 text-[#DDDED9]/25">
+        <p className="text-xs mt-2 text-silver/25">
           {editingTotal ? 'Press Enter to save' : 'Click to edit'}
         </p>
       </div>
@@ -59,21 +59,21 @@ export const BudgetSummaryPanel = ({
       {/* Spent */}
       <div className="relative px-6 py-7 overflow-hidden">
         <div className="absolute inset-0 shimmer pointer-events-none" />
-        <div className="absolute top-3 right-3 text-[10px] text-[#E4BC62]/25">◆</div>
-        <p className="text-sm text-[#E4BC62] mb-3">₹</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-[#E4BC62]">Spent</p>
-        <p className="text-4xl font-black num-pop leading-none text-[#E4BC62]">{fmt(spent)}</p>
-        <p className="text-xs mt-2 text-[#DDDED9]/50">{totalPct}% of total</p>
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E4BC62]/50 to-transparent" />
+        <div className="absolute top-3 right-3 text-[10px] text-gold/25">◆</div>
+        <p className="text-sm text-gold mb-3">₹</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-gold">Spent</p>
+        <p className="text-4xl font-black num-pop leading-none text-gold">{fmt(spent)}</p>
+        <p className="text-xs mt-2 text-silver/50">{totalPct}% of total</p>
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
       </div>
 
       {/* Remaining */}
       <div className="relative px-6 py-7 overflow-hidden">
-        <div className="absolute top-3 right-3 text-[10px] text-[#DDDED9]/10">◆</div>
-        <p className="text-sm text-[#DDDED9]/30 mb-3">◎</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-[#DDDED9]/35">Remaining</p>
+        <div className="absolute top-3 right-3 text-[10px] text-silver/10">◆</div>
+        <p className="text-sm text-silver/30 mb-3">◎</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver/35">Remaining</p>
         <p className="text-4xl font-black num-pop leading-none text-white">{fmt(remaining)}</p>
-        <p className="text-xs mt-2 text-[#DDDED9]/25">{100 - totalPct}% free</p>
+        <p className="text-xs mt-2 text-silver/25">{100 - totalPct}% free</p>
       </div>
 
     </div>

@@ -1,8 +1,8 @@
-const pulse = 'bg-[#DDDED9]/10 animate-pulse';
+const pulse = 'bg-silver/10 animate-pulse';
 
 const SkeletonRow = ({ delay }: { delay: number }) => (
   <div
-    className="grid grid-cols-[2fr_1fr_1fr_auto_auto] items-center gap-4 px-5 py-3 border-t border-[#DDDED9]/10"
+    className="grid grid-cols-[2fr_1fr_1fr_auto_auto] items-center gap-4 px-5 py-3 border-t border-silver/10"
     style={{ animationDelay: `${delay}s` }}
   >
     {/* Avatar + name */}
@@ -37,7 +37,7 @@ export const GuestsSkeleton = () => (
     <div className={`h-14 rounded ${pulse}`} />
 
     {/* Table */}
-    <div className="border border-[#DDDED9]/20 overflow-hidden">
+    <div className="border border-silver/20 overflow-hidden">
       {/* Header */}
       <div className={`h-10 ${pulse} opacity-50`} />
       {/* Rows */}
