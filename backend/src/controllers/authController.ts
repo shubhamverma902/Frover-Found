@@ -7,6 +7,7 @@ import ApiError from '../utils/ApiError';
 import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { signToken, signRefreshToken, userPayload } from '../helpers/authHelpers';
+import logAudit from '../utils/logAudit';
 
 const REFRESH_COOKIE     = 'refreshToken';
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -41,6 +42,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     // New accounts start at version 0 — tokenVersion field default
     const refreshToken = signRefreshToken(id, 0);
 
+    logAudit(req, 'auth.register', id);
     setRefreshCookie(res, refreshToken);
     sendSuccess(res, { token: accessToken, user: userPayload(user) }, 'Registered successfully', 201);
   } catch (err) {
@@ -66,6 +68,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     const passwordOk = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
 
     if (!user || !passwordOk) {
+      logAudit(req, 'auth.login.failure', user ? String(user._id) : null, { email });
       if (user) {
         const newAttempts = (user.loginAttempts ?? 0) + 1;
         const lock        = newAttempts >= MAX_LOGIN_ATTEMPTS;
@@ -87,6 +90,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     const accessToken  = signToken(id, user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);
     const refreshToken = signRefreshToken(id, user.tokenVersion ?? 0);
 
+    logAudit(req, 'auth.login.success', id);
     setRefreshCookie(res, refreshToken);
     sendSuccess(res, { token: accessToken, user: userPayload(user) }, 'Logged in successfully');
   } catch (err) {
@@ -143,6 +147,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
       const payload = jwt.verify(token, secret) as jwt.JwtPayload;
       // Invalidate all outstanding refresh tokens for this user
       await User.findByIdAndUpdate(payload.id, { $inc: { tokenVersion: 1 } });
+      logAudit(req, 'auth.logout', payload.id);
     } catch { /* token already expired — nothing to invalidate */ }
   }
   res.clearCookie(REFRESH_COOKIE, { ...cookieOptions });
@@ -158,6 +163,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     const user = await User.findOne({ email: email?.trim().toLowerCase() });
 
     if (!user) {
+      logAudit(req, 'auth.password_reset_request', null, { email });
       sendSuccess(res, null, 'If that email is registered, a reset link has been sent');
       return;
     }
@@ -171,6 +177,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       passwordResetExpiry: expiry,
     });
 
+    logAudit(req, 'auth.password_reset_request', String(user._id));
     const appUrl   = process.env.FRONTEND_URL ?? 'http://localhost:3000';
     const resetUrl = `${appUrl}/auth/reset-password?token=${rawToken}`;
 
@@ -206,6 +213,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
       $inc: { tokenVersion: 1 },
     });
 
+    logAudit(req, 'auth.password_reset_complete', String(user._id));
     sendSuccess(res, null, 'Password reset successfully. Please log in.');
   } catch (err) {
     next(err);

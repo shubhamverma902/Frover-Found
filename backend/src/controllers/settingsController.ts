@@ -9,6 +9,7 @@ import { NOTIFICATION_DEFAULTS } from '../constants/notifications';
 import { fmtDateISO } from '../helpers/dateHelpers';
 import { signToken } from '../helpers/authHelpers';
 import { sanitize } from '../utils/sanitize';
+import logAudit from '../utils/logAudit';
 
 // GET /api/v1/settings
 export const getSettings = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -228,6 +229,7 @@ export const acceptInvite = async (req: AuthRequest, res: Response, next: NextFu
       newToken = signToken(req.user!.id, req.user!.email, req.user!.role, String(inviter._id));
     });
 
+    logAudit(req, 'partner.linked', req.user!.id);
     sendSuccess(res, { token: newToken }, 'Partner linked successfully');
   } catch (err) { next(err); } finally { session.endSession(); }
 };
@@ -253,6 +255,7 @@ export const removePartner = async (req: AuthRequest, res: Response, next: NextF
       newToken = signToken(req.user!.id, req.user!.email, me.role);
     });
 
+    logAudit(req, 'partner.removed', req.user!.id);
     sendSuccess(res, { token: newToken }, 'Partner removed');
   } catch (err) { next(err); } finally { session.endSession(); }
 };

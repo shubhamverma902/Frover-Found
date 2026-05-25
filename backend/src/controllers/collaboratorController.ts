@@ -7,6 +7,7 @@ import ApiError from '../utils/ApiError';
 import { sendSuccess } from '../utils/ApiResponse';
 import { AuthRequest } from '../types';
 import { signToken } from '../helpers/authHelpers';
+import logAudit from '../utils/logAudit';
 
 const serializeCollab = (c: ICollaborator) => ({
   _id:       String(c._id),
@@ -107,6 +108,7 @@ export const acceptCollaboratorInvite = async (req: AuthRequest, res: Response, 
       newToken = signToken(req.user!.id, req.user!.email, req.user!.role, String(owner._id), role);
     });
 
+    logAudit(req, 'collaborator.invite_accepted', req.user!.id, { role });
     sendSuccess(res, { token: newToken, role }, 'Joined as collaborator');
   } catch (err) { next(err); } finally { session.endSession(); }
 };
@@ -132,6 +134,7 @@ export const leaveCollaboration = async (req: AuthRequest, res: Response, next: 
       await User.findByIdAndUpdate(req.user!.id, { dataOwner: null, collaboratorRole: null }, { session });
     });
 
+    logAudit(req, 'collaborator.left', req.user!.id);
     sendSuccess(res, null, 'You have left the wedding plan');
   } catch (err) { next(err); } finally { session.endSession(); }
 };
@@ -162,6 +165,7 @@ export const removeCollaborator = async (req: AuthRequest, res: Response, next: 
       remaining = user.collaborators.map(serializeCollab);
     });
 
+    logAudit(req, 'collaborator.removed', req.user!.id, { collaboratorId: req.params.id });
     sendSuccess(res, { collaborators: remaining }, 'Collaborator removed');
   } catch (err) { next(err); } finally { session.endSession(); }
 };
