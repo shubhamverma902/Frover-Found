@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { patchVendorStatus, resetVendorMutating } from '@/store/slices/vendorsSlice';
-import { useGetVendorsQuery } from '@/store/api';
+import { useGetVendorsQuery, usePatchVendorStatusMutation } from '@/store/api';
 import {
   AddVendorModal,
   EditVendorModal,
@@ -20,8 +18,7 @@ import type { Vendor } from '@/constants/dashboard-pages';
 const PAGE_LIMIT = 10;
 
 const VendorsPage = () => {
-  const dispatch = useAppDispatch();
-  useEffect(() => { dispatch(resetVendorMutating()); }, [dispatch]);
+  const [patchVendorStatus] = usePatchVendorStatusMutation();
 
   const [page,           setPage]           = useState(1);
   const [addOpen,        setAddOpen]        = useState(false);
@@ -98,7 +95,7 @@ const VendorsPage = () => {
                 vendor={v}
                 onViewDetail={() => setDetailVendor(v)}
                 onEdit={() => setEditVendor(v)}
-                onBook={() => dispatch(patchVendorStatus({ vendorId: v._id, status: 'booked' }))}
+                onBook={() => patchVendorStatus({ vendorId: v._id, status: 'booked' })}
               />
             ))}
           </div>

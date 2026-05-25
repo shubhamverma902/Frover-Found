@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createGuest, selectGuestMutating } from '@/store/slices/guestsSlice';
+import { useCreateGuestMutation } from '@/store/api';
 import type { Guest } from '@/constants/dashboard-pages';
 
 interface AddGuestModalProps {
@@ -19,8 +18,7 @@ const RSVP_OPTIONS: { value: Guest['rsvp']; label: string }[] = [
 ];
 
 const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectGuestMutating);
+  const [createGuest, { isLoading: mutating }] = useCreateGuestMutation();
 
   const [name,      setName]      = useState('');
   const [nameError, setNameError] = useState('');
@@ -33,8 +31,10 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) { setNameError('Required'); return; }
-    const result = await dispatch(createGuest({ name: name.trim(), relation, phone, rsvp, meal, plusOne }));
-    if (createGuest.fulfilled.match(result)) onClose();
+    try {
+      await createGuest({ name: name.trim(), relation, phone, rsvp, meal, plusOne }).unwrap();
+      onClose();
+    } catch { }
   };
 
   return (

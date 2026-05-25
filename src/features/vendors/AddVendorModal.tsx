@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createVendor, selectVendorMutating } from '@/store/slices/vendorsSlice';
+import { useCreateVendorMutation } from '@/store/api';
 import type { Vendor } from '@/constants/dashboard-pages';
 
 const CATEGORY_ICONS: { label: string; icon: string }[] = [
@@ -25,8 +24,7 @@ const STATUS_OPTIONS: Vendor['status'][] = ['pending', 'shortlisted', 'booked'];
 interface AddVendorModalProps { onClose: () => void; }
 
 const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectVendorMutating);
+  const [createVendor, { isLoading: mutating }] = useCreateVendorMutation();
 
   const [name,      setName]      = useState('');
   const [nameError, setNameError] = useState('');
@@ -46,8 +44,10 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) { setNameError('Required'); return; }
-    const result = await dispatch(createVendor({ icon, category, name: name.trim(), contact, location, status, rating, notes }));
-    if (createVendor.fulfilled.match(result)) onClose();
+    try {
+      await createVendor({ icon, category, name: name.trim(), contact, location, status, rating, notes }).unwrap();
+      onClose();
+    } catch { }
   };
 
   return (

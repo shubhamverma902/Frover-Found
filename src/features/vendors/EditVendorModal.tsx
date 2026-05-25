@@ -4,13 +4,12 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { AttachmentsPanel } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import { useAppDispatch } from '@/store/hooks';
 import {
-  updateVendor,
-  deleteVendor,
-  addVendorAttachment,
-  removeVendorAttachment,
-} from '@/store/slices/vendorsSlice';
+  useUpdateVendorMutation,
+  useDeleteVendorMutation,
+  useAddVendorAttachmentMutation,
+  useRemoveVendorAttachmentMutation,
+} from '@/store/api';
 import type { Vendor, Attachment } from '@/constants/dashboard-pages';
 
 const CATEGORY_ICONS: { label: string; icon: string }[] = [
@@ -34,7 +33,12 @@ interface EditVendorModalProps {
 }
 
 const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
-  const dispatch = useAppDispatch();
+  const [updateVendor,         { isLoading: saving }]       = useUpdateVendorMutation();
+  const [deleteVendor,         { isLoading: deleting }]     = useDeleteVendorMutation();
+  const [addVendorAttachment,  { isLoading: uploadingFile }] = useAddVendorAttachmentMutation();
+  const [removeVendorAttachment, { isLoading: removingFile }] = useRemoveVendorAttachmentMutation();
+  const uploading = uploadingFile || removingFile;
+
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [name,      setName]      = useState(vendor.name);
@@ -47,11 +51,8 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   const [rating,    setRating]    = useState(vendor.rating);
   const [notes,     setNotes]     = useState(vendor.notes ?? '');
 
-  // Attachment state — tracked locally so panel updates without prop drilling
   const [attachments,  setAttachments]  = useState<Attachment[]>(vendor.attachments ?? []);
-  const [uploading,    setUploading]    = useState(false);
   const [uploadError,  setUploadError]  = useState('');
-  const [saving,       setSaving]       = useState(false);
 
   const handleCategoryChange = (label: string) => {
     setCategory(label);
@@ -61,50 +62,41 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!name.trim()) { setNameError('Required'); return; }
-    setSaving(true);
     try {
-      const result = await dispatch(updateVendor({
+      await updateVendor({
         vendorId: vendor._id,
         payload: { icon, category, name: name.trim(), contact, location, status, rating, notes },
-      }));
-      if (updateVendor.fulfilled.match(result)) onClose();
-    } finally {
-      setSaving(false);
-    }
+      }).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleDelete = async () => {
-    const result = await dispatch(deleteVendor(vendor._id));
-    if (deleteVendor.fulfilled.match(result)) onClose();
+    try {
+      await deleteVendor(vendor._id).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleUpload = async (files: File[]) => {
-    setUploading(true);
     setUploadError('');
     try {
       for (const file of files) {
-        const result = await dispatch(addVendorAttachment({ vendorId: vendor._id, file }));
-        if (addVendorAttachment.fulfilled.match(result)) {
-          setAttachments(result.payload.attachments ?? []);
-        } else {
-          setUploadError(typeof result.payload === 'string' ? result.payload : 'Upload failed');
-        }
+        const updated = await addVendorAttachment({ vendorId: vendor._id, file }).unwrap();
+        setAttachments(updated.attachments ?? []);
       }
-    } finally {
-      setUploading(false);
+    } catch {
+      setUploadError('Upload failed');
     }
   };
 
   const handleDeleteAttachment = async (fileId: string) => {
-    setUploading(true);
     setUploadError('');
     try {
-      const result = await dispatch(removeVendorAttachment({ vendorId: vendor._id, fileId }));
-      if (removeVendorAttachment.fulfilled.match(result)) {
-        setAttachments(result.payload.attachments ?? []);
-      }
-    } finally {
-      setUploading(false);
+      const updated = await removeVendorAttachment({ vendorId: vendor._id, fileId }).unwrap();
+      setAttachments(updated.attachments ?? []);
+    } catch {
+      setUploadError('Remove failed');
     }
   };
 
@@ -236,9 +228,9 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
                   className="px-2.5 py-1 text-[11px] font-semibold border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors">
                   Cancel
                 </button>
-                <button type="button" onClick={handleDelete} disabled={saving}
+                <button type="button" onClick={handleDelete} disabled={deleting}
                   className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
-                  {saving ? '…' : 'Delete'}
+                  {deleting ? '…' : 'Delete'}
                 </button>
               </div>
             ) : (

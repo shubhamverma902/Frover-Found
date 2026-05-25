@@ -4,8 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateAllocated, deleteExpense, selectBudgetCategories, selectBudgetMutating } from '@/store/slices/budgetSlice';
+import { useUpdateAllocatedMutation, useDeleteExpenseMutation, useGetBudgetQuery } from '@/store/api';
 import { fmt } from '@/utils/format';
 
 interface EditCategoryModalProps {
@@ -14,14 +13,18 @@ interface EditCategoryModalProps {
 }
 
 const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) => {
-  const dispatch   = useAppDispatch();
-  const categories = useAppSelector(selectBudgetCategories);
-  const mutating   = useAppSelector(selectBudgetMutating);
-  const cat        = categories.find(c => c.category === categoryName)!;
+  const [updateAllocated, { isLoading: saving }]          = useUpdateAllocatedMutation();
+  const [deleteExpense,   { isLoading: deletingExpense }] = useDeleteExpenseMutation();
+  const mutating = saving || deletingExpense;
 
-  const [allocated,      setAllocated]      = useState(String(cat.allocated));
+  const { data: budget } = useGetBudgetQuery();
+  const cat = budget?.categories.find(c => c.category === categoryName);
+
+  const [allocated,      setAllocated]      = useState(String(cat?.allocated ?? 0));
   const [allocatedError, setAllocatedError] = useState('');
   const [deleteId,       setDeleteId]       = useState<string | null>(null);
+
+  if (!cat) return null;
 
   const allocatedChanged = Number(allocated) !== cat.allocated;
 
@@ -30,20 +33,23 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
 
   const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const newAllocated = Number(allocated);
     const err = validateAllocated(allocated);
     if (err) { setAllocatedError(err); return; }
     if (allocatedChanged) {
-      const result = await dispatch(updateAllocated({ categoryId: cat._id, allocated: newAllocated }));
-      if (updateAllocated.fulfilled.match(result)) onClose();
+      try {
+        await updateAllocated({ categoryId: cat._id, allocated: Number(allocated) }).unwrap();
+        onClose();
+      } catch { }
     } else {
       onClose();
     }
   };
 
   const handleDeleteExpense = async (expenseId: string) => {
-    await dispatch(deleteExpense({ categoryId: cat._id, expenseId }));
-    setDeleteId(null);
+    try {
+      await deleteExpense({ categoryId: cat._id, expenseId }).unwrap();
+      setDeleteId(null);
+    } catch { }
   };
 
   const previewPct = Number(allocated) > 0
@@ -173,9 +179,10 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
                         <button
                           type="button"
                           onClick={() => handleDeleteExpense(exp._id)}
-                          className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors"
+                          disabled={deletingExpense}
+                          className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
                         >
-                          Delete
+                          {deletingExpense ? '…' : 'Delete'}
                         </button>
                       </div>
                     ) : (

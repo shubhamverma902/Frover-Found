@@ -5,14 +5,12 @@ import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
 import { AttachmentsPanel } from '@/components/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  updateEvent,
-  deleteEvent,
-  addEventAttachment,
-  removeEventAttachment,
-  selectEventsMutating,
-} from '@/store/slices/eventsSlice';
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+  useAddEventAttachmentMutation,
+  useRemoveEventAttachmentMutation,
+} from '@/store/api';
 import type { WeddingEvent, Attachment } from '@/constants/dashboard-pages';
 import { STATUS_OPTIONS } from '@/constants/events';
 
@@ -22,11 +20,13 @@ interface EditEventModalProps {
 }
 
 const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectEventsMutating);
+  const [updateEvent,          { isLoading: saving }]       = useUpdateEventMutation();
+  const [deleteEvent,          { isLoading: deleting }]     = useDeleteEventMutation();
+  const [addEventAttachment,   { isLoading: uploadingFile }] = useAddEventAttachmentMutation();
+  const [removeEventAttachment, { isLoading: removingFile }] = useRemoveEventAttachmentMutation();
+  const uploading = uploadingFile || removingFile;
 
-  // date and time are already in YYYY-MM-DD / HH:mm — use directly in inputs
-  const [form, setForm]                   = useState<Omit<WeddingEvent, '_id'>>({
+  const [form, setForm] = useState<Omit<WeddingEvent, '_id'>>({
     name:   event.name,
     date:   event.date,
     time:   event.time,
@@ -39,9 +39,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
   const [errors,        setErrors]        = useState<{ name?: string; date?: string; venue?: string }>({});
 
   const [attachments,  setAttachments]  = useState<Attachment[]>(event.attachments ?? []);
-  const [uploading,    setUploading]    = useState(false);
   const [uploadError,  setUploadError]  = useState('');
-  const [saving,       setSaving]       = useState(false);
 
   const initialAttachmentIds = (event.attachments ?? []).map(a => a._id).join(',');
 
@@ -72,54 +70,40 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
       return;
     }
     if (!formChanged) { onClose(); return; }
-    setSaving(true);
     try {
-      const result = await dispatch(updateEvent({
-        id: event._id!,
-        payload: { ...form, guests: Number(form.guests) },
-      }));
-      if (updateEvent.fulfilled.match(result)) onClose();
-    } finally {
-      setSaving(false);
-    }
+      await updateEvent({ id: event._id!, payload: { ...form, guests: Number(form.guests) } }).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleDelete = async () => {
-    const result = await dispatch(deleteEvent(event._id!));
-    if (deleteEvent.fulfilled.match(result)) onClose();
+    try {
+      await deleteEvent(event._id!).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleUpload = async (files: File[]) => {
-    setUploading(true);
     setUploadError('');
     try {
       for (const file of files) {
-        const result = await dispatch(addEventAttachment({ eventId: event._id!, file }));
-        if (addEventAttachment.fulfilled.match(result)) {
-          setAttachments(result.payload.attachments ?? []);
-        } else {
-          setUploadError(typeof result.payload === 'string' ? result.payload : 'Upload failed');
-        }
+        const updated = await addEventAttachment({ eventId: event._id!, file }).unwrap();
+        setAttachments(updated.attachments ?? []);
       }
-    } finally {
-      setUploading(false);
+    } catch {
+      setUploadError('Upload failed');
     }
   };
 
   const handleDeleteAttachment = async (fileId: string) => {
-    setUploading(true);
     setUploadError('');
     try {
-      const result = await dispatch(removeEventAttachment({ eventId: event._id!, fileId }));
-      if (removeEventAttachment.fulfilled.match(result)) {
-        setAttachments(result.payload.attachments ?? []);
-      }
-    } finally {
-      setUploading(false);
+      const updated = await removeEventAttachment({ eventId: event._id!, fileId }).unwrap();
+      setAttachments(updated.attachments ?? []);
+    } catch {
+      setUploadError('Remove failed');
     }
   };
-
-  const loading = mutating;
 
   return (
     <Modal onClose={onClose} aria-label="Edit event" className="flex flex-col max-h-[90svh] relative">
@@ -259,9 +243,9 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
                   className="px-3 py-1.5 text-[11px] font-semibold border border-[#DDDED9]/20 text-[#DDDED9]/50 hover:text-white transition-colors">
                   Cancel
                 </button>
-                <button type="button" onClick={handleDelete} disabled={loading}
+                <button type="button" onClick={handleDelete} disabled={deleting}
                   className="px-3 py-1.5 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
-                  {loading ? '…' : 'Yes, Delete'}
+                  {deleting ? '…' : 'Yes, Delete'}
                 </button>
               </div>
             ) : (

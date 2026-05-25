@@ -4,8 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { CheckIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { addExpense, selectBudgetCategories, selectBudgetMutating } from '@/store/slices/budgetSlice';
+import { useAddExpenseMutation, useGetBudgetQuery } from '@/store/api';
 import { fmt } from '@/utils/format';
 
 interface AddExpenseModalProps {
@@ -13,15 +12,15 @@ interface AddExpenseModalProps {
 }
 
 const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
-  const dispatch   = useAppDispatch();
-  const categories = useAppSelector(selectBudgetCategories);
-  const mutating   = useAppSelector(selectBudgetMutating);
+  const [addExpense, { isLoading: mutating }] = useAddExpenseMutation();
+  const { data: budget } = useGetBudgetQuery();
+  const categories = budget?.categories ?? [];
 
-  const [category,     setCategory]     = useState(categories[0]?.category ?? '');
-  const [amount,       setAmount]       = useState('');
-  const [amountError,  setAmountError]  = useState('');
-  const [note,         setNote]         = useState('');
-  const [submitErr,    setSubmitErr]    = useState('');
+  const [category,    setCategory]    = useState(categories[0]?.category ?? '');
+  const [amount,      setAmount]      = useState('');
+  const [amountError, setAmountError] = useState('');
+  const [note,        setNote]        = useState('');
+  const [submitErr,   setSubmitErr]   = useState('');
 
   const selectedCat = categories.find(c => c.category === category);
   const remaining   = selectedCat ? selectedCat.allocated - selectedCat.spent : 0;
@@ -32,11 +31,11 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
     if (!amt || amt <= 0) { setAmountError('Enter a value greater than 0'); return; }
     if (!selectedCat) return;
     setSubmitErr('');
-    const result = await dispatch(addExpense({ categoryId: selectedCat._id, amount: amt, note: note.trim() }));
-    if (addExpense.fulfilled.match(result)) {
+    try {
+      await addExpense({ categoryId: selectedCat._id, amount: amt, note: note.trim() }).unwrap();
       onClose();
-    } else {
-      setSubmitErr((result.payload as string) || 'Failed to record expense. Please try again.');
+    } catch (e) {
+      setSubmitErr((e as { error?: string })?.error || 'Failed to record expense. Please try again.');
     }
   };
 

@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { patchEventStatus, resetEventsMutating } from '@/store/slices/eventsSlice';
-import { useGetEventsQuery } from '@/store/api';
+import { useGetEventsQuery, usePatchEventStatusMutation } from '@/store/api';
 import {
   AddEventModal,
   EditEventModal,
@@ -23,8 +21,7 @@ import type { WeddingEvent } from '@/constants/dashboard-pages';
 const PAGE_LIMIT = 20;
 
 const EventsPage = () => {
-  const dispatch = useAppDispatch();
-  useEffect(() => { dispatch(resetEventsMutating()); }, [dispatch]);
+  const [patchEventStatus] = usePatchEventStatusMutation();
 
   const [page,           setPage]           = useState(1);
   const [showAdd,        setShowAdd]        = useState(false);
@@ -151,7 +148,7 @@ const EventsPage = () => {
                 key={event._id ?? event.name}
                 event={event}
                 onEdit={() => setEditEvent(event)}
-                onConfirm={() => event._id && dispatch(patchEventStatus({ id: event._id, status: 'confirmed' }))}
+                onConfirm={() => event._id && patchEventStatus({ id: event._id, status: 'confirmed' })}
               />
             ))}
           </div>

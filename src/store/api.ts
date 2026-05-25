@@ -4,6 +4,7 @@ import type { AxiosBaseQueryError } from "./axiosBaseQuery";
 import { API } from "@/constants/api";
 import type {
   Guest,
+  Vendor,
   WeddingEvent,
   SeatingTable,
   BudgetCategory,
@@ -23,12 +24,17 @@ import {
   PartnerStatusDataSchema,
   CollaboratorsDataSchema,
   AnalyticsDataSchema,
+  VendorSchema,
+  WeddingEventSchema,
 } from "@/api/schemas";
 import type { GuestsData } from "@/api/guests.api";
+import type { CreateGuestPayload } from "@/api/guests.api";
 import type { VendorsData } from "@/api/vendors.api";
+import type { VendorPayload } from "@/api/vendors.api";
 import type { EventsData } from "@/api/events.api";
 import type { BudgetData } from "@/api/budget.api";
 import type { SettingsData, PartnerStatusData, InviteResult } from "@/api/settings.api";
+import { startToggle, finishToggle } from "./slices/checklistSlice";
 
 export interface CollaboratorEntry {
   _id:      string;
@@ -85,6 +91,21 @@ export const api = createApi({
       providesTags: [{ type: "Guest", id: "LIST" }],
     }),
 
+    createGuest: build.mutation<void, CreateGuestPayload>({
+      query: (body) => ({ url: API.guests.base, method: 'POST', data: body }),
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    patchGuestRsvp: build.mutation<void, { guestId: string; rsvp: Guest['rsvp'] }>({
+      query: ({ guestId, rsvp }) => ({ url: API.guests.rsvp(guestId), method: 'PATCH', data: { rsvp } }),
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    deleteGuest: build.mutation<void, string>({
+      query: (guestId) => ({ url: API.guests.byId(guestId), method: 'DELETE' }),
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard'],
+    }),
+
     // ── Vendors ──────────────────────────────────────────────────────────────
     getVendors: build.query<VendorsData, { page: number; limit: number; query?: string }>({
       query: ({ page, limit, query }) => ({
@@ -95,6 +116,42 @@ export const api = createApi({
       providesTags: [{ type: "Vendor", id: "LIST" }],
     }),
 
+    createVendor: build.mutation<void, VendorPayload>({
+      query: (body) => ({ url: API.vendors.base, method: 'POST', data: body }),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    updateVendor: build.mutation<void, { vendorId: string; payload: VendorPayload }>({
+      query: ({ vendorId, payload }) => ({ url: API.vendors.byId(vendorId), method: 'PUT', data: payload }),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    patchVendorStatus: build.mutation<void, { vendorId: string; status: Vendor['status'] }>({
+      query: ({ vendorId, status }) => ({ url: API.vendors.status(vendorId), method: 'PATCH', data: { status } }),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    deleteVendor: build.mutation<void, string>({
+      query: (vendorId) => ({ url: API.vendors.byId(vendorId), method: 'DELETE' }),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    addVendorAttachment: build.mutation<Vendor, { vendorId: string; file: File }>({
+      query: ({ vendorId, file }) => {
+        const form = new FormData();
+        form.append('file', file);
+        return { url: API.vendors.attachments(vendorId), method: 'POST', data: form };
+      },
+      transformResponse: (raw) => parseResponse(VendorSchema, (raw as Record<string, unknown>).vendor, 'addVendorAttachment'),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }],
+    }),
+
+    removeVendorAttachment: build.mutation<Vendor, { vendorId: string; fileId: string }>({
+      query: ({ vendorId, fileId }) => ({ url: API.vendors.attachment(vendorId, fileId), method: 'DELETE' }),
+      transformResponse: (raw) => parseResponse(VendorSchema, (raw as Record<string, unknown>).vendor, 'removeVendorAttachment'),
+      invalidatesTags: [{ type: 'Vendor', id: 'LIST' }],
+    }),
+
     // ── Events ───────────────────────────────────────────────────────────────
     getEvents: build.query<EventsData, { page: number; limit: number; query?: string; status?: string }>({
       query: ({ page, limit, query, status }) => ({
@@ -103,6 +160,42 @@ export const api = createApi({
       }),
       transformResponse: (raw) => parseResponse(EventsDataSchema, raw, 'getEvents'),
       providesTags: [{ type: "Event", id: "LIST" }],
+    }),
+
+    createEvent: build.mutation<void, Omit<WeddingEvent, '_id'>>({
+      query: (body) => ({ url: API.events.base, method: 'POST', data: body }),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    updateEvent: build.mutation<void, { id: string; payload: Omit<WeddingEvent, '_id'> }>({
+      query: ({ id, payload }) => ({ url: API.events.byId(id), method: 'PUT', data: payload }),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    patchEventStatus: build.mutation<void, { id: string; status: WeddingEvent['status'] }>({
+      query: ({ id, status }) => ({ url: API.events.status(id), method: 'PATCH', data: { status } }),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    deleteEvent: build.mutation<void, string>({
+      query: (id) => ({ url: API.events.byId(id), method: 'DELETE' }),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard'],
+    }),
+
+    addEventAttachment: build.mutation<WeddingEvent, { eventId: string; file: File }>({
+      query: ({ eventId, file }) => {
+        const form = new FormData();
+        form.append('file', file);
+        return { url: API.events.attachments(eventId), method: 'POST', data: form };
+      },
+      transformResponse: (raw) => parseResponse(WeddingEventSchema, (raw as Record<string, unknown>).event, 'addEventAttachment'),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }],
+    }),
+
+    removeEventAttachment: build.mutation<WeddingEvent, { eventId: string; fileId: string }>({
+      query: ({ eventId, fileId }) => ({ url: API.events.attachment(eventId, fileId), method: 'DELETE' }),
+      transformResponse: (raw) => parseResponse(WeddingEventSchema, (raw as Record<string, unknown>).event, 'removeEventAttachment'),
+      invalidatesTags: [{ type: 'Event', id: 'LIST' }],
     }),
 
     // ── Seating (combined tables + all guests) ────────────────────────────────
@@ -144,6 +237,48 @@ export const api = createApi({
       providesTags: ["Seating"],
     }),
 
+    createTable: build.mutation<void, { name: string; capacity: number; shape: SeatingTable['shape'] }>({
+      query: (body) => ({ url: API.seating.base, method: 'POST', data: body }),
+      invalidatesTags: ['Seating'],
+    }),
+
+    updateTable: build.mutation<void, { id: string; name: string; capacity: number; shape: SeatingTable['shape'] }>({
+      query: ({ id, ...body }) => ({ url: API.seating.byId(id), method: 'PUT', data: body }),
+      invalidatesTags: ['Seating'],
+    }),
+
+    deleteTable: build.mutation<void, string>({
+      query: (id) => ({ url: API.seating.byId(id), method: 'DELETE' }),
+      onQueryStarted: async (id, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(api.util.updateQueryData('getSeating', undefined, draft => {
+          const idx = draft.tables.findIndex(t => t._id === id);
+          if (idx !== -1) draft.tables.splice(idx, 1);
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+      },
+      invalidatesTags: ['Seating'],
+    }),
+
+    assignGuest: build.mutation<void, { guestId: string; tableId: string | null }>({
+      query: (body) => ({ url: API.seating.assign, method: 'PATCH', data: body }),
+      onQueryStarted: async ({ guestId, tableId }, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(api.util.updateQueryData('getSeating', undefined, draft => {
+          for (const table of draft.tables) {
+            const i = table.guestIds.indexOf(guestId);
+            if (i !== -1) table.guestIds.splice(i, 1);
+          }
+          if (tableId) {
+            const target = draft.tables.find(t => t._id === tableId);
+            if (target && !target.guestIds.includes(guestId)) target.guestIds.push(guestId);
+          }
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+      },
+      invalidatesTags: ['Seating'],
+    }),
+
     // ── Budget ───────────────────────────────────────────────────────────────
     getBudget: build.query<BudgetData, void>({
       query: () => ({ url: API.budget.base }),
@@ -151,11 +286,93 @@ export const api = createApi({
       providesTags: ["Budget"],
     }),
 
+    updateBudgetTotal: build.mutation<void, number>({
+      query: (total) => ({ url: API.budget.total, method: 'PATCH', data: { total } }),
+      onQueryStarted: async (total, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(api.util.updateQueryData('getBudget', undefined, draft => {
+          draft.total = total;
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+      },
+      invalidatesTags: ['Budget', 'Dashboard'],
+    }),
+
+    updateAllocated: build.mutation<void, { categoryId: string; allocated: number }>({
+      query: ({ categoryId, allocated }) => ({ url: API.budget.allocated(categoryId), method: 'PATCH', data: { allocated } }),
+      onQueryStarted: async ({ categoryId, allocated }, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(api.util.updateQueryData('getBudget', undefined, draft => {
+          const cat = draft.categories.find(c => c._id === categoryId);
+          if (cat) cat.allocated = allocated;
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+      },
+      invalidatesTags: ['Budget', 'Dashboard'],
+    }),
+
+    addExpense: build.mutation<void, { categoryId: string; amount: number; note: string }>({
+      query: ({ categoryId, amount, note }) => ({ url: API.budget.expenses(categoryId), method: 'POST', data: { amount, note } }),
+      invalidatesTags: ['Budget', 'Dashboard'],
+    }),
+
+    deleteExpense: build.mutation<void, { categoryId: string; expenseId: string }>({
+      query: ({ categoryId, expenseId }) => ({ url: API.budget.expense(categoryId, expenseId), method: 'DELETE' }),
+      onQueryStarted: async ({ categoryId, expenseId }, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(api.util.updateQueryData('getBudget', undefined, draft => {
+          const cat = draft.categories.find(c => c._id === categoryId);
+          if (cat) {
+            const idx = cat.expenses.findIndex(e => e._id === expenseId);
+            if (idx !== -1) cat.expenses.splice(idx, 1);
+          }
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+      },
+      invalidatesTags: ['Budget', 'Dashboard'],
+    }),
+
     // ── Checklist ────────────────────────────────────────────────────────────
     getChecklist: build.query<ChecklistCategory[], void>({
       query: () => ({ url: API.checklist.base }),
       transformResponse: (raw) => parseResponse(ChecklistResponseSchema, raw, 'getChecklist').categories,
       providesTags: ["Checklist"],
+    }),
+
+    createTask: build.mutation<void, { category: string; label: string; due: string }>({
+      query: (body) => ({ url: API.checklist.tasks, method: 'POST', data: body }),
+      invalidatesTags: ['Checklist', 'Dashboard'],
+    }),
+
+    toggleTask: build.mutation<void, string>({
+      query: (taskId) => ({ url: API.checklist.toggle(taskId), method: 'PATCH' }),
+      onQueryStarted: async (taskId, { dispatch, queryFulfilled }) => {
+        dispatch(startToggle(taskId));
+        const patch = dispatch(api.util.updateQueryData('getChecklist', undefined, draft => {
+          for (const cat of draft) {
+            const task = cat.tasks.find(t => t._id === taskId);
+            if (task) { task.done = !task.done; break; }
+          }
+        }));
+        try { await queryFulfilled; }
+        catch { patch.undo(); }
+        finally { dispatch(finishToggle(taskId)); }
+      },
+      invalidatesTags: ['Checklist', 'Dashboard'],
+    }),
+
+    updateTask: build.mutation<void, { taskId: string; label: string; due: string; category: string; originalCategory: string }>({
+      query: ({ taskId, label, due, category, originalCategory }) => ({
+        url: API.checklist.task(taskId),
+        method: 'PUT',
+        data: { label, due, category, originalCategory },
+      }),
+      invalidatesTags: ['Checklist', 'Dashboard'],
+    }),
+
+    deleteTask: build.mutation<void, string>({
+      query: (taskId) => ({ url: API.checklist.task(taskId), method: 'DELETE' }),
+      invalidatesTags: ['Checklist', 'Dashboard'],
     }),
 
     // ── Settings ─────────────────────────────────────────────────────────────
@@ -265,11 +482,38 @@ export const api = createApi({
 // Auto-generated hooks
 export const {
   useGetGuestsQuery,
+  useCreateGuestMutation,
+  usePatchGuestRsvpMutation,
+  useDeleteGuestMutation,
   useGetVendorsQuery,
+  useCreateVendorMutation,
+  useUpdateVendorMutation,
+  usePatchVendorStatusMutation,
+  useDeleteVendorMutation,
+  useAddVendorAttachmentMutation,
+  useRemoveVendorAttachmentMutation,
   useGetEventsQuery,
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  usePatchEventStatusMutation,
+  useDeleteEventMutation,
+  useAddEventAttachmentMutation,
+  useRemoveEventAttachmentMutation,
   useGetSeatingQuery,
+  useCreateTableMutation,
+  useUpdateTableMutation,
+  useDeleteTableMutation,
+  useAssignGuestMutation,
   useGetBudgetQuery,
+  useUpdateBudgetTotalMutation,
+  useUpdateAllocatedMutation,
+  useAddExpenseMutation,
+  useDeleteExpenseMutation,
   useGetChecklistQuery,
+  useCreateTaskMutation,
+  useToggleTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
   useGetSettingsQuery,
   useGetNotificationsQuery,
   useGetDashboardQuery,

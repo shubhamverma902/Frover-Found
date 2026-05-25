@@ -5,8 +5,7 @@ import { CheckIcon } from '@/components/icons';
 import { PATH } from '@/constants/path';
 import { useAppDispatch } from '@/store/hooks';
 import { DASHBOARD_ACTIONS, toggleDashboardTask } from '@/store/slices/dashboardSlice';
-import { toggleTask } from '@/store/slices/checklistSlice';
-import { useGetDashboardQuery } from '@/store/api';
+import { useGetDashboardQuery, useToggleTaskMutation } from '@/store/api';
 
 const fmt = (n: number) =>
   n >= 1_00_000 ? `₹${(n / 1_00_000).toFixed(1)}L` :
@@ -15,6 +14,7 @@ const fmt = (n: number) =>
 
 const DashboardPage = () => {
   const dispatch = useAppDispatch();
+  const [toggleTask] = useToggleTaskMutation();
   const { data, isLoading: loading } = useGetDashboardQuery(undefined, { pollingInterval: 60_000 });
 
   const USER     = data?.user     ?? null;
@@ -230,7 +230,7 @@ const DashboardPage = () => {
                   key={task._id}
                   onClick={() => {
                     dispatch(toggleDashboardTask(task._id));
-                    dispatch(toggleTask(task._id));
+                    toggleTask(task._id);
                   }}
                   className={`flex items-center gap-4 px-6 py-3.5 row-reveal cursor-pointer stripe-hover ${task.done ? 'stripe-done' : ''}`}
                   style={{ animationDelay: `${i * 0.05}s` }}

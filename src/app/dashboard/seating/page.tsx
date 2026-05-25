@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -11,16 +11,13 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  createTable,
-  updateTable,
-  deleteTable,
-  assignGuest,
-  selectSeatingMutating,
-  resetSeatingMutating,
-} from '@/store/slices/seatingSlice';
-import { useGetSeatingQuery } from '@/store/api';
+  useGetSeatingQuery,
+  useCreateTableMutation,
+  useUpdateTableMutation,
+  useDeleteTableMutation,
+  useAssignGuestMutation,
+} from '@/store/api';
 import {
   GuestChip,
   GuestPool,
@@ -31,9 +28,10 @@ import {
 import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
 
 const SeatingPage = () => {
-  const dispatch = useAppDispatch();
-  useEffect(() => { dispatch(resetSeatingMutating()); }, [dispatch]);
-  const mutating = useAppSelector(selectSeatingMutating);
+  const [createTable, { isLoading: creatingTable }] = useCreateTableMutation();
+  const [updateTable, { isLoading: updatingTable }] = useUpdateTableMutation();
+  const [deleteTable, { isLoading: deletingTable }] = useDeleteTableMutation();
+  const [assignGuest]                               = useAssignGuestMutation();
 
   const { data, isLoading } = useGetSeatingQuery();
 
@@ -62,7 +60,7 @@ const SeatingPage = () => {
     if (!over) return;
     const guestId = String(active.id);
     const tableId = over.id === 'pool' ? null : String(over.id);
-    dispatch(assignGuest({ guestId, tableId }));
+    assignGuest({ guestId, tableId });
   };
 
   const guestMap = new Map(allGuests.map(g => [g._id, g]));
@@ -78,11 +76,10 @@ const SeatingPage = () => {
 
       {showAdd && (
         <AddTableModal
-          saving={mutating}
+          saving={creatingTable}
           onClose={() => setShowAdd(false)}
           onSave={async payload => {
-            const result = await dispatch(createTable(payload));
-            if (createTable.fulfilled.match(result)) setShowAdd(false);
+            try { await createTable(payload).unwrap(); setShowAdd(false); } catch { }
           }}
         />
       )}
@@ -90,15 +87,13 @@ const SeatingPage = () => {
       {editTable && (
         <EditTableModal
           table={editTable}
-          saving={mutating}
+          saving={updatingTable || deletingTable}
           onClose={() => setEditTable(null)}
           onSave={async payload => {
-            const result = await dispatch(updateTable({ id: editTable._id, ...payload }));
-            if (updateTable.fulfilled.match(result)) setEditTable(null);
+            try { await updateTable({ id: editTable._id, ...payload }).unwrap(); setEditTable(null); } catch { }
           }}
           onDelete={async () => {
-            const result = await dispatch(deleteTable(editTable._id));
-            if (deleteTable.fulfilled.match(result)) setEditTable(null);
+            try { await deleteTable(editTable._id).unwrap(); setEditTable(null); } catch { }
           }}
         />
       )}
@@ -178,7 +173,7 @@ const SeatingPage = () => {
                     table={t}
                     guests={tableGuests(t)}
                     onEdit={setEditTable}
-                    onUnassign={guestId => dispatch(assignGuest({ guestId, tableId: null }))}
+                    onUnassign={guestId => assignGuest({ guestId, tableId: null })}
                   />
                 ))}
               </div>

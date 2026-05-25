@@ -4,8 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { updateTask, deleteTask, selectCategories, selectMutating } from '@/store/slices/checklistSlice';
+import { useUpdateTaskMutation, useDeleteTaskMutation, useGetChecklistQuery } from '@/store/api';
 import type { ChecklistTask } from '@/constants/dashboard-pages';
 
 interface EditTaskModalProps {
@@ -15,9 +14,12 @@ interface EditTaskModalProps {
 }
 
 const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskModalProps) => {
-  const dispatch   = useAppDispatch();
-  const categories = useAppSelector(selectCategories);
-  const mutating   = useAppSelector(selectMutating);
+  const [updateTask, { isLoading: saving }]   = useUpdateTaskMutation();
+  const [deleteTask, { isLoading: deleting }] = useDeleteTaskMutation();
+  const mutating = saving || deleting;
+
+  const { data: checklist } = useGetChecklistQuery();
+  const categories = checklist ?? [];
 
   const [label,         setLabel]         = useState(task.label);
   const [labelError,    setLabelError]    = useState('');
@@ -34,19 +36,23 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
     e.preventDefault();
     if (!label.trim()) { setLabelError('Required'); return; }
     if (!category) return;
-    const result = await dispatch(updateTask({
-      taskId: task._id,
-      label: label.trim(),
-      due: due.trim() || 'No due date',
-      originalCategory: initialCategory,
-      category,
-    }));
-    if (updateTask.fulfilled.match(result)) onClose();
+    try {
+      await updateTask({
+        taskId: task._id,
+        label: label.trim(),
+        due: due.trim() || 'No due date',
+        originalCategory: initialCategory,
+        category,
+      }).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleDelete = async () => {
-    const result = await dispatch(deleteTask(task._id));
-    if (deleteTask.fulfilled.match(result)) onClose();
+    try {
+      await deleteTask(task._id).unwrap();
+      onClose();
+    } catch { }
   };
 
   return (
@@ -160,10 +166,10 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
                 <button
                   type="button"
                   onClick={handleDelete}
-                  disabled={mutating}
+                  disabled={deleting}
                   className="px-3 py-1.5 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
                 >
-                  {mutating ? '…' : 'Yes, Delete'}
+                  {deleting ? '…' : 'Yes, Delete'}
                 </button>
               </div>
             ) : (

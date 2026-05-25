@@ -3,8 +3,7 @@
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/elements';
 import { StarIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { patchVendorStatus, selectVendorMutating } from '@/store/slices/vendorsSlice';
+import { usePatchVendorStatusMutation } from '@/store/api';
 import { STATUS_META } from '@/constants/vendors';
 import type { Vendor } from '@/constants/dashboard-pages';
 
@@ -15,13 +14,14 @@ interface VendorDetailModalProps {
 }
 
 const VendorDetailModal = ({ vendor, onClose, onEdit }: VendorDetailModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectVendorMutating);
-  const meta     = STATUS_META[vendor.status];
+  const [patchVendorStatus, { isLoading: mutating }] = usePatchVendorStatusMutation();
+  const meta = STATUS_META[vendor.status];
 
   const handleBook = async () => {
-    const result = await dispatch(patchVendorStatus({ vendorId: vendor._id, status: 'booked' }));
-    if (patchVendorStatus.fulfilled.match(result)) onClose();
+    try {
+      await patchVendorStatus({ vendorId: vendor._id, status: 'booked' }).unwrap();
+      onClose();
+    } catch { }
   };
 
   return (

@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/elements';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { patchGuestRsvp, deleteGuest, selectGuestMutating } from '@/store/slices/guestsSlice';
+import { usePatchGuestRsvpMutation, useDeleteGuestMutation } from '@/store/api';
 import { RSVP_META } from '@/constants/guests';
 import type { Guest } from '@/constants/dashboard-pages';
 
@@ -16,19 +15,25 @@ interface GuestRsvpModalProps {
 const RSVP_OPTIONS: Guest['rsvp'][] = ['confirmed', 'pending', 'declined'];
 
 const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
-  const dispatch       = useAppDispatch();
-  const mutating       = useAppSelector(selectGuestMutating);
+  const [patchRsvp,    { isLoading: patching }] = usePatchGuestRsvpMutation();
+  const [deleteGuest,  { isLoading: deleting }] = useDeleteGuestMutation();
+  const mutating = patching || deleting;
+
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleRsvp = async (rsvp: Guest['rsvp']) => {
     if (rsvp === guest.rsvp) return onClose();
-    const result = await dispatch(patchGuestRsvp({ guestId: guest._id, rsvp }));
-    if (patchGuestRsvp.fulfilled.match(result)) onClose();
+    try {
+      await patchRsvp({ guestId: guest._id, rsvp }).unwrap();
+      onClose();
+    } catch { }
   };
 
   const handleDelete = async () => {
-    const result = await dispatch(deleteGuest(guest._id));
-    if (deleteGuest.fulfilled.match(result)) onClose();
+    try {
+      await deleteGuest(guest._id).unwrap();
+      onClose();
+    } catch { }
   };
 
   const initials = (() => {
@@ -117,7 +122,7 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
                 disabled={mutating}
                 className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
               >
-                {mutating ? '…' : 'Yes, Remove'}
+                {deleting ? '…' : 'Yes, Remove'}
               </button>
             </div>
           ) : (

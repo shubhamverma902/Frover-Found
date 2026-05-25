@@ -4,17 +4,16 @@ import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { CheckIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createTask, selectCategories, selectMutating } from '@/store/slices/checklistSlice';
+import { useCreateTaskMutation, useGetChecklistQuery } from '@/store/api';
 
 interface AddTaskModalProps {
   onClose: () => void;
 }
 
 const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
-  const dispatch   = useAppDispatch();
-  const categories = useAppSelector(selectCategories);
-  const mutating   = useAppSelector(selectMutating);
+  const [createTask, { isLoading: mutating }] = useCreateTaskMutation();
+  const { data: checklist } = useGetChecklistQuery();
+  const categories = checklist ?? [];
 
   const [label,      setLabel]      = useState('');
   const [labelError, setLabelError] = useState('');
@@ -25,8 +24,10 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
     e.preventDefault();
     if (!label.trim()) { setLabelError('Required'); return; }
     if (!category) return;
-    const result = await dispatch(createTask({ label: label.trim(), due: due.trim() || 'No due date', category }));
-    if (createTask.fulfilled.match(result)) onClose();
+    try {
+      await createTask({ label: label.trim(), due: due.trim() || 'No due date', category }).unwrap();
+      onClose();
+    } catch { }
   };
 
   return (

@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createEvent, selectEventsMutating } from '@/store/slices/eventsSlice';
+import { useCreateEventMutation } from '@/store/api';
 import type { WeddingEvent } from '@/constants/dashboard-pages';
 
 type FormData = Omit<WeddingEvent, '_id'>;
@@ -18,8 +17,7 @@ interface AddEventModalProps {
 }
 
 const AddEventModal = ({ onClose }: AddEventModalProps) => {
-  const dispatch = useAppDispatch();
-  const mutating = useAppSelector(selectEventsMutating);
+  const [createEvent, { isLoading: loading }] = useCreateEventMutation();
   const [form,   setForm]   = useState<FormData>({ ...EMPTY });
   const [errors, setErrors] = useState<{ name?: string; date?: string; venue?: string }>({});
 
@@ -42,11 +40,11 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
       setErrors({ name: nameErr || undefined, date: dateErr || undefined, venue: venueErr || undefined });
       return;
     }
-    const result = await dispatch(createEvent({ ...form, guests: Number(form.guests) }));
-    if (createEvent.fulfilled.match(result)) onClose();
+    try {
+      await createEvent({ ...form, guests: Number(form.guests) }).unwrap();
+      onClose();
+    } catch { }
   };
-
-  const loading = mutating;
 
   return (
     <Modal onClose={onClose} aria-label="Add new event" className="flex flex-col max-h-[90svh] relative">

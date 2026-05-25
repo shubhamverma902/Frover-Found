@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/api/axiosInstance';
-import { useAppDispatch } from '@/store/hooks';
-import { resetGuestMutating } from '@/store/slices/guestsSlice';
 import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
@@ -22,8 +20,6 @@ import { API } from '@/constants/api';
 const PAGE_LIMIT = 10;
 
 const GuestsPage = () => {
-  const dispatch = useAppDispatch();
-
   const [page,           setPage]           = useState(1);
   const [addOpen,        setAddOpen]        = useState(false);
   const [importOpen,     setImportOpen]     = useState(false);
@@ -75,8 +71,6 @@ const GuestsPage = () => {
     if (p < 1 || p > totalPages) return;
     setPage(p);
   };
-
-  useEffect(() => { dispatch(resetGuestMutating()); }, [dispatch]);
 
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">

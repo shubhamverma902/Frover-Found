@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { updateTotal, resetBudgetMutating } from '@/store/slices/budgetSlice';
-import { useGetBudgetQuery } from '@/store/api';
+import { useState } from 'react';
+import { useGetBudgetQuery, useUpdateBudgetTotalMutation } from '@/store/api';
 import {
   AddExpenseModal,
   EditCategoryModal,
@@ -16,8 +14,7 @@ import {
 } from '@/features/budget';
 
 const BudgetPage = () => {
-  const dispatch = useAppDispatch();
-  useEffect(() => { dispatch(resetBudgetMutating()); }, [dispatch]);
+  const [updateBudgetTotal] = useUpdateBudgetTotalMutation();
   const { data, isLoading } = useGetBudgetQuery();
 
   const total      = data?.total ?? 0;
@@ -34,7 +31,7 @@ const BudgetPage = () => {
 
   const commitTotal = () => {
     const val = Number(totalInput);
-    if (val > 0 && val !== total) dispatch(updateTotal(val));
+    if (val > 0 && val !== total) updateBudgetTotal(val);
     setEditingTotal(false);
   };
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { exportChecklistPDF } from '@/utils/exportPdf';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { toggleTask, selectTogglingIds, resetChecklistMutating } from '@/store/slices/checklistSlice';
-import { useGetChecklistQuery } from '@/store/api';
+import { useAppSelector } from '@/store/hooks';
+import { selectTogglingIds } from '@/store/slices/checklistSlice';
+import { useGetChecklistQuery, useToggleTaskMutation } from '@/store/api';
 import {
   AddTaskModal,
   EditTaskModal,
@@ -18,9 +18,8 @@ import type { Filter } from '@/features/checklist';
 import type { ChecklistTask } from '@/constants/dashboard-pages';
 
 const ChecklistPage = () => {
-  const dispatch    = useAppDispatch();
-  const togglingIds = useAppSelector(selectTogglingIds);
-  useEffect(() => { dispatch(resetChecklistMutating()); }, [dispatch]);
+  const [toggleTask]  = useToggleTaskMutation();
+  const togglingIds   = useAppSelector(selectTogglingIds);
   const { data: categories = [], isLoading } = useGetChecklistQuery();
 
   const doneCount  = categories.flatMap(c => c.tasks).filter(t => t.done).length;
@@ -72,7 +71,7 @@ const ChecklistPage = () => {
               cat={cat}
               filter={filter}
               togglingIds={togglingIds}
-              onToggleTask={id => dispatch(toggleTask(id))}
+              onToggleTask={id => { if (!togglingIds.includes(id)) toggleTask(id); }}
               onEditTask={(task, category) => setEditTask({ task, category })}
             />
           ))}
