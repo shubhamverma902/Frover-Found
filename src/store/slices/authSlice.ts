@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
-import { loginApi, registerApi, getMeApi, logoutApi } from '@/api/auth.api';
+import { loginApi, registerApi, getMeApi, logoutApi, refreshTokenApi } from '@/api/auth.api';
 import type { LoginPayload, RegisterPayload } from '@/api/auth.api';
+import { setAccessToken, getAccessToken, clearAccessToken } from '@/api/tokenStore';
 import { submitOnboarding } from './onboardingSlice';
 
 // ── Types ────────────────────────────────────────────────────
@@ -28,13 +29,11 @@ interface AuthState {
   errorCode:       number | null;
 }
 
-// ── Helpers ──────────────────────────────────────────────────
+// ── Helpers (thin wrappers kept so thunk bodies read the same) ───────────────
 
-const TOKEN_KEY = 'auth_token';
-
-const saveToken  = (token: string) => localStorage.setItem(TOKEN_KEY, token);
-const clearToken = ()               => localStorage.removeItem(TOKEN_KEY);
-const getToken   = ()               => (typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null);
+const saveToken  = (token: string) => setAccessToken(token);
+const clearToken = ()               => clearAccessToken();
+const getToken   = ()               => getAccessToken();
 
 // ── Async Thunks ─────────────────────────────────────────────
 
@@ -80,9 +79,13 @@ export const logoutUser = createAsyncThunk(
 export const restoreAuth = createAsyncThunk(
   'auth/restoreAuth',
   async (_, { rejectWithValue }) => {
-    const token = getToken();
-    if (!token) return rejectWithValue('No token');
     try {
+      // On hard refresh the in-memory token is gone — use the httpOnly refresh
+      // cookie to get a new access token before calling /me.
+      if (!getToken()) {
+        const fresh = await refreshTokenApi();
+        saveToken(fresh);
+      }
       return await getMeApi();
     } catch {
       clearToken();

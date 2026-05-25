@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import { getAccessToken, setAccessToken, clearAccessToken } from './tokenStore';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
 
@@ -48,10 +49,8 @@ type ExtendedConfig = AxiosRequestConfig & {
 axiosInstance.interceptors.request.use(
   (config) => {
     // Attach JWT access token; let browser own Content-Type for FormData uploads.
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-    }
+    const token = getAccessToken();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
@@ -157,7 +156,7 @@ axiosInstance.interceptors.response.use(
       const { refreshTokenApi } = await import('./auth.api');
       const newToken = await refreshTokenApi();
 
-      if (typeof window !== 'undefined') localStorage.setItem('auth_token', newToken);
+      setAccessToken(newToken);
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       if (original.headers) original.headers['Authorization'] = `Bearer ${newToken}`;
 
@@ -170,7 +169,7 @@ axiosInstance.interceptors.response.use(
         inFlight.get(key)?.reject(refreshErr);
         inFlight.delete(key);
       }
-      if (typeof window !== 'undefined') localStorage.removeItem('auth_token');
+      clearAccessToken();
       if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth:logout'));
       return Promise.reject(refreshErr);
     } finally {

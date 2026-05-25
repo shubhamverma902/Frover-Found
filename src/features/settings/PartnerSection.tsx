@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { setAccessToken } from '@/api/tokenStore';
 import { SettingsSection } from './SettingsSection';
 import {
   useGetPartnerQuery,
@@ -40,7 +41,7 @@ export const PartnerSection = () => {
   const handleRemove = async () => {
     try {
       const result = await removePartner().unwrap();
-      localStorage.setItem('auth_token', result.token);
+      setAccessToken(result.token);
       setConfirmRemove(false);
       setFreshInvite(null);
     } catch {}

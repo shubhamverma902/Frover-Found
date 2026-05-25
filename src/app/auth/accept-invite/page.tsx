@@ -8,6 +8,7 @@ import { PATH } from '@/constants/path';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectIsAuthenticated, selectHydrated, restoreAuth } from '@/store/slices/authSlice';
 import { useAcceptInviteMutation, useAcceptCollaboratorInviteMutation } from '@/store/api';
+import { setAccessToken } from '@/api/tokenStore';
 
 type Outcome = 'idle' | 'success' | 'error';
 
@@ -49,7 +50,7 @@ const AcceptInvitePage = () => {
       const result = isCollab
         ? await acceptCollab({ token }).unwrap()
         : await acceptPartner({ token }).unwrap();
-      localStorage.setItem('auth_token', result.token);
+      setAccessToken(result.token);
       // Refresh Redux auth state so onboardingCompleted + collaboratorRole are current
       await dispatch(restoreAuth());
       setOutcome('success');
