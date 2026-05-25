@@ -1,5 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { API } from '@/constants/api';
+import { parseResponse } from './parse';
+import { DashboardDataSchema } from './schemas';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -47,5 +49,5 @@ export interface DashboardData {
 
 export const fetchDashboardApi = async (signal?: AbortSignal): Promise<DashboardData> => {
   const { data } = await axiosInstance.get<ApiResponse<DashboardData>>(API.dashboard, { signal });
-  return data.data;
+  return parseResponse(DashboardDataSchema, data.data, 'fetchDashboardApi');
 };

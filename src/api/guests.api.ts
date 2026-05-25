@@ -1,14 +1,20 @@
 import axiosInstance from './axiosInstance';
 import type { Guest } from '@/constants/dashboard-pages';
 import { API } from '@/constants/api';
+import { parseResponse } from './parse';
+import { GuestsDataSchema, GuestSchema } from './schemas';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface GuestsData {
   guests:     Guest[];
-  total:      number;
+  total:      number;      // filtered count (for pagination)
   page:       number;
   totalPages: number;
+  grandTotal: number;      // unfiltered total (for stat cards)
+  confirmed:  number;
+  pending:    number;
+  declined:   number;
 }
 
 export interface CreateGuestPayload {
@@ -25,12 +31,12 @@ export const fetchGuestsApi = async (page = 1, limit = 10, signal?: AbortSignal)
     params: { page, limit },
     signal,
   });
-  return data.data;
+  return parseResponse(GuestsDataSchema, data.data, 'fetchGuestsApi');
 };
 
 export const createGuestApi = async (payload: CreateGuestPayload): Promise<Guest> => {
   const { data } = await axiosInstance.post<ApiResponse<{ guest: Guest }>>(API.guests.base, payload);
-  return data.data.guest;
+  return parseResponse(GuestSchema, data.data.guest, 'createGuestApi');
 };
 
 export const patchGuestRsvpApi = async (guestId: string, rsvp: Guest['rsvp']): Promise<Guest> => {
@@ -38,7 +44,7 @@ export const patchGuestRsvpApi = async (guestId: string, rsvp: Guest['rsvp']): P
     API.guests.rsvp(guestId),
     { rsvp }
   );
-  return data.data.guest;
+  return parseResponse(GuestSchema, data.data.guest, 'patchGuestRsvpApi');
 };
 
 export const deleteGuestApi = async (guestId: string): Promise<void> => {

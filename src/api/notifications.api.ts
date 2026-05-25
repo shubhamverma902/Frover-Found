@@ -1,5 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { API } from '@/constants/api';
+import { parseResponse } from './parse';
+import { NotificationsDataSchema } from './schemas';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -18,7 +20,7 @@ export interface NotificationsData {
 
 export const fetchNotificationsApi = async (signal?: AbortSignal): Promise<NotificationsData> => {
   const { data } = await axiosInstance.get<ApiResponse<NotificationsData>>(API.notifications.base, { signal });
-  return data.data;
+  return parseResponse(NotificationsDataSchema, data.data, 'fetchNotificationsApi');
 };
 
 export const markAllReadApi = async (): Promise<void> => {

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { updateTotal } from '@/store/slices/budgetSlice';
+import { updateTotal, resetBudgetMutating } from '@/store/slices/budgetSlice';
 import { useGetBudgetQuery } from '@/store/api';
 import {
   AddExpenseModal,
@@ -17,6 +17,7 @@ import {
 
 const BudgetPage = () => {
   const dispatch = useAppDispatch();
+  useEffect(() => { dispatch(resetBudgetMutating()); }, [dispatch]);
   const { data, isLoading } = useGetBudgetQuery();
 
   const total      = data?.total ?? 0;

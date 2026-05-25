@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -18,6 +18,7 @@ import {
   deleteTable,
   assignGuest,
   selectSeatingMutating,
+  resetSeatingMutating,
 } from '@/store/slices/seatingSlice';
 import { useGetSeatingQuery } from '@/store/api';
 import {
@@ -31,6 +32,7 @@ import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
 
 const SeatingPage = () => {
   const dispatch = useAppDispatch();
+  useEffect(() => { dispatch(resetSeatingMutating()); }, [dispatch]);
   const mutating = useAppSelector(selectSeatingMutating);
 
   const { data, isLoading } = useGetSeatingQuery();

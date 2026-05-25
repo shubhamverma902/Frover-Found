@@ -1,17 +1,20 @@
 import axiosInstance from './axiosInstance';
 import type { WeddingEvent } from '@/constants/dashboard-pages';
 import { API } from '@/constants/api';
+import { parseResponse } from './parse';
+import { EventsDataSchema, WeddingEventSchema } from './schemas';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface EventsData {
-  events:    WeddingEvent[];
-  total:     number;
-  page:      number;
+  events:     WeddingEvent[];
+  total:      number;      // filtered count (for pagination)
+  page:       number;
   totalPages: number;
-  confirmed: number;
-  planning:  number;
-  pending:   number;
+  grandTotal: number;      // unfiltered total (for header/summary/filter pills)
+  confirmed:  number;      // unfiltered status counts
+  planning:   number;
+  pending:    number;
 }
 
 export const fetchEventsApi = async (page = 1, limit = 20, signal?: AbortSignal): Promise<EventsData> => {
@@ -19,22 +22,22 @@ export const fetchEventsApi = async (page = 1, limit = 20, signal?: AbortSignal)
     params: { page, limit },
     signal,
   });
-  return data.data;
+  return parseResponse(EventsDataSchema, data.data, 'fetchEventsApi');
 };
 
 export const createEventApi = async (payload: Omit<WeddingEvent, '_id'>): Promise<WeddingEvent> => {
   const { data } = await axiosInstance.post<ApiResponse<{ event: WeddingEvent }>>(API.events.base, payload);
-  return data.data.event;
+  return parseResponse(WeddingEventSchema, data.data.event, 'createEventApi');
 };
 
 export const updateEventApi = async (id: string, payload: Omit<WeddingEvent, '_id'>): Promise<WeddingEvent> => {
   const { data } = await axiosInstance.put<ApiResponse<{ event: WeddingEvent }>>(API.events.byId(id), payload);
-  return data.data.event;
+  return parseResponse(WeddingEventSchema, data.data.event, 'updateEventApi');
 };
 
 export const patchEventStatusApi = async (id: string, status: WeddingEvent['status']): Promise<WeddingEvent> => {
   const { data } = await axiosInstance.patch<ApiResponse<{ event: WeddingEvent }>>(API.events.status(id), { status });
-  return data.data.event;
+  return parseResponse(WeddingEventSchema, data.data.event, 'patchEventStatusApi');
 };
 
 export const deleteEventApi = async (id: string): Promise<void> => {
@@ -47,12 +50,12 @@ export const addEventAttachmentApi = async (eventId: string, file: File): Promis
   const { data } = await axiosInstance.post<ApiResponse<{ event: WeddingEvent }>>(
     API.events.attachments(eventId), form
   );
-  return data.data.event;
+  return parseResponse(WeddingEventSchema, data.data.event, 'addEventAttachmentApi');
 };
 
 export const removeEventAttachmentApi = async (eventId: string, fileId: string): Promise<WeddingEvent> => {
   const { data } = await axiosInstance.delete<ApiResponse<{ event: WeddingEvent }>>(
     API.events.attachment(eventId, fileId)
   );
-  return data.data.event;
+  return parseResponse(WeddingEventSchema, data.data.event, 'removeEventAttachmentApi');
 };

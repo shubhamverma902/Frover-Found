@@ -96,7 +96,9 @@ export const removeVendorAttachment = createAsyncThunk(
 const vendorsSlice = createSlice({
   name: 'vendors',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: VendorsState) => { state.mutating = v; };
     [createVendor, updateVendor, patchVendorStatus, deleteVendor, addVendorAttachment, removeVendorAttachment]
@@ -110,6 +112,8 @@ const vendorsSlice = createSlice({
 });
 
 // ── Selectors ─────────────────────────────────────────────
+
+export const { resetMutating: resetVendorMutating } = vendorsSlice.actions;
 
 export const selectVendorMutating = (state: RootState) => state.vendors.mutating;
 

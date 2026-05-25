@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from './tokenStore';
+import { refreshTokenApi } from './refreshToken';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
 
@@ -152,8 +153,6 @@ axiosInstance.interceptors.response.use(
     isRefreshing    = true;
 
     try {
-      // Dynamic import avoids a circular dependency (auth.api → axiosInstance → auth.api)
-      const { refreshTokenApi } = await import('./auth.api');
       const newToken = await refreshTokenApi();
 
       setAccessToken(newToken);

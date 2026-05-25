@@ -11,11 +11,12 @@ type ApiErr = AxiosError<{ message?: string }>;
 // ── State ─────────────────────────────────────────────────
 
 interface ChecklistState {
-  categories: ChecklistCategory[];
-  mutating:   boolean;
+  categories:  ChecklistCategory[];
+  mutating:    boolean;
+  togglingIds: string[];
 }
 
-const initialState: ChecklistState = { categories: [], mutating: false };
+const initialState: ChecklistState = { categories: [], mutating: false, togglingIds: [] };
 
 // ── Thunks ────────────────────────────────────────────────
 
@@ -47,6 +48,15 @@ export const toggleTask = createAppAsyncThunk(
       patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to toggle task');
     }
+  },
+  {
+    // Drop the dispatch entirely if this task already has a request in-flight.
+    // `condition` runs before `pending` is dispatched, so `togglingIds` still
+    // reflects the previous click's state — no double-entry window.
+    condition: (taskId, { getState }) =>
+      !(getState() as RootState).checklist.togglingIds.includes(taskId),
+    // Don't pollute the rejected log with condition-failed noise.
+    dispatchConditionRejection: false,
   }
 );
 
@@ -81,7 +91,9 @@ export const deleteTask = createAppAsyncThunk(
 const checklistSlice = createSlice({
   name: 'checklist',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: ChecklistState) => { state.mutating = v; };
     [createTask, updateTask, deleteTask].forEach(thunk => {
@@ -90,6 +102,11 @@ const checklistSlice = createSlice({
         .addCase(thunk.fulfilled, setMutating(false))
         .addCase(thunk.rejected,  setMutating(false));
     });
+
+    builder
+      .addCase(toggleTask.pending,   (state, { meta }) => { state.togglingIds.push(meta.arg); })
+      .addCase(toggleTask.fulfilled,  (state, { meta }) => { state.togglingIds = state.togglingIds.filter(id => id !== meta.arg); })
+      .addCase(toggleTask.rejected,   (state, { meta }) => { state.togglingIds = state.togglingIds.filter(id => id !== meta.arg); });
 
     builder.addMatcher(
       api.endpoints.getChecklist.matchFulfilled,
@@ -100,8 +117,11 @@ const checklistSlice = createSlice({
 
 // ── Selectors ─────────────────────────────────────────────
 
-export const selectCategories = (state: RootState) => state.checklist.categories;
-export const selectMutating   = (state: RootState) => state.checklist.mutating;
+export const { resetMutating: resetChecklistMutating } = checklistSlice.actions;
+
+export const selectCategories  = (state: RootState) => state.checklist.categories;
+export const selectMutating    = (state: RootState) => state.checklist.mutating;
+export const selectTogglingIds = (state: RootState) => state.checklist.togglingIds;
 export const selectAllTasks   = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks);
 export const selectDoneCount  = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).filter(t => t.done).length;
 export const selectTotalCount = (state: RootState) => state.checklist.categories.flatMap(c => c.tasks).length;

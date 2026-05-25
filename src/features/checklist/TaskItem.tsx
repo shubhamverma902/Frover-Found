@@ -2,13 +2,14 @@ import type { ChecklistTask } from '@/constants/dashboard-pages';
 import { CheckIcon, PencilIcon } from '@/components/icons';
 
 interface TaskItemProps {
-  task: ChecklistTask;
-  index: number;
-  onToggle: () => void;
-  onEdit: () => void;
+  task:       ChecklistTask;
+  index:      number;
+  isToggling: boolean;
+  onToggle:   () => void;
+  onEdit:     () => void;
 }
 
-export const TaskItem = ({ task, index, onToggle, onEdit }: TaskItemProps) => (
+export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItemProps) => (
   <li
     className={`group flex items-center gap-4 px-5 py-3.5 border-b border-[#DDDED9]/50 dark:border-[#2a2f33]/50 last:border-0 transition-all duration-200 row-reveal ${
       task.done ? 'stripe-done' : 'stripe-hover'
@@ -19,10 +20,13 @@ export const TaskItem = ({ task, index, onToggle, onEdit }: TaskItemProps) => (
     <button
       type="button"
       onClick={onToggle}
+      disabled={isToggling}
       className={`w-5 h-5 shrink-0 border-2 flex items-center justify-center transition-all duration-250 ${
-        task.done
-          ? 'bg-[#E4BC62] border-[#E4BC62] shadow-[0_0_12px_rgba(228,188,98,0.45)]'
-          : 'border-[#DDDED9] dark:border-[#2a2f33] hover:border-[#E4BC62]/50'
+        isToggling
+          ? 'border-[#E4BC62]/40 opacity-50 cursor-not-allowed'
+          : task.done
+            ? 'bg-[#E4BC62] border-[#E4BC62] shadow-[0_0_12px_rgba(228,188,98,0.45)]'
+            : 'border-[#DDDED9] dark:border-[#2a2f33] hover:border-[#E4BC62]/50'
       }`}
     >
       {task.done && (
@@ -32,8 +36,8 @@ export const TaskItem = ({ task, index, onToggle, onEdit }: TaskItemProps) => (
 
     {/* Label */}
     <span
-      onClick={onToggle}
-      className={`flex-1 text-sm transition-all duration-200 cursor-pointer select-none ${
+      onClick={isToggling ? undefined : onToggle}
+      className={`flex-1 text-sm transition-all duration-200 select-none ${isToggling ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
         task.done
           ? 'text-zinc-400 dark:text-zinc-500 line-through decoration-[#E4BC62]/40'
           : 'text-[#23292E] dark:text-[#FDFDF8] font-medium'

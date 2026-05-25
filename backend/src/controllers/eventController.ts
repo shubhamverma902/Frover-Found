@@ -43,11 +43,29 @@ export const getEvents = async (req: AuthRequest, res: Response, next: NextFunct
       }
     }
 
-    const [events, total, confirmed, planning] = await Promise.all([
-      Event.find({ userId: uid }).sort({ date: 1 }).skip(skip).limit(limit),
-      Event.countDocuments({ userId: uid }),
-      Event.countDocuments({ userId: uid, status: 'confirmed' }),
-      Event.countDocuments({ userId: uid, status: 'planning' }),
+    const raw     = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const VALID_STATUS = new Set(['confirmed', 'planning', 'pending']);
+    const statusParam  = typeof req.query.status === 'string' && VALID_STATUS.has(req.query.status)
+      ? req.query.status : null;
+
+    const searchFilter = escaped
+      ? { $or: [
+          { name:  { $regex: escaped, $options: 'i' } },
+          { venue: { $regex: escaped, $options: 'i' } },
+        ] }
+      : {};
+    const statusFilter = statusParam ? { status: statusParam } : {};
+    const filter       = { userId: uid, ...searchFilter, ...statusFilter };
+    const baseFilter   = { userId: uid };
+
+    const [events, total, grandTotal, confirmed, planning, pending] = await Promise.all([
+      Event.find(filter).sort({ date: 1 }).skip(skip).limit(limit),
+      Event.countDocuments(filter),
+      Event.countDocuments(baseFilter),
+      Event.countDocuments({ ...baseFilter, status: 'confirmed' }),
+      Event.countDocuments({ ...baseFilter, status: 'planning' }),
+      Event.countDocuments({ ...baseFilter, status: 'pending' }),
     ]);
 
     sendSuccess(res, {
@@ -55,9 +73,10 @@ export const getEvents = async (req: AuthRequest, res: Response, next: NextFunct
       total,
       page,
       totalPages: Math.ceil(total / limit) || 1,
+      grandTotal,
       confirmed,
       planning,
-      pending:    total - confirmed - planning,
+      pending,
     });
   } catch (err) {
     next(err);

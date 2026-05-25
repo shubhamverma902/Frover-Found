@@ -11,13 +11,14 @@ interface Category {
 }
 
 interface CategorySectionProps {
-  cat: Category;
-  filter: Filter;
+  cat:          Category;
+  filter:       Filter;
+  togglingIds:  string[];
   onToggleTask: (id: string) => void;
-  onEditTask: (task: ChecklistTask, category: string) => void;
+  onEditTask:   (task: ChecklistTask, category: string) => void;
 }
 
-export const CategorySection = ({ cat, filter, onToggleTask, onEditTask }: CategorySectionProps) => {
+export const CategorySection = ({ cat, filter, togglingIds, onToggleTask, onEditTask }: CategorySectionProps) => {
   const visibleTasks = cat.tasks.filter(t => {
     if (filter === 'pending') return !t.done;
     if (filter === 'done')    return  t.done;
@@ -63,6 +64,7 @@ export const CategorySection = ({ cat, filter, onToggleTask, onEditTask }: Categ
             key={task._id}
             task={task}
             index={ti}
+            isToggling={togglingIds.includes(task._id)}
             onToggle={() => onToggleTask(task._id)}
             onEdit={() => onEditTask(task, cat.category)}
           />

@@ -9,6 +9,21 @@ import type {
   BudgetCategory,
   ChecklistCategory,
 } from "@/constants/dashboard-pages";
+import { parseResponse } from "@/api/parse";
+import {
+  GuestsDataSchema,
+  VendorsDataSchema,
+  EventsDataSchema,
+  BudgetDataSchema,
+  ChecklistResponseSchema,
+  SeatingTablesResponseSchema,
+  SettingsDataSchema,
+  NotificationsDataSchema,
+  DashboardDataSchema,
+  PartnerStatusDataSchema,
+  CollaboratorsDataSchema,
+  AnalyticsDataSchema,
+} from "@/api/schemas";
 import type { GuestsData } from "@/api/guests.api";
 import type { VendorsData } from "@/api/vendors.api";
 import type { EventsData } from "@/api/events.api";
@@ -61,49 +76,70 @@ export const api = createApi({
 
   endpoints: (build) => ({
     // ── Guests ───────────────────────────────────────────────────────────────
-    getGuests: build.query<GuestsData, { page: number; limit: number }>({
-      query: ({ page, limit }) => ({
+    getGuests: build.query<GuestsData, { page: number; limit: number; query?: string }>({
+      query: ({ page, limit, query }) => ({
         url: API.guests.base,
-        params: { page, limit },
+        params: { page, limit, ...(query ? { q: query } : {}) },
       }),
+      transformResponse: (raw) => parseResponse(GuestsDataSchema, raw, 'getGuests'),
       providesTags: [{ type: "Guest", id: "LIST" }],
     }),
 
     // ── Vendors ──────────────────────────────────────────────────────────────
-    getVendors: build.query<VendorsData, { page: number; limit: number }>({
-      query: ({ page, limit }) => ({
+    getVendors: build.query<VendorsData, { page: number; limit: number; query?: string }>({
+      query: ({ page, limit, query }) => ({
         url: API.vendors.base,
-        params: { page, limit },
+        params: { page, limit, ...(query ? { q: query } : {}) },
       }),
+      transformResponse: (raw) => parseResponse(VendorsDataSchema, raw, 'getVendors'),
       providesTags: [{ type: "Vendor", id: "LIST" }],
     }),
 
     // ── Events ───────────────────────────────────────────────────────────────
-    getEvents: build.query<EventsData, { page: number; limit: number }>({
-      query: ({ page, limit }) => ({
+    getEvents: build.query<EventsData, { page: number; limit: number; query?: string; status?: string }>({
+      query: ({ page, limit, query, status }) => ({
         url: API.events.base,
-        params: { page, limit },
+        params: { page, limit, ...(query ? { q: query } : {}), ...(status ? { status } : {}) },
       }),
+      transformResponse: (raw) => parseResponse(EventsDataSchema, raw, 'getEvents'),
       providesTags: [{ type: "Event", id: "LIST" }],
     }),
 
     // ── Seating (combined tables + all guests) ────────────────────────────────
     getSeating: build.query<SeatingData, void>({
       queryFn: async (_, _api, _extra, baseQuery) => {
-        const [tablesRes, guestsRes] = await Promise.all([
+        // Fetch tables and first guest page concurrently.
+        // PAGE_SIZE stays under the backend's 1000-record hard cap.
+        const PAGE_SIZE = 500;
+        const [tablesRes, firstRes] = await Promise.all([
           baseQuery({ url: API.seating.base }),
-          baseQuery({ url: API.guests.base, params: { page: 1, limit: 9999 } }),
+          baseQuery({ url: API.guests.base, params: { page: 1, limit: PAGE_SIZE } }),
         ]);
-        if (tablesRes.error)
-          return { error: tablesRes.error as AxiosBaseQueryError };
-        if (guestsRes.error)
-          return { error: guestsRes.error as AxiosBaseQueryError };
-        return {
-          data: {
-            tables: (tablesRes.data as { tables: SeatingTable[] }).tables,
-            guests: (guestsRes.data as { guests: Guest[] }).guests,
-          },
-        };
+        if (tablesRes.error) return { error: tablesRes.error as AxiosBaseQueryError };
+        if (firstRes.error)  return { error: firstRes.error  as AxiosBaseQueryError };
+
+        const tables       = parseResponse(SeatingTablesResponseSchema, tablesRes.data, 'getSeating/tables').tables;
+        const firstPayload = parseResponse(GuestsDataSchema, firstRes.data, 'getSeating/guests[1]');
+        let   allGuests    = firstPayload.guests;
+        const total        = firstPayload.grandTotal;
+
+        // If grandTotal exceeds one page, fetch remaining pages in parallel.
+        if (total > PAGE_SIZE) {
+          const extraPages = Array.from(
+            { length: Math.ceil(total / PAGE_SIZE) - 1 },
+            (_, i) => i + 2,
+          );
+          const restRes = await Promise.all(
+            extraPages.map(p => baseQuery({ url: API.guests.base, params: { page: p, limit: PAGE_SIZE } }))
+          );
+          for (let i = 0; i < restRes.length; i++) {
+            if (restRes[i].error) return { error: restRes[i].error as AxiosBaseQueryError };
+            const payload = parseResponse(GuestsDataSchema, restRes[i].data, `getSeating/guests[${i + 2}]`);
+            allGuests = allGuests.concat(payload.guests);
+          }
+        }
+
+        return { data: { tables, guests: allGuests } };
       },
       providesTags: ["Seating"],
     }),
@@ -111,32 +147,35 @@ export const api = createApi({
     // ── Budget ───────────────────────────────────────────────────────────────
     getBudget: build.query<BudgetData, void>({
       query: () => ({ url: API.budget.base }),
+      transformResponse: (raw) => parseResponse(BudgetDataSchema, raw, 'getBudget'),
       providesTags: ["Budget"],
     }),
 
     // ── Checklist ────────────────────────────────────────────────────────────
     getChecklist: build.query<ChecklistCategory[], void>({
       query: () => ({ url: API.checklist.base }),
-      transformResponse: (raw: { categories: ChecklistCategory[] }) =>
-        raw.categories,
+      transformResponse: (raw) => parseResponse(ChecklistResponseSchema, raw, 'getChecklist').categories,
       providesTags: ["Checklist"],
     }),
 
     // ── Settings ─────────────────────────────────────────────────────────────
     getSettings: build.query<SettingsData, void>({
       query: () => ({ url: API.settings.base }),
+      transformResponse: (raw) => parseResponse(SettingsDataSchema, raw, 'getSettings'),
       providesTags: ["Settings"],
     }),
 
     // ── Notifications ────────────────────────────────────────────────────────
     getNotifications: build.query<NotificationsData, void>({
       query: () => ({ url: API.notifications.base }),
+      transformResponse: (raw) => parseResponse(NotificationsDataSchema, raw, 'getNotifications'),
       providesTags: ["Notifications"],
     }),
 
     // ── Dashboard ────────────────────────────────────────────────────────────
     getDashboard: build.query<DashboardData, void>({
       query: () => ({ url: API.dashboard }),
+      transformResponse: (raw) => parseResponse(DashboardDataSchema, raw, 'getDashboard'),
       providesTags: [
         "Dashboard",
         "Checklist",
@@ -150,6 +189,7 @@ export const api = createApi({
     // ── Partner ──────────────────────────────────────────────────────────────
     getPartner: build.query<PartnerStatusData, void>({
       query: () => ({ url: API.settings.partner }),
+      transformResponse: (raw) => parseResponse(PartnerStatusDataSchema, raw, 'getPartner'),
       providesTags: ["Partner"],
     }),
 
@@ -171,6 +211,7 @@ export const api = createApi({
     // ── Collaborators ─────────────────────────────────────────────────────────
     getCollaborators: build.query<{ collaborators: CollaboratorEntry[] }, void>({
       query: () => ({ url: API.collaborators.base }),
+      transformResponse: (raw) => parseResponse(CollaboratorsDataSchema, raw, 'getCollaborators'),
       providesTags: ["Collaborator"],
     }),
 
@@ -197,6 +238,7 @@ export const api = createApi({
     // ── Analytics / Insights ─────────────────────────────────────────────────
     getAnalytics: build.query<AnalyticsData, void>({
       query: () => ({ url: API.analytics }),
+      transformResponse: (raw) => parseResponse(AnalyticsDataSchema, raw, 'getAnalytics'),
       providesTags: [
         "Dashboard",
         "Checklist",

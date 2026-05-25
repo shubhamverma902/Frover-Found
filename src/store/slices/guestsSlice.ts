@@ -55,7 +55,9 @@ export const deleteGuest = createAsyncThunk(
 const guestsSlice = createSlice({
   name: 'guests',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: GuestsState) => { state.mutating = v; };
     builder
@@ -72,6 +74,8 @@ const guestsSlice = createSlice({
 });
 
 // ── Selectors ─────────────────────────────────────────────
+
+export const { resetMutating: resetGuestMutating } = guestsSlice.actions;
 
 export const selectGuestMutating = (state: RootState) => state.guests.mutating;
 

@@ -47,13 +47,16 @@ export const deleteTable = createAppAsyncThunk(
       const idx = draft.tables.findIndex(t => t._id === id);
       if (idx !== -1) draft.tables.splice(idx, 1);
     }));
+    let ok = false;
     try {
       await deleteTableApi(id);
+      ok = true;
       dispatch(api.util.invalidateTags(['Seating']));
       return id;
     } catch (e) {
-      patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to delete table');
+    } finally {
+      if (!ok) patch.undo();
     }
   }
 );
@@ -71,13 +74,16 @@ export const assignGuest = createAppAsyncThunk(
         if (target && !target.guestIds.includes(guestId)) target.guestIds.push(guestId);
       }
     }));
+    let ok = false;
     try {
       const result = await assignGuestApi(guestId, tableId);
+      ok = true;
       dispatch(api.util.invalidateTags(['Seating']));
       return result;
     } catch (e) {
-      patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to assign guest');
+    } finally {
+      if (!ok) patch.undo();
     }
   }
 );
@@ -87,7 +93,9 @@ export const assignGuest = createAppAsyncThunk(
 const seatingSlice = createSlice({
   name: 'seating',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: SeatingState) => { state.mutating = v; };
     [createTable, updateTable, deleteTable, assignGuest].forEach(thunk => {
@@ -100,6 +108,8 @@ const seatingSlice = createSlice({
 });
 
 // ── Selectors ─────────────────────────────────────────────
+
+export const { resetMutating: resetSeatingMutating } = seatingSlice.actions;
 
 export const selectSeatingMutating = (state: RootState) => state.seating.mutating;
 

@@ -14,17 +14,30 @@ import { parsePage } from '../utils/parsePage';
 
 const MAX_ATTACHMENTS = 5;
 
-// GET /api/v1/vendors?page=1&limit=10
+// GET /api/v1/vendors?page=1&limit=10&q=florals
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const uid   = ownerId(req);
     const { page, limit, skip } = parsePage(req.query, 10);
 
-    const [vendors, total, booked, shortlisted] = await Promise.all([
-      Vendor.find({ userId: uid }).sort({ createdAt: 1 }).skip(skip).limit(limit),
-      Vendor.countDocuments({ userId: uid }),
-      Vendor.countDocuments({ userId: uid, status: 'booked' }),
-      Vendor.countDocuments({ userId: uid, status: 'shortlisted' }),
+    const raw     = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchFilter = escaped
+      ? { $or: [
+          { name:     { $regex: escaped, $options: 'i' } },
+          { category: { $regex: escaped, $options: 'i' } },
+          { location: { $regex: escaped, $options: 'i' } },
+        ] }
+      : {};
+    const filter     = { userId: uid, ...searchFilter };
+    const baseFilter = { userId: uid };
+
+    const [vendors, total, grandTotal, booked, shortlisted] = await Promise.all([
+      Vendor.find(filter).sort({ createdAt: 1 }).skip(skip).limit(limit),
+      Vendor.countDocuments(filter),
+      Vendor.countDocuments(baseFilter),
+      Vendor.countDocuments({ ...baseFilter, status: 'booked' }),
+      Vendor.countDocuments({ ...baseFilter, status: 'shortlisted' }),
     ]);
 
     sendSuccess(res, {
@@ -32,6 +45,7 @@ export const getVendors = async (req: AuthRequest, res: Response, next: NextFunc
       total,
       page,
       totalPages:  Math.ceil(total / limit) || 1,
+      grandTotal,
       booked,
       shortlisted,
     });

@@ -1,5 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { API } from '@/constants/api';
+import { parseResponse } from './parse';
+import { SettingsDataSchema, ProfileDataSchema, WeddingDataSchema } from './schemas';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -32,17 +34,17 @@ export interface SettingsData {
 
 export const fetchSettingsApi = async (signal?: AbortSignal): Promise<SettingsData> => {
   const { data } = await axiosInstance.get<ApiResponse<SettingsData>>(API.settings.base, { signal });
-  return data.data;
+  return parseResponse(SettingsDataSchema, data.data, 'fetchSettingsApi');
 };
 
 export const updateProfileApi = async (payload: ProfileData): Promise<ProfileData> => {
   const { data } = await axiosInstance.patch<ApiResponse<ProfileData>>(API.settings.profile, payload);
-  return data.data;
+  return parseResponse(ProfileDataSchema, data.data, 'updateProfileApi');
 };
 
 export const updateWeddingApi = async (payload: WeddingData): Promise<WeddingData> => {
   const { data } = await axiosInstance.patch<ApiResponse<WeddingData>>(API.settings.wedding, payload);
-  return data.data;
+  return parseResponse(WeddingDataSchema, data.data, 'updateWeddingApi');
 };
 
 export const updateNotificationsApi = async (prefs: Record<string, boolean>): Promise<void> => {

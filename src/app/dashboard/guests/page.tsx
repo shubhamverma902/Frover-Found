@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axiosInstance from '@/api/axiosInstance';
 import { useAppDispatch } from '@/store/hooks';
+import { resetGuestMutating } from '@/store/slices/guestsSlice';
 import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
@@ -23,21 +24,35 @@ const PAGE_LIMIT = 10;
 const GuestsPage = () => {
   const dispatch = useAppDispatch();
 
-  const [page,        setPage]        = useState(1);
-  const [addOpen,     setAddOpen]     = useState(false);
-  const [importOpen,  setImportOpen]  = useState(false);
-  const [rsvpGuest,   setRsvpGuest]   = useState<Guest | null>(null);
-  const [query,       setQuery]       = useState('');
-  const [exporting,   setExporting]   = useState(false);
+  const [page,           setPage]           = useState(1);
+  const [addOpen,        setAddOpen]        = useState(false);
+  const [importOpen,     setImportOpen]     = useState(false);
+  const [rsvpGuest,      setRsvpGuest]      = useState<Guest | null>(null);
+  const [query,          setQuery]          = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [exporting,      setExporting]      = useState(false);
 
-  const { data, isLoading } = useGetGuestsQuery({ page, limit: PAGE_LIMIT });
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  // Reset to page 1 whenever the search term changes
+  useEffect(() => { setPage(1); }, [debouncedQuery]);
+
+  const { data, isLoading } = useGetGuestsQuery({
+    page,
+    limit: PAGE_LIMIT,
+    query: debouncedQuery || undefined,
+  });
 
   const guests     = data?.guests     ?? [];
   const total      = data?.total      ?? 0;
   const totalPages = data?.totalPages ?? 0;
-  const confirmed  = guests.filter(g => g.rsvp === 'confirmed').length;
-  const pending    = guests.filter(g => g.rsvp === 'pending').length;
-  const declined   = guests.filter(g => g.rsvp === 'declined').length;
+  const grandTotal = data?.grandTotal ?? 0;
+  const confirmed  = data?.confirmed  ?? 0;
+  const pending    = data?.pending    ?? 0;
+  const declined   = data?.declined   ?? 0;
 
   const handleExport = async () => {
     setExporting(true);
@@ -54,19 +69,14 @@ const GuestsPage = () => {
     }
   };
 
-  const q             = query.trim().toLowerCase();
-  const visibleGuests = q
-    ? guests.filter(g => [g.name, g.relation, g.phone ?? ''].some(f => f.toLowerCase().includes(q)))
-    : guests;
-  const responsePct = total > 0 ? Math.round(((confirmed + declined) / total) * 100) : 0;
+  const responsePct = grandTotal > 0 ? Math.round(((confirmed + declined) / grandTotal) * 100) : 0;
 
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages) return;
     setPage(p);
   };
 
-  // dispatch is still needed by modals; suppress unused-var warning
-  void dispatch;
+  useEffect(() => { dispatch(resetGuestMutating()); }, [dispatch]);
 
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
@@ -91,7 +101,7 @@ const GuestsPage = () => {
       ) : (
         <>
           <GuestStatCards
-            total={total}
+            total={grandTotal}
             confirmed={confirmed}
             pending={pending}
             declined={declined}
@@ -131,7 +141,7 @@ const GuestsPage = () => {
               </div>
             </div>
 
-            <GuestTable guests={visibleGuests} onEditGuest={setRsvpGuest} />
+            <GuestTable guests={guests} onEditGuest={setRsvpGuest} />
 
             {totalPages > 1 && (
               <GuestPagination

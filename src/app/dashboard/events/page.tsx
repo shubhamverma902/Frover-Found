@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { patchEventStatus } from '@/store/slices/eventsSlice';
+import { patchEventStatus, resetEventsMutating } from '@/store/slices/eventsSlice';
 import { useGetEventsQuery } from '@/store/api';
 import {
   AddEventModal,
@@ -24,17 +24,32 @@ const PAGE_LIMIT = 20;
 
 const EventsPage = () => {
   const dispatch = useAppDispatch();
+  useEffect(() => { dispatch(resetEventsMutating()); }, [dispatch]);
 
-  const [page,      setPage]      = useState(1);
-  const [showAdd,   setShowAdd]   = useState(false);
-  const [editEvent, setEditEvent] = useState<WeddingEvent | null>(null);
-  const [filter,    setFilter]    = useState<EventFilter>('all');
-  const [query,     setQuery]     = useState('');
-  const [view,      setView]      = useState<'list' | 'calendar'>('list');
+  const [page,           setPage]           = useState(1);
+  const [showAdd,        setShowAdd]        = useState(false);
+  const [editEvent,      setEditEvent]      = useState<WeddingEvent | null>(null);
+  const [filter,         setFilter]         = useState<EventFilter>('all');
+  const [query,          setQuery]          = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [view,           setView]           = useState<'list' | 'calendar'>('list');
 
-  const { data, isLoading } = useGetEventsQuery({ page, limit: PAGE_LIMIT });
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  useEffect(() => { setPage(1); }, [debouncedQuery, filter]);
+
+  const { data, isLoading } = useGetEventsQuery({
+    page,
+    limit: PAGE_LIMIT,
+    query:  debouncedQuery || undefined,
+    status: filter !== 'all' ? filter : undefined,
+  });
 
   const events     = data?.events     ?? [];
+  const grandTotal = data?.grandTotal ?? 0;
   const total      = data?.total      ?? 0;
   const totalPages = data?.totalPages ?? 0;
   const confirmed  = data?.confirmed  ?? 0;
@@ -46,14 +61,8 @@ const EventsPage = () => {
     setPage(p);
   };
 
-  const q = query.trim().toLowerCase();
-  const filteredByStatus = filter === 'all' ? events : events.filter(e => e.status === filter);
-  const visibleEvents = q
-    ? filteredByStatus.filter(e => [e.name, e.venue ?? ''].some(f => f.toLowerCase().includes(q)))
-    : filteredByStatus;
-
   const filters = [
-    { value: 'all'       as EventFilter, label: 'All',       count: total },
+    { value: 'all'       as EventFilter, label: 'All',       count: grandTotal },
     { value: 'pending'   as EventFilter, label: 'Pending',   count: pending },
     { value: 'planning'  as EventFilter, label: 'Planning',  count: planning },
     { value: 'confirmed' as EventFilter, label: 'Confirmed', count: confirmed },
@@ -86,20 +95,20 @@ const EventsPage = () => {
 
       <EventsHeader
         confirmed={confirmed}
-        total={total}
+        total={grandTotal}
         loading={isLoading}
         onAddEvent={() => setShowAdd(true)}
       />
 
       <EventsSummaryStrip
-        total={total}
+        total={grandTotal}
         confirmed={confirmed}
-        inPlanning={total - confirmed}
+        inPlanning={grandTotal - confirmed}
       />
 
       {isLoading && <EventsSkeleton />}
 
-      {!isLoading && view === 'list' && events.length > 0 && (
+      {!isLoading && view === 'list' && grandTotal > 0 && (
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <EventFilterPills filters={filters} activeFilter={filter} onChange={setFilter} />
           <div className="flex items-center gap-2 sm:ml-auto">
@@ -126,18 +135,18 @@ const EventsPage = () => {
         <div className="flex justify-end">{viewToggle}</div>
       )}
 
-      {!isLoading && events.length === 0 && view === 'list' && (
+      {!isLoading && grandTotal === 0 && view === 'list' && (
         <EventsEmptyState onAddEvent={() => setShowAdd(true)} />
       )}
 
-      {!isLoading && events.length > 0 && visibleEvents.length === 0 && view === 'list' && (
+      {!isLoading && grandTotal > 0 && events.length === 0 && view === 'list' && (
         <EventFilteredEmpty filter={filter} onReset={() => { setFilter('all'); setQuery(''); }} />
       )}
 
-      {!isLoading && visibleEvents.length > 0 && view === 'list' && (
+      {!isLoading && events.length > 0 && view === 'list' && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-children">
-            {visibleEvents.map(event => (
+            {events.map(event => (
               <EventCard
                 key={event._id ?? event.name}
                 event={event}
@@ -147,7 +156,7 @@ const EventsPage = () => {
             ))}
           </div>
 
-          {filter === 'all' && !query && totalPages > 1 && (
+          {totalPages > 1 && (
             <Pagination
               page={page}
               totalPages={totalPages}

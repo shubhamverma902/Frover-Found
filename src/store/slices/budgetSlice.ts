@@ -31,13 +31,16 @@ export const updateTotal = createAppAsyncThunk(
     const patch = dispatch(api.util.updateQueryData('getBudget', undefined, draft => {
       draft.total = total;
     }));
+    let ok = false;
     try {
       const result = await updateTotalApi(total);
+      ok = true;
       dispatch(api.util.invalidateTags(['Budget']));
       return result;
     } catch (e) {
-      patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update total');
+    } finally {
+      if (!ok) patch.undo();
     }
   }
 );
@@ -49,13 +52,16 @@ export const updateAllocated = createAppAsyncThunk(
       const cat = draft.categories.find(c => c._id === categoryId);
       if (cat) cat.allocated = allocated;
     }));
+    let ok = false;
     try {
       const result = await updateAllocatedApi(categoryId, allocated);
+      ok = true;
       dispatch(api.util.invalidateTags(['Budget']));
       return result;
     } catch (e) {
-      patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to update allocation');
+    } finally {
+      if (!ok) patch.undo();
     }
   }
 );
@@ -78,19 +84,21 @@ export const deleteExpense = createAppAsyncThunk(
       const cat = draft.categories.find(c => c._id === categoryId);
       if (cat) {
         const idx = cat.expenses.findIndex(e => e._id === expenseId);
-        if (idx !== -1) {
-          cat.spent = Math.max(0, cat.spent - cat.expenses[idx].amount);
-          cat.expenses.splice(idx, 1);
-        }
+        if (idx !== -1) cat.expenses.splice(idx, 1);
+        // cat.spent is intentionally left unchanged — the server owns that
+        // aggregate. invalidateTags below will refetch the authoritative value.
       }
     }));
+    let ok = false;
     try {
       const result = await deleteExpenseApi(categoryId, expenseId);
+      ok = true;
       dispatch(api.util.invalidateTags(['Budget']));
       return result;
     } catch (e) {
-      patch.undo();
       return rejectWithValue((e as ApiErr).response?.data?.message ?? 'Failed to delete expense');
+    } finally {
+      if (!ok) patch.undo();
     }
   }
 );
@@ -100,7 +108,9 @@ export const deleteExpense = createAppAsyncThunk(
 const budgetSlice = createSlice({
   name: 'budget',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: BudgetState) => { state.mutating = v; };
     [updateTotal, updateAllocated, addExpense, deleteExpense].forEach(thunk => {
@@ -121,6 +131,8 @@ const budgetSlice = createSlice({
 });
 
 // ── Selectors ─────────────────────────────────────────────
+
+export const { resetMutating: resetBudgetMutating } = budgetSlice.actions;
 
 export const selectBudgetTotal      = (state: RootState) => state.budget.total;
 export const selectBudgetCategories = (state: RootState) => state.budget.categories;

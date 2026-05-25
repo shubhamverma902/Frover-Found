@@ -54,16 +54,33 @@ function csvEscape(v: string): string {
   return `"${v.replace(/"/g, '""')}"`;
 }
 
-// GET /api/v1/guests?page=1&limit=10
+// GET /api/v1/guests?page=1&limit=10&q=alice
 export const getGuests = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const uid   = ownerId(req);
     // maxLimit=1000: seating chart fetches all guests in one request
     const { page, limit, skip } = parsePage(req.query, 10, 1000);
 
-    const [guests, total] = await Promise.all([
-      Guest.find({ userId: uid }).sort({ createdAt: 1 }).skip(skip).limit(limit),
-      Guest.countDocuments({ userId: uid }),
+    const raw = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    // Escape regex metacharacters to prevent injection and unintended matching
+    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchFilter = escaped
+      ? { $or: [
+          { name:     { $regex: escaped, $options: 'i' } },
+          { relation: { $regex: escaped, $options: 'i' } },
+          { phone:    { $regex: escaped, $options: 'i' } },
+        ] }
+      : {};
+    const filter    = { userId: uid, ...searchFilter };
+    const baseFilter = { userId: uid };
+
+    const [guests, total, grandTotal, confirmedCount, pendingCount, declinedCount] = await Promise.all([
+      Guest.find(filter).sort({ createdAt: 1 }).skip(skip).limit(limit),
+      Guest.countDocuments(filter),
+      Guest.countDocuments(baseFilter),
+      Guest.countDocuments({ ...baseFilter, rsvp: 'confirmed' }),
+      Guest.countDocuments({ ...baseFilter, rsvp: 'pending' }),
+      Guest.countDocuments({ ...baseFilter, rsvp: 'declined' }),
     ]);
 
     sendSuccess(res, {
@@ -71,6 +88,10 @@ export const getGuests = async (req: AuthRequest, res: Response, next: NextFunct
       total,
       page,
       totalPages: Math.ceil(total / limit),
+      grandTotal,
+      confirmed:  confirmedCount,
+      pending:    pendingCount,
+      declined:   declinedCount,
     });
   } catch (err) {
     next(err);

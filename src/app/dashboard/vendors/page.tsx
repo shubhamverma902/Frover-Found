@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-import { patchVendorStatus } from '@/store/slices/vendorsSlice';
+import { patchVendorStatus, resetVendorMutating } from '@/store/slices/vendorsSlice';
 import { useGetVendorsQuery } from '@/store/api';
 import {
   AddVendorModal,
@@ -21,25 +21,32 @@ const PAGE_LIMIT = 10;
 
 const VendorsPage = () => {
   const dispatch = useAppDispatch();
+  useEffect(() => { dispatch(resetVendorMutating()); }, [dispatch]);
 
-  const [page,         setPage]         = useState(1);
-  const [addOpen,      setAddOpen]      = useState(false);
-  const [detailVendor, setDetailVendor] = useState<Vendor | null>(null);
-  const [editVendor,   setEditVendor]   = useState<Vendor | null>(null);
-  const [query,        setQuery]        = useState('');
+  const [page,           setPage]           = useState(1);
+  const [addOpen,        setAddOpen]        = useState(false);
+  const [detailVendor,   setDetailVendor]   = useState<Vendor | null>(null);
+  const [editVendor,     setEditVendor]     = useState<Vendor | null>(null);
+  const [query,          setQuery]          = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  const { data, isLoading } = useGetVendorsQuery({ page, limit: PAGE_LIMIT });
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  useEffect(() => { setPage(1); }, [debouncedQuery]);
+
+  const { data, isLoading } = useGetVendorsQuery({
+    page, limit: PAGE_LIMIT, query: debouncedQuery || undefined,
+  });
 
   const vendors     = data?.vendors     ?? [];
+  const grandTotal  = data?.grandTotal  ?? 0;
   const total       = data?.total       ?? 0;
   const totalPages  = data?.totalPages  ?? 0;
   const booked      = data?.booked      ?? 0;
   const shortlisted = data?.shortlisted ?? 0;
-
-  const q = query.trim().toLowerCase();
-  const visibleVendors = q
-    ? vendors.filter(v => [v.name, v.category, v.location ?? ''].some(f => f.toLowerCase().includes(q)))
-    : vendors;
 
   const goToPage = (p: number) => {
     if (p < 1 || p > totalPages) return;
@@ -55,9 +62,9 @@ const VendorsPage = () => {
 
       {isLoading ? <VendorsSkeleton /> : (
         <>
-          <VendorsSummaryStrip total={total} booked={booked} shortlisted={shortlisted} />
+          <VendorsSummaryStrip total={grandTotal} booked={booked} shortlisted={shortlisted} />
 
-          {vendors.length > 0 && (
+          {grandTotal > 0 && (
             <div className="relative w-full sm:w-72">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#DDDED9]/40 text-sm pointer-events-none">⌕</span>
               <input
@@ -74,9 +81,9 @@ const VendorsPage = () => {
             </div>
           )}
 
-          {vendors.length === 0 && <VendorsEmptyState onAddVendor={() => setAddOpen(true)} />}
+          {grandTotal === 0 && <VendorsEmptyState onAddVendor={() => setAddOpen(true)} />}
 
-          {vendors.length > 0 && visibleVendors.length === 0 && (
+          {grandTotal > 0 && vendors.length === 0 && (
             <div className="flex flex-col items-center gap-3 py-16 border border-dashed border-[#E4BC62]/20 bg-[#E4BC62]/3">
               <span className="text-3xl text-[#E4BC62]/20">⌕</span>
               <p className="text-sm font-bold text-[#DDDED9]/40">No vendors match &ldquo;{query}&rdquo;</p>
@@ -85,7 +92,7 @@ const VendorsPage = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-children">
-            {visibleVendors.map(v => (
+            {vendors.map(v => (
               <VendorCard
                 key={v._id}
                 vendor={v}
@@ -96,7 +103,7 @@ const VendorsPage = () => {
             ))}
           </div>
 
-          {!query && totalPages > 1 && (
+          {totalPages > 1 && (
             <Pagination
               page={page}
               totalPages={totalPages}

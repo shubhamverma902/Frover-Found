@@ -95,7 +95,9 @@ export const removeEventAttachment = createAsyncThunk(
 const eventsSlice = createSlice({
   name: 'events',
   initialState,
-  reducers: {},
+  reducers: {
+    resetMutating: (state) => { state.mutating = false; },
+  },
   extraReducers: builder => {
     const setMutating = (v: boolean) => (state: EventsState) => { state.mutating = v; };
     [createEvent, updateEvent, patchEventStatus, deleteEvent, addEventAttachment, removeEventAttachment]
@@ -109,6 +111,8 @@ const eventsSlice = createSlice({
 });
 
 // ── Selectors ─────────────────────────────────────────────
+
+export const { resetMutating: resetEventsMutating } = eventsSlice.actions;
 
 export const selectEventsMutating = (state: RootState) => state.events.mutating;
 
