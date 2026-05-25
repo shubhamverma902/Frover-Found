@@ -8,6 +8,7 @@ import logActivity from "../utils/logActivity";
 import { serializeBudgetCategory } from "../helpers/serializers";
 import { ownerId } from "../helpers/authHelpers";
 import { sanitize } from "../utils/sanitize";
+import { BUDGET_SEED_CATEGORIES } from "../constants/budgetSeeds";
 
 // GET /api/v1/budget
 export const getBudget = async (
@@ -23,12 +24,19 @@ export const getBudget = async (
       BudgetCategory.find({ userId: uid }).sort({ createdAt: 1 }),
     ]);
 
-    // Total always comes from the onboarding profile
     const total = user?.weddingProfile?.budget ?? 0;
+
+    let cats = existingCats;
+    if (cats.length === 0) {
+      const inserted = await BudgetCategory.insertMany(
+        BUDGET_SEED_CATEGORIES.map(c => ({ ...c, userId: uid }))
+      );
+      cats = inserted as unknown as typeof cats;
+    }
 
     sendSuccess(res, {
       total,
-      categories: existingCats.map(serializeBudgetCategory),
+      categories: cats.map(serializeBudgetCategory),
     });
   } catch (err) {
     next(err);
