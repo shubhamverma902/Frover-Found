@@ -26,7 +26,7 @@ router.delete('/:id',       requireWrite, deleteEvent);
 
 // Attachment routes — multer error converted to ApiError so the client gets JSON
 router.post('/:id/attachments', requireWrite, (req, res, next) => {
-  upload.single('file')(req, res, err => {
+  upload(req, res, err => {
     if (err) return next(new ApiError(400, err.message));
     next();
   });

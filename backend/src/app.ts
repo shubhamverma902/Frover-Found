@@ -10,6 +10,7 @@ import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import notFound from './middleware/notFound';
 import logger from './utils/logger';
+import { verifyUploadToken } from './utils/fileToken';
 
 const app = express();
 
@@ -93,9 +94,32 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// Serve uploaded files — allow cross-origin loading (helmet sets same-origin by default)
-app.use('/uploads', (_req, res, next) => {
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+// Serve uploaded files — token-gated; CORP restricted to same-origin.
+// The serializer signs each attachment URL with a 24 h JWT before returning it
+// to the client. The token's `p` claim must exactly match the requested path,
+// so a leaked URL cannot be replayed to access a different file, and an
+// unauthenticated request (no token) is rejected before any file is read.
+app.use('/uploads', (req, res, next) => {
+  const token = req.query['token'];
+  if (typeof token !== 'string' || !token) {
+    res.status(401).json({ success: false, message: 'File access requires a signed token' });
+    return;
+  }
+
+  const claimedPath = verifyUploadToken(token);
+  if (!claimedPath) {
+    res.status(403).json({ success: false, message: 'Invalid or expired file token' });
+    return;
+  }
+
+  // req.path inside a sub-router is relative to the mount point ("/vendors/…")
+  const requestedPath = '/uploads' + req.path;
+  if (claimedPath !== requestedPath) {
+    res.status(403).json({ success: false, message: 'Token path mismatch' });
+    return;
+  }
+
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   next();
 }, express.static(path.join(__dirname, '../uploads')));
 

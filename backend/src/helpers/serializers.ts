@@ -4,6 +4,18 @@ import Event from '../models/Event';
 import Guest from '../models/Guest';
 import Vendor from '../models/Vendor';
 import { fmtDateISO, fmtDateShort } from './dateHelpers';
+import { signUploadPath } from '../utils/fileToken';
+
+// Appends a short-lived signed token to an upload URL so the /uploads route
+// can verify the caller was authenticated when the API response was built.
+function signedUrl(rawUrl: string): string {
+  try {
+    const pathname = new URL(rawUrl).pathname;   // "/uploads/vendors/123/abc.jpg"
+    return `${rawUrl}?token=${signUploadPath(pathname)}`;
+  } catch {
+    return rawUrl; // malformed URL — return as-is rather than crashing
+  }
+}
 
 export const serializeBudgetCategory = (cat: InstanceType<typeof BudgetCategory>) => ({
   _id:       String(cat._id),
@@ -44,7 +56,7 @@ export const serializeEvent = (e: InstanceType<typeof Event>) => ({
     _id:          String(a._id),
     filename:     a.filename,
     originalName: a.originalName,
-    url:          a.url,
+    url:          signedUrl(a.url),
     mimetype:     a.mimetype,
     size:         a.size,
     uploadedAt:   a.uploadedAt.toISOString(),
@@ -75,7 +87,7 @@ export const serializeVendor = (v: InstanceType<typeof Vendor>) => ({
     _id:          String(a._id),
     filename:     a.filename,
     originalName: a.originalName,
-    url:          a.url,
+    url:          signedUrl(a.url),
     mimetype:     a.mimetype,
     size:         a.size,
     uploadedAt:   a.uploadedAt.toISOString(),
