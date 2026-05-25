@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/User';
 import ApiError from '../utils/ApiError';
 import { sendSuccess } from '../utils/ApiResponse';
@@ -187,70 +188,71 @@ export const invitePartner = async (req: AuthRequest, res: Response, next: NextF
 
 // POST /api/v1/settings/partner/accept
 export const acceptInvite = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  const session = await mongoose.startSession();
   try {
     const { token } = req.body;
     if (!token) return next(new ApiError(422, 'Token is required'));
 
-    const inviter = await User.findOne({
-      partnerInviteToken:  token,
-      partnerInviteExpiry: { $gt: new Date() },
-    });
-    if (!inviter) return next(new ApiError(404, 'Invite not found or has expired'));
-    if (String(inviter._id) === req.user!.id)
-      return next(new ApiError(422, 'You cannot accept your own invite'));
+    let newToken!: string;
 
-    const me = await User.findById(req.user!.id);
-    if (!me) return next(new ApiError(404, 'User not found'));
-    if (me.linkedPartner)
-      return next(new ApiError(409, 'Your account is already linked to a partner'));
+    await session.withTransaction(async () => {
+      const inviter = await User.findOne({
+        partnerInviteToken:  token,
+        partnerInviteExpiry: { $gt: new Date() },
+      }).session(session);
+      if (!inviter) throw new ApiError(404, 'Invite not found or has expired');
+      if (String(inviter._id) === req.user!.id)
+        throw new ApiError(422, 'You cannot accept your own invite');
 
-    const now = new Date();
+      const me = await User.findById(req.user!.id).session(session);
+      if (!me) throw new ApiError(404, 'User not found');
+      if (me.linkedPartner)
+        throw new ApiError(409, 'Your account is already linked to a partner');
 
-    await Promise.all([
-      // Inviter becomes primary: clear invite fields, set link
-      User.findByIdAndUpdate(inviter._id, {
+      const now = new Date();
+
+      await User.findByIdAndUpdate(inviter._id, {
         linkedPartner:       me._id,
         linkedAt:            now,
         partnerInviteToken:  null,
         partnerInviteExpiry: null,
         pendingInviteEmail:  null,
-      }),
-      // Acceptor becomes secondary: dataOwner → inviter
-      User.findByIdAndUpdate(me._id, {
+      }, { session });
+
+      await User.findByIdAndUpdate(me._id, {
         linkedPartner: inviter._id,
         linkedAt:      now,
         dataOwner:     inviter._id,
-      }),
-    ]);
+      }, { session });
 
-    // Issue a new token that encodes the secondary user's dataOwnerId
-    const newToken = signToken(req.user!.id, req.user!.email, req.user!.role, String(inviter._id));
+      newToken = signToken(req.user!.id, req.user!.email, req.user!.role, String(inviter._id));
+    });
+
     sendSuccess(res, { token: newToken }, 'Partner linked successfully');
-  } catch (err) { next(err); }
+  } catch (err) { next(err); } finally { session.endSession(); }
 };
 
 // DELETE /api/v1/settings/partner
 export const removePartner = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  const session = await mongoose.startSession();
   try {
-    const me = await User.findById(req.user!.id);
-    if (!me) return next(new ApiError(404, 'User not found'));
-    if (!me.linkedPartner) return next(new ApiError(404, 'No linked partner to remove'));
+    let newToken!: string;
 
-    const partnerId = me.linkedPartner;
+    await session.withTransaction(async () => {
+      const me = await User.findById(req.user!.id).session(session);
+      if (!me) throw new ApiError(404, 'User not found');
+      if (!me.linkedPartner) throw new ApiError(404, 'No linked partner to remove');
 
-    await Promise.all([
-      User.findByIdAndUpdate(req.user!.id, {
-        linkedPartner: null, linkedAt: null, dataOwner: null,
-        partnerInviteToken: null, partnerInviteExpiry: null, pendingInviteEmail: null,
-      }),
-      User.findByIdAndUpdate(partnerId, {
-        linkedPartner: null, linkedAt: null, dataOwner: null,
-        partnerInviteToken: null, partnerInviteExpiry: null, pendingInviteEmail: null,
-      }),
-    ]);
+      const partnerId = me.linkedPartner;
+      const unlink = { linkedPartner: null, linkedAt: null, dataOwner: null,
+                       partnerInviteToken: null, partnerInviteExpiry: null, pendingInviteEmail: null };
 
-    // Issue a fresh token without dataOwnerId
-    const newToken = signToken(req.user!.id, req.user!.email, me.role);
+      await User.findByIdAndUpdate(req.user!.id, unlink, { session });
+      await User.findByIdAndUpdate(partnerId,     unlink, { session });
+
+      newToken = signToken(req.user!.id, req.user!.email, me.role);
+    });
+
     sendSuccess(res, { token: newToken }, 'Partner removed');
-  } catch (err) { next(err); }
+  } catch (err) { next(err); } finally { session.endSession(); }
 };

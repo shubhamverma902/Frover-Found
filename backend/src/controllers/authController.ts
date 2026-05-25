@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import ApiError from '../utils/ApiError';
@@ -10,6 +11,10 @@ import { signToken, signRefreshToken, userPayload } from '../helpers/authHelpers
 const REFRESH_COOKIE     = 'refreshToken';
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_WINDOW_MS     = 15 * 60 * 1000; // 15 minutes
+
+// Constant-time sentinel: ensures the null-user path runs a full bcrypt round
+// so response time cannot reveal whether an email exists in the database.
+const DUMMY_HASH = bcrypt.hashSync('__frover_timing_sentinel__', 12);
 
 const cookieOptions = {
   httpOnly: true,
@@ -55,9 +60,10 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       return next(new ApiError(429, `Too many failed attempts. Try again in ${minsLeft} minute${minsLeft === 1 ? '' : 's'}.`));
     }
 
-    // Evaluate credentials (run comparePassword even when user is null to keep
-    // response time uniform and avoid user-enumeration via timing)
-    const passwordOk = user ? await user.comparePassword(password) : false;
+    // Always run bcrypt.compare — never short-circuit on a null user.
+    // The DUMMY_HASH path returns false but burns the same ~200 ms as a real compare,
+    // making response time identical whether the email exists or not.
+    const passwordOk = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
 
     if (!user || !passwordOk) {
       if (user) {
