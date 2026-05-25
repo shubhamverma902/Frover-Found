@@ -68,7 +68,7 @@ export const acceptCollaboratorInvite = async (req: AuthRequest, res: Response, 
     if (!token) return next(new ApiError(422, 'Token is required'));
 
     let newToken!: string;
-    let role!: string;
+    let role!: 'planner' | 'viewer';
 
     await session.withTransaction(async () => {
       const owner = await User.findOne({

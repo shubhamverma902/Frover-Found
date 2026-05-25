@@ -26,7 +26,7 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
     const fd = new FormData();
     fd.append('file', file);
     const res = await importGuests(fd);
-    if ('data' in res) {
+    if ('data' in res && res.data) {
       setResult(res.data);
       if (res.data.imported > 0) setFile(null);
     }
