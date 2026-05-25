@@ -40,8 +40,8 @@ export const WeddingSection = ({ wedding, saving, showSaved, onSave }: Props) =>
         <form onSubmit={e => { e.preventDefault(); onSave({ weddingDate, venue, city, guestCount: Number(guestCount) }); }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SettingsField label="Wedding Date"    value={weddingDate} onChange={setWeddingDate} type="date"   disabled={saving === 'wedding'} />
-            <SettingsField label="Venue"           value={venue}       onChange={setVenue}                     disabled={saving === 'wedding'} />
-            <SettingsField label="City"            value={city}        onChange={setCity}                      disabled={saving === 'wedding'} />
+            <SettingsField label="Venue"           value={venue}       onChange={setVenue}                     disabled={saving === 'wedding'} maxLength={200} />
+            <SettingsField label="City"            value={city}        onChange={setCity}                      disabled={saving === 'wedding'} maxLength={100} />
             <SettingsField label="Expected Guests" value={guestCount}  onChange={setGuestCount}  type="number" disabled={saving === 'wedding'} />
           </div>
           <div className="flex items-center gap-3">

@@ -78,18 +78,18 @@ app.get('/health', async (_req, res) => {
   try {
     const t0 = Date.now();
     await mongoose.connection.db!.admin().ping();
-    const latencyMs = Date.now() - t0;
+    logger.info({ dbLatencyMs: Date.now() - t0 }, 'health check ping');
     res.json({
       status: 'ok',
       uptime: process.uptime(),
-      db: { connected: true, latencyMs },
+      db: { connected: true },
     });
   } catch (err) {
     logger.error({ err }, 'health check DB ping failed');
     res.status(503).json({
       status: 'error',
       uptime: process.uptime(),
-      db: { connected: false, state },
+      db: { connected: false },
     });
   }
 });

@@ -41,13 +41,13 @@ const attachmentSchema = new Schema<IAttachment>(
 const eventSchema = new Schema<IEvent>(
   {
     userId:      { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    name:        { type: String, required: true, trim: true },
+    name:        { type: String, required: true, trim: true, maxlength: 100 },
     date:        { type: Date, required: true },
-    time:        { type: String, default: '' },
-    venue:       { type: String, default: '' },
+    time:        { type: String, default: '', maxlength: 20 },
+    venue:       { type: String, default: '', maxlength: 200 },
     guests:      { type: Number, default: 0, min: 0 },
     status:      { type: String, enum: ['confirmed', 'planning', 'pending'], default: 'pending' },
-    desc:        { type: String, default: '' },
+    desc:        { type: String, default: '', maxlength: 2000 },
     attachments: { type: [attachmentSchema], default: [] },
   },
   { timestamps: true }

@@ -130,7 +130,7 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
           <div>
             <FieldLabel>Vendor Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark"
-              value={name}
+              value={name} maxLength={100}
               onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
               onBlur={() => { if (!name.trim()) setNameError('Required'); }}
               error={!!nameError} />
@@ -163,11 +163,11 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Contact</FieldLabel>
-              <Input variant="dark" value={contact} onChange={e => setContact(e.target.value)} />
+              <Input variant="dark" value={contact} maxLength={200} onChange={e => setContact(e.target.value)} />
             </div>
             <div>
               <FieldLabel>Location</FieldLabel>
-              <Input variant="dark" value={location} onChange={e => setLocation(e.target.value)} />
+              <Input variant="dark" value={location} maxLength={200} onChange={e => setLocation(e.target.value)} />
             </div>
           </div>
 
@@ -213,7 +213,7 @@ const EditVendorModal = ({ vendor, onClose }: EditVendorModalProps) => {
           {/* Notes */}
           <div>
             <FieldLabel>Notes <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
-            <Input variant="dark" placeholder="Any notes about this vendor…" value={notes} onChange={e => setNotes(e.target.value)} />
+            <Input variant="dark" placeholder="Any notes about this vendor…" value={notes} maxLength={2000} onChange={e => setNotes(e.target.value)} />
           </div>
 
           {/* Attachments */}

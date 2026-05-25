@@ -69,6 +69,8 @@ export const createEvent = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const { name, date, time, venue, guests, status, desc } = req.body;
     if (!name?.trim() || !date) return next(new ApiError(422, 'Name and date are required'));
+    if (desc?.length  > 2000)   return next(new ApiError(422, 'Description must not exceed 2000 characters'));
+    if (venue?.length > 200)    return next(new ApiError(422, 'Venue must not exceed 200 characters'));
 
     const event = await Event.create({
       userId: ownerId(req),
@@ -91,6 +93,8 @@ export const createEvent = async (req: AuthRequest, res: Response, next: NextFun
 export const updateEvent = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, date, time, venue, guests, status, desc } = req.body;
+    if (desc?.length  > 2000) return next(new ApiError(422, 'Description must not exceed 2000 characters'));
+    if (venue?.length > 200)  return next(new ApiError(422, 'Venue must not exceed 200 characters'));
 
     const event = await Event.findOneAndUpdate(
       { _id: req.params.id, userId: ownerId(req) },

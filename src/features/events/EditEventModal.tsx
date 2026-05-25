@@ -165,7 +165,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
           <div>
             <FieldLabel>Event Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Mehendi Ceremony"
-              value={form.name} onChange={e => set('name', e.target.value)}
+              value={form.name} maxLength={100} onChange={e => set('name', e.target.value)}
               onBlur={() => { if (!form.name.trim()) setErr('name', 'Required'); }}
               error={!!errors.name} />
             {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
@@ -190,7 +190,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
           <div>
             <FieldLabel>Venue <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Leela Palace, New Delhi"
-              value={form.venue} onChange={e => set('venue', e.target.value)}
+              value={form.venue} maxLength={200} onChange={e => set('venue', e.target.value)}
               onBlur={() => { if (!form.venue.trim()) setErr('venue', 'Required'); }}
               error={!!errors.venue} />
             {errors.venue && <p className="text-xs text-red-400 mt-1">{errors.venue}</p>}
@@ -235,7 +235,7 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
             <textarea rows={3}
               className="w-full px-3 py-2.5 text-sm bg-[#FDFDF8]/5 border border-[#DDDED9]/20 text-white placeholder:text-[#DDDED9]/30 focus:outline-none focus:border-[#E4BC62]/60 transition-colors resize-none"
               placeholder="Brief description of the event…"
-              value={form.desc} onChange={e => set('desc', e.target.value)} />
+              value={form.desc} maxLength={2000} onChange={e => set('desc', e.target.value)} />
           </div>
 
           {/* Attachments */}

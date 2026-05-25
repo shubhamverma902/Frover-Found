@@ -42,8 +42,11 @@ export const getVendors = async (req: AuthRequest, res: Response, next: NextFunc
 export const createVendor = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { icon, category, name, contact, location, status, rating, notes } = req.body;
-    if (!name?.trim())     return next(new ApiError(422, 'Vendor name is required'));
-    if (!category?.trim()) return next(new ApiError(422, 'Category is required'));
+    if (!name?.trim())          return next(new ApiError(422, 'Vendor name is required'));
+    if (!category?.trim())      return next(new ApiError(422, 'Category is required'));
+    if (notes?.length   > 2000) return next(new ApiError(422, 'Notes must not exceed 2000 characters'));
+    if (contact?.length > 200)  return next(new ApiError(422, 'Contact must not exceed 200 characters'));
+    if (location?.length > 200) return next(new ApiError(422, 'Location must not exceed 200 characters'));
 
     const vendor = await Vendor.create({
       userId: ownerId(req),
@@ -66,8 +69,11 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
 export const updateVendor = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { icon, category, name, contact, location, status, rating, notes } = req.body;
-    if (!name?.trim())     return next(new ApiError(422, 'Vendor name is required'));
-    if (!category?.trim()) return next(new ApiError(422, 'Category is required'));
+    if (!name?.trim())          return next(new ApiError(422, 'Vendor name is required'));
+    if (!category?.trim())      return next(new ApiError(422, 'Category is required'));
+    if (notes?.length   > 2000) return next(new ApiError(422, 'Notes must not exceed 2000 characters'));
+    if (contact?.length > 200)  return next(new ApiError(422, 'Contact must not exceed 200 characters'));
+    if (location?.length > 200) return next(new ApiError(422, 'Location must not exceed 200 characters'));
 
     const vendor = await Vendor.findOneAndUpdate(
       { _id: req.params.id, userId: ownerId(req) },

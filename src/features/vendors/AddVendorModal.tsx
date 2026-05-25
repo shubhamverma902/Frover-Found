@@ -72,7 +72,7 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
           <div>
             <FieldLabel>Vendor Name <span className="text-[#DFB3AE]">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Floral Dreams by Sunita"
-              value={name}
+              value={name} maxLength={100}
               onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
               onBlur={() => { if (!name.trim()) setNameError('Required'); }}
               error={!!nameError} />
@@ -105,11 +105,11 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Contact</FieldLabel>
-              <Input variant="dark" placeholder="+91 98765 43210" value={contact} onChange={e => setContact(e.target.value)} />
+              <Input variant="dark" placeholder="+91 98765 43210" value={contact} maxLength={200} onChange={e => setContact(e.target.value)} />
             </div>
             <div>
               <FieldLabel>Location</FieldLabel>
-              <Input variant="dark" placeholder="e.g. New Delhi" value={location} onChange={e => setLocation(e.target.value)} />
+              <Input variant="dark" placeholder="e.g. New Delhi" value={location} maxLength={200} onChange={e => setLocation(e.target.value)} />
             </div>
           </div>
 
@@ -155,7 +155,7 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
           {/* Notes */}
           <div>
             <FieldLabel>Notes <span className="text-[#DDDED9]/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
-            <Input variant="dark" placeholder="e.g. Spoke with Sunita, price negotiable" value={notes} onChange={e => setNotes(e.target.value)} />
+            <Input variant="dark" placeholder="e.g. Spoke with Sunita, price negotiable" value={notes} maxLength={2000} onChange={e => setNotes(e.target.value)} />
           </div>
         </div>
 

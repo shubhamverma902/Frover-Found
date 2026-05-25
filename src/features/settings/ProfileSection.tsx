@@ -38,10 +38,10 @@ export const ProfileSection = ({ profile, saving, showSaved, onSave }: Props) =>
     <SettingsSection icon="👤" title="Your Profile">
       <form onSubmit={e => { e.preventDefault(); onSave({ name, partnerName, email, phone }); }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <SettingsField label="Full Name"     value={name}        onChange={setName}        disabled={saving === 'profile'} />
-          <SettingsField label="Partner Name"  value={partnerName} onChange={setPartnerName} disabled={saving === 'profile'} />
+          <SettingsField label="Full Name"     value={name}        onChange={setName}        disabled={saving === 'profile'} maxLength={100} />
+          <SettingsField label="Partner Name"  value={partnerName} onChange={setPartnerName} disabled={saving === 'profile'} maxLength={100} />
           <SettingsField label="Email Address" value={email}       onChange={setEmail}       type="email" disabled={saving === 'profile'} />
-          <SettingsField label="Phone Number"  value={phone}       onChange={setPhone}       type="tel"   disabled={saving === 'profile'} />
+          <SettingsField label="Phone Number"  value={phone}       onChange={setPhone}       type="tel"   disabled={saving === 'profile'} maxLength={30} />
         </div>
         <div className="flex items-center gap-3">
           <SettingsSaveBtn saving={saving === 'profile'} label="Save Profile" />

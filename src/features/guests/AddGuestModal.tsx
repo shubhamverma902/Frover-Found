@@ -65,7 +65,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
             <Input
               variant="dark"
               placeholder="e.g. Anjali Sharma"
-              value={name}
+              value={name} maxLength={100}
               onChange={e => { const v = e.target.value; setName(v); if (nameError) setNameError(v.trim() ? '' : 'Required'); }}
               onBlur={() => { if (!name.trim()) setNameError('Required'); }}
               error={!!nameError}
@@ -79,7 +79,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
             <Input
               variant="dark"
               placeholder="e.g. Sister, Friend, Colleague"
-              value={relation}
+              value={relation} maxLength={100}
               onChange={e => setRelation(e.target.value)}
             />
           </div>
@@ -90,7 +90,7 @@ const AddGuestModal = ({ onClose }: AddGuestModalProps) => {
             <Input
               variant="dark"
               placeholder="e.g. +91 98765 43210"
-              value={phone}
+              value={phone} maxLength={30}
               onChange={e => setPhone(e.target.value)}
             />
           </div>

@@ -39,11 +39,11 @@ export interface IWeddingProfile {
 
 const weddingProfileSchema = new Schema<IWeddingProfile>(
   {
-    partner1:    { type: String, required: true, trim: true },
-    partner2:    { type: String, required: true, trim: true },
+    partner1:    { type: String, required: true, trim: true, maxlength: 100 },
+    partner2:    { type: String, required: true, trim: true, maxlength: 100 },
     weddingDate: { type: Date,   required: true },
-    venue:       { type: String, default: '', trim: true },
-    city:        { type: String, required: true, trim: true },
+    venue:       { type: String, default: '', trim: true, maxlength: 200 },
+    city:        { type: String, required: true, trim: true, maxlength: 100 },
     guestCount:  { type: Number, required: true, min: 1 },
     budget:      { type: Number, required: true, min: 0 },
     style:       { type: String, required: true },
@@ -84,10 +84,10 @@ export interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
   {
-    name:                { type: String,  required: true, trim: true },
+    name:                { type: String,  required: true, trim: true, maxlength: 100 },
     email:               { type: String,  required: true, unique: true, lowercase: true, trim: true },
     password:            { type: String,  required: true, minlength: 12, select: false },
-    phone:               { type: String,  default: '', trim: true },
+    phone:               { type: String,  default: '', trim: true, maxlength: 30 },
     role:                { type: String,  enum: ['user', 'admin'], default: 'user' },
     onboardingCompleted: { type: Boolean, default: false },
     weddingProfile:      { type: weddingProfileSchema, default: null },
