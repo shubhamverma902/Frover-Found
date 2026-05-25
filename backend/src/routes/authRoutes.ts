@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import { register, login, getMe, refreshToken, logout, forgotPassword, resetPassword } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import validate from '../middleware/validate';
+import { loginLimiter, forgotPasswordLimiter } from '../middleware/rateLimiters';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.post(
 
 router.post(
   '/login',
+  loginLimiter,
   [
     body('email').isEmail().withMessage('Valid email is required'),
     body('password').notEmpty().withMessage('Password is required'),
@@ -31,6 +33,7 @@ router.get('/me', protect, getMe);
 
 router.post(
   '/forgot-password',
+  forgotPasswordLimiter,
   [body('email').isEmail().withMessage('Valid email is required')],
   validate,
   forgotPassword

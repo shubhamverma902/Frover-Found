@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth';
 import { requireWrite } from '../helpers/authHelpers';
+import { uploadAttachmentLimiter } from '../middleware/rateLimiters';
 import {
   getVendors,
   createVendor,
@@ -25,7 +26,7 @@ router.patch('/:id/status', requireWrite, patchVendorStatus);
 router.delete('/:id',       requireWrite, deleteVendor);
 
 // Attachment routes — multer error converted to ApiError so the client gets JSON
-router.post('/:id/attachments', requireWrite, (req, res, next) => {
+router.post('/:id/attachments', requireWrite, uploadAttachmentLimiter, (req, res, next) => {
   upload(req, res, err => {
     if (err) return next(new ApiError(400, err.message));
     next();

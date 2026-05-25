@@ -129,7 +129,8 @@ export const importGuests = async (req: AuthRequest, res: Response, next: NextFu
     const uid  = ownerId(req);
     const text = req.file.buffer.toString('utf8');
     const rows = parseCsv(text);
-    if (rows.length === 0) return next(new ApiError(422, 'CSV has no valid data rows'));
+    if (rows.length === 0)   return next(new ApiError(422, 'CSV has no valid data rows'));
+    if (rows.length > 500)   return next(new ApiError(422, 'CSV must not exceed 500 rows'));
 
     const VALID_RSVP = new Set(['confirmed', 'pending', 'declined']);
     const VALID_MEAL = new Set(['Veg', 'Non-veg', 'Jain']);
