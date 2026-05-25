@@ -29,7 +29,7 @@ const ResetPasswordForm = () => {
     e.preventDefault();
     if (!token)                          return setError('Reset token is missing. Please request a new link.');
     if (password !== confirmPassword)    return setError('Passwords do not match.');
-    if (password.length < 6)            return setError('Password must be at least 6 characters.');
+    if (password.length < 12)           return setError('Password must be at least 12 characters.');
 
     setLoading(true);
     setError(null);
@@ -138,7 +138,7 @@ const ResetPasswordForm = () => {
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="At least 6 characters"
+                        placeholder="At least 12 characters"
                         value={password}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                         width="100%"
