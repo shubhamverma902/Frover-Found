@@ -12,7 +12,9 @@ export type AuditAction =
   | 'collaborator.removed'
   | 'collaborator.left'
   | 'partner.linked'
-  | 'partner.removed';
+  | 'partner.removed'
+  | 'gdpr.export'
+  | 'gdpr.erasure';
 
 const logAudit = (
   req:    Request,

@@ -11,7 +11,7 @@ import {
   addVendorAttachment,
   removeVendorAttachment,
 } from '../controllers/vendorController';
-import { makeUpload } from '../middleware/upload';
+import { makeUpload, uploadErrorMessage } from '../middleware/upload';
 import ApiError from '../utils/ApiError';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.delete('/:id',       requireWrite, deleteVendor);
 // Attachment routes — multer error converted to ApiError so the client gets JSON
 router.post('/:id/attachments', requireWrite, uploadAttachmentLimiter, (req, res, next) => {
   upload(req, res, err => {
-    if (err) return next(new ApiError(400, err.message));
+    if (err) return next(new ApiError(400, uploadErrorMessage(err)));
     next();
   });
 }, addVendorAttachment);

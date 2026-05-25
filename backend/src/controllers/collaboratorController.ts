@@ -31,35 +31,31 @@ export const listCollaborators = async (req: AuthRequest, res: Response, next: N
 // body: { email, role: 'planner' | 'viewer' }
 export const inviteCollaborator = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email, role } = req.body;
-    if (!email?.trim())                           return next(new ApiError(422, 'Email is required'));
-    if (!['planner', 'viewer'].includes(role))    return next(new ApiError(422, "Role must be 'planner' or 'viewer'"));
-    if (email.toLowerCase() === req.user!.email.toLowerCase())
+    const { role } = req.body;
+    const email = ((req.body.email as string) ?? '').trim().toLowerCase();
+    if (!email)                                return next(new ApiError(422, 'Email is required'));
+    if (!['planner', 'viewer'].includes(role)) return next(new ApiError(422, "Role must be 'planner' or 'viewer'"));
+    if (email === req.user!.email.toLowerCase())
       return next(new ApiError(422, 'You cannot invite yourself'));
 
     const user = await User.findById(req.user!.id);
     if (!user) return next(new ApiError(404, 'User not found'));
 
     // Prevent duplicate pending invites for the same email
-    const already = user.collaborators.find(c => c.email === email.toLowerCase());
+    const already = user.collaborators.find(c => c.email === email);
     if (already && !already.linkedAt)
       return next(new ApiError(409, 'A pending invite for this email already exists'));
 
     const token  = crypto.randomBytes(32).toString('hex');
     const expiry = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 h
 
-    user.collaborators.push({
-      email:        email.trim().toLowerCase(),
-      role,
-      inviteToken:  token,
-      inviteExpiry: expiry,
-    });
+    user.collaborators.push({ email, role, inviteToken: token, inviteExpiry: expiry });
     await user.save();
 
     const appUrl    = process.env.FRONTEND_URL ?? 'http://localhost:3000';
     const inviteUrl = `${appUrl}/auth/accept-invite?token=${token}&type=collab`;
 
-    sendSuccess(res, { inviteUrl, email: email.trim().toLowerCase(), role, expiresAt: expiry.toISOString() }, 'Invite created', 201);
+    sendSuccess(res, { inviteUrl, email, role, expiresAt: expiry.toISOString() }, 'Invite created', 201);
   } catch (err) { next(err); }
 };
 

@@ -12,3 +12,4 @@ export { PartnerSection         } from './PartnerSection';
 export { CollaboratorsSection   } from './CollaboratorsSection';
 export { ShareWeddingSection        } from './ShareWeddingSection';
 export { LeaveCollaborationSection  } from './LeaveCollaborationSection';
+export { GdprSection                } from './GdprSection';

@@ -86,6 +86,11 @@ export const API = {
     byId:   (id: string) => `/collaborators/${id}`,
   },
 
+  me: {
+    export: '/me/export',
+    erase:  '/me',
+  },
+
   analytics: '/analytics',
 
   public: {

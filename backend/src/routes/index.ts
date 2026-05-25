@@ -13,6 +13,7 @@ import dashboardRoutes      from './dashboardRoutes';
 import notificationRoutes  from './notificationRoutes';
 import collaboratorRoutes  from './collaboratorRoutes';
 import analyticsRoutes     from './analyticsRoutes';
+import gdprRoutes          from './gdprRoutes';
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/notifications',   notificationRoutes);
 router.use('/collaborators',   collaboratorRoutes);
 router.use('/public',          publicRoutes);
 router.use('/analytics',       analyticsRoutes);
+router.use('/me',              gdprRoutes);
 
 export default router;

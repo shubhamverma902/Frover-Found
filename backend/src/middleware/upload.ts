@@ -90,6 +90,24 @@ async function getUserDiskBytes(userId: string): Promise<number> {
   return total;
 }
 
+// ── Upload error mapper ───────────────────────────────────────────────────────
+// Maps multer error codes and our own upload errors to generic client-safe
+// messages. Never expose internal limits, field names, or magic-byte details.
+
+export function uploadErrorMessage(err: Error): string {
+  if (err instanceof multer.MulterError) {
+    switch (err.code) {
+      case 'LIMIT_FILE_SIZE':       return 'File exceeds the maximum allowed size';
+      case 'LIMIT_FILE_COUNT':      return 'Too many files in a single upload';
+      case 'LIMIT_UNEXPECTED_FILE': return 'Unexpected file field in request';
+      default:                      return 'File upload failed';
+    }
+  }
+  // fileFilter rejections and magic-byte mismatches fall here — do not forward
+  // the original message as it reveals accepted types and verification details
+  return 'File type not permitted';
+}
+
 // ── CSV upload (memory only — no disk write, no magic-byte check) ─────────────
 
 export const csvUpload = multer({

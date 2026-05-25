@@ -27,7 +27,9 @@ import {
   LeaveCollaborationSection,
   PlanBillingSection,
   DangerZone,
+  GdprSection,
 } from '@/features/settings';
+import { exportMyDataApi } from '@/api/settings.api';
 
 const SettingsPage = () => {
   const dispatch      = useAppDispatch();
@@ -81,6 +83,7 @@ const SettingsPage = () => {
           {!isCollaborator && <CollaboratorsSection />}
           {isCollaborator && <LeaveCollaborationSection />}
           <PlanBillingSection />
+          <GdprSection        onExport={exportMyDataApi} />
           <DangerZone         onSignOut={handleSignOut} onDeleteAccount={handleDeleteAccount} />
         </>
       )}

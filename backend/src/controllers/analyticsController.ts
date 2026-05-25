@@ -42,6 +42,8 @@ function weekIdxStage(dateField: string, windowStart: Date) {
   };
 }
 
+const AGG_TIMEOUT_MS = 8_000;
+
 // ── GET /api/v1/analytics ─────────────────────────────────────────────────────
 
 export const getAnalytics = async (
@@ -70,7 +72,7 @@ export const getAnalytics = async (
         { $match: { userId: oid } },
         { $project: { _categorySpent: { $sum: '$expenses.amount' } } },
         { $group: { _id: null, totalSpent: { $sum: '$_categorySpent' } } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
 
       // Weekly budget burn: unwind expenses, bucket by week index
       BudgetCategory.aggregate<{ _id: number; spent: number }>([
@@ -80,15 +82,15 @@ export const getAnalytics = async (
         weekIdxStage('$expenses.date', windowStart),
         { $match: { _weekIdx: { $gte: 0, $lt: N_WEEKS } } },
         { $group: { _id: '$_weekIdx', spent: { $sum: '$expenses.amount' } } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
 
-      BudgetConfig.findOne({ userId: uid }).lean(),
+      BudgetConfig.findOne({ userId: uid }).maxTimeMS(AGG_TIMEOUT_MS).lean(),
 
       // Guest counts by RSVP status
       Guest.aggregate<{ _id: string; count: number }>([
         { $match: { userId: oid } },
         { $group: { _id: '$rsvp', count: { $sum: 1 } } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
 
       // Weekly RSVP responses: bucket updatedAt of non-pending guests
       Guest.aggregate<{ _id: { weekIdx: number; rsvp: string }; count: number }>([
@@ -96,7 +98,7 @@ export const getAnalytics = async (
         weekIdxStage('$updatedAt', windowStart),
         { $match: { _weekIdx: { $gte: 0, $lt: N_WEEKS } } },
         { $group: { _id: { weekIdx: '$_weekIdx', rsvp: '$rsvp' }, count: { $sum: 1 } } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
 
       // Task breakdown per category — done count computed entirely in MongoDB
       ChecklistCategory.aggregate<{ category: string; done: number; total: number }>([
@@ -110,7 +112,7 @@ export const getAnalytics = async (
         }},
         { $match: { total: { $gt: 0 } } },
         { $sort: { total: -1 } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
 
       // Weekly task velocity: unwind tasks, filter completed, bucket completedAt
       ChecklistCategory.aggregate<{ _id: number; completed: number }>([
@@ -120,7 +122,7 @@ export const getAnalytics = async (
         weekIdxStage('$tasks.completedAt', windowStart),
         { $match: { _weekIdx: { $gte: 0, $lt: N_WEEKS } } },
         { $group: { _id: '$_weekIdx', completed: { $sum: 1 } } },
-      ]),
+      ]).option({ maxTimeMS: AGG_TIMEOUT_MS }),
     ]);
 
     // ── Assemble response ─────────────────────────────────────────────────────

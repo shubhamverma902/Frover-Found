@@ -1,5 +1,7 @@
 import path from 'path';
+import crypto from 'crypto';
 import express from 'express';
+import type { Request } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
@@ -54,8 +56,14 @@ app.use(
   })
 );
 
+// Attach a unique ID to every request so all log lines for one action can be correlated
+app.use((req: Request, _res, next) => {
+  req.id = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+  next();
+});
+
 // Logging & parsing
-app.use(pinoHttp({ logger }));
+app.use(pinoHttp({ logger, genReqId: (req) => (req as Request).id }));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -121,7 +129,7 @@ app.use('/uploads', (req, res, next) => {
 
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   next();
-}, express.static(path.join(__dirname, '../uploads')));
+}, express.static(path.join(__dirname, '../uploads'), { acceptRanges: false }));
 
 // API routes
 app.use('/api/v1', routes);

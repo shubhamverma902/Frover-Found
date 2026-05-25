@@ -40,7 +40,12 @@ mongoose.plugin(schema => {
 const connectDB = async (): Promise<void> => {
   const uri = process.env.MONGO_URI;
   if (!uri) throw new Error('MONGO_URI is not defined');
-  const conn = await mongoose.connect(uri);
+  const conn = await mongoose.connect(uri, {
+    maxPoolSize:              20,   // max concurrent connections; default is 5
+    minPoolSize:               2,   // keep 2 warm so cold requests don't pay connect cost
+    serverSelectionTimeoutMS: 5000, // fail fast if no server reachable in 5 s
+    socketTimeoutMS:         45000, // abort idle sockets after 45 s
+  });
   logger.info({ host: conn.connection.host }, 'MongoDB connected');
 };
 

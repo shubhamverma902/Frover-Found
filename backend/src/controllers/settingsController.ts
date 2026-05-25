@@ -157,9 +157,9 @@ export const getPartner = async (req: AuthRequest, res: Response, next: NextFunc
 // POST /api/v1/settings/partner/invite
 export const invitePartner = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email } = req.body;
-    if (!email?.trim()) return next(new ApiError(422, 'Email is required'));
-    if (email.trim().toLowerCase() === req.user!.email.toLowerCase())
+    const email = ((req.body.email as string) ?? '').trim().toLowerCase();
+    if (!email) return next(new ApiError(422, 'Email is required'));
+    if (email === req.user!.email.toLowerCase())
       return next(new ApiError(422, 'You cannot invite yourself'));
 
     const me = await User.findById(req.user!.id);
@@ -173,17 +173,13 @@ export const invitePartner = async (req: AuthRequest, res: Response, next: NextF
     await User.findByIdAndUpdate(req.user!.id, {
       partnerInviteToken:  token,
       partnerInviteExpiry: expiry,
-      pendingInviteEmail:  email.trim().toLowerCase(),
+      pendingInviteEmail:  email,
     });
 
     const appUrl    = process.env.FRONTEND_URL ?? 'http://localhost:3000';
     const inviteUrl = `${appUrl}/auth/accept-invite?token=${token}`;
 
-    sendSuccess(res, {
-      inviteUrl,
-      email:     email.trim().toLowerCase(),
-      expiresAt: expiry.toISOString(),
-    }, 'Invite created');
+    sendSuccess(res, { inviteUrl, email, expiresAt: expiry.toISOString() }, 'Invite created');
   } catch (err) { next(err); }
 };
 

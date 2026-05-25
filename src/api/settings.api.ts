@@ -49,8 +49,22 @@ export const updateNotificationsApi = async (prefs: Record<string, boolean>): Pr
   await axiosInstance.patch(API.settings.notifications, { prefs });
 };
 
+export const exportMyDataApi = async (): Promise<void> => {
+  const response = await axiosInstance.get(API.me.export, { responseType: 'blob' });
+  const disposition = response.headers['content-disposition'] as string | undefined;
+  const filename = disposition?.match(/filename="(.+?)"/)?.[1] ?? 'frover-data.json';
+  const url = URL.createObjectURL(response.data as Blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 export const deleteAccountApi = async (): Promise<void> => {
-  await axiosInstance.delete(API.settings.account);
+  await axiosInstance.delete(API.me.erase);
 };
 
 export interface LinkedPartnerData {
