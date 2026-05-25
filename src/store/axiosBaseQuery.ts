@@ -43,10 +43,15 @@ export const axiosBaseQuery: BaseQueryFn<
 //   Queries on no status    — retry: idempotent reads, safe to re-issue
 //   Queries on 5xx          — retry: transient server error on a read
 export const axiosBaseQueryWithRetry = retry(axiosBaseQuery, {
-  maxRetries: 3,
-  retryCondition: (error: AxiosBaseQueryError, args, { baseQueryApi }) => {
+  retryCondition: (
+    rawError,
+    args: Args,
+    { attempt, baseQueryApi }: { attempt: number; baseQueryApi: { type: string } },
+  ) => {
+    const error = rawError as AxiosBaseQueryError;
+    if (attempt > 3) return false;
     // Never retry file uploads regardless of error type
-    if ((args as Args).data instanceof FormData) return false;
+    if (args.data instanceof FormData) return false;
     // For mutations, only a pure network failure (no HTTP response at all) is
     // safe to retry — 5xx means the server received the request and may have
     // committed the write, so retrying risks creating a duplicate

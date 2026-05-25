@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import axiosInstance from '@/api/axiosInstance';
+import { getAccessToken } from '@/api/tokenStore';
 import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
@@ -81,9 +81,32 @@ const GuestsPage = () => {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const res = await axiosInstance.get(API.guests.export, { responseType: 'blob' });
-      const url = URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }));
-      const a   = document.createElement('a');
+      const base     = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
+      const token    = getAccessToken();
+      const response = await fetch(`${base}${API.guests.export}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) throw new Error(`Export failed (${response.status})`);
+
+      // FSAL path: pipe response stream directly to disk — never lives in JS heap
+      const fsal = (window as Window & { showSaveFilePicker?: (o: object) => Promise<FileSystemFileHandle> }).showSaveFilePicker;
+      if (fsal && response.body) {
+        let handle: FileSystemFileHandle;
+        try {
+          handle = await fsal({ suggestedName: 'guests.csv', types: [{ description: 'CSV File', accept: { 'text/csv': ['.csv'] } }] });
+        } catch (e) {
+          if ((e as DOMException).name === 'AbortError') return; // user cancelled picker
+          throw e;
+        }
+        const writable = await handle.createWritable();
+        await response.body.pipeTo(writable);
+        return;
+      }
+
+      // Fallback: buffer blob and trigger anchor download (Firefox, Safari, older browsers)
+      const blob = await response.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
       a.href     = url;
       a.download = 'guests.csv';
       a.click();

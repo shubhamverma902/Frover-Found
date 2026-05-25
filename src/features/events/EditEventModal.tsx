@@ -48,9 +48,9 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
 
   const set = (k: keyof typeof form, v: string | number) => {
     setForm(prev => ({ ...prev, [k]: v }));
-    if (k === 'name')  setErr('name',  String(v).trim() ? undefined : 'Required');
-    if (k === 'date')  setErr('date',  v ? undefined : 'Required');
-    if (k === 'venue') setErr('venue', String(v).trim() ? undefined : 'Required');
+    if (k === 'name'  && errors.name  !== undefined) setErr('name',  !String(v).trim() ? 'Required' : undefined);
+    if (k === 'date'  && errors.date  !== undefined) setErr('date',  v ? undefined : 'Required');
+    if (k === 'venue' && errors.venue !== undefined) setErr('venue', !String(v).trim() ? 'Required' : undefined);
   };
 
   const formChanged = JSON.stringify(form) !== JSON.stringify({

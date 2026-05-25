@@ -21,12 +21,12 @@ const getInitials = (name: string) =>
   name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
 
 const daysUntil = (dateStr: string): number => {
-  const diff = new Date(dateStr).getTime() - Date.now();
+  const diff = new Date(dateStr + 'T00:00:00').getTime() - Date.now();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 };
 
 const formatShortDate = (dateStr: string): string =>
-  new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const router   = useRouter();

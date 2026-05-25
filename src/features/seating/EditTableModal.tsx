@@ -44,7 +44,7 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
             <Input
               variant="dark"
               value={name}
-              onChange={e => { setName(e.target.value); if (nameErr) setNameErr(''); }}
+              onChange={e => { const v = e.target.value; setName(v); if (nameErr) setNameErr(v.trim() ? '' : 'Required'); }}
               onBlur={() => { if (!name.trim()) setNameErr('Required'); }}
               error={!!nameErr}
             />

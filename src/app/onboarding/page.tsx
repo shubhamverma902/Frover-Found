@@ -11,7 +11,7 @@ import {
   selectOnboardingError,
   clearOnboardingError,
 } from '@/store/slices/onboardingSlice';
-import { selectIsAuthenticated, selectUser } from '@/store/slices/authSlice';
+import { selectUser } from '@/store/slices/authSlice';
 import type { WeddingProfile } from '@/types/onboarding';
 import {
   SuccessScreen,
@@ -39,8 +39,7 @@ const OnboardingPage = () => {
   const router   = useRouter();
   const dispatch = useAppDispatch();
 
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const user            = useAppSelector(selectUser);
+  const user = useAppSelector(selectUser);
   const status          = useAppSelector(selectOnboardingStatus);
   const apiError        = useAppSelector(selectOnboardingError);
 
@@ -49,9 +48,8 @@ const OnboardingPage = () => {
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
   useEffect(() => {
-    if (!isAuthenticated) { router.replace(PATH.auth.login); return; }
     if (user?.onboardingCompleted) router.replace(PATH.dashboard.base);
-  }, [isAuthenticated, user, router]);
+  }, [user, router]);
 
   useEffect(() => {
     if (status === 'succeeded') setTimeout(() => router.push(PATH.dashboard.base), 1600);
@@ -134,7 +132,7 @@ const OnboardingPage = () => {
       <OnboardingHero />
 
       <div className="w-full max-w-2xl">
-        {apiError && <ApiErrorBanner error={apiError} onDismiss={() => dispatch(clearOnboardingError())} />}
+        {apiError && <ApiErrorBanner error={apiError.message} onDismiss={() => dispatch(clearOnboardingError())} />}
 
         <Form onSubmit={handleSubmit}>
           <CoupleSection

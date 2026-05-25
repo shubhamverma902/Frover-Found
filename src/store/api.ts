@@ -61,6 +61,8 @@ export interface SeatingData {
   guests: Guest[];
 }
 
+type ApiQueryEntry = { endpointName: string; originalArgs: unknown; status: string };
+
 export const api = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQueryWithRetry,
@@ -99,11 +101,33 @@ export const api = createApi({
 
     patchGuestRsvp: build.mutation<void, { guestId: string; rsvp: Guest['rsvp'] }>({
       query: ({ guestId, rsvp }) => ({ url: API.guests.rsvp(guestId), method: 'PATCH', data: { rsvp } }),
+      onQueryStarted: async ({ guestId, rsvp }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getGuests' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getGuests', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const g = draft.guests.find(g => g._id === guestId);
+            if (g) g.rsvp = rsvp;
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteGuest: build.mutation<void, string>({
       query: (guestId) => ({ url: API.guests.byId(guestId), method: 'DELETE' }),
+      onQueryStarted: async (guestId, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getGuests' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getGuests', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const idx = draft.guests.findIndex(g => g._id === guestId);
+            if (idx !== -1) draft.guests.splice(idx, 1);
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
@@ -124,16 +148,49 @@ export const api = createApi({
 
     updateVendor: build.mutation<void, { vendorId: string; payload: VendorPayload }>({
       query: ({ vendorId, payload }) => ({ url: API.vendors.byId(vendorId), method: 'PUT', data: payload }),
+      onQueryStarted: async ({ vendorId, payload }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getVendors' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getVendors', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const v = draft.vendors.find(v => v._id === vendorId);
+            if (v) Object.assign(v, payload);
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     patchVendorStatus: build.mutation<void, { vendorId: string; status: Vendor['status'] }>({
       query: ({ vendorId, status }) => ({ url: API.vendors.status(vendorId), method: 'PATCH', data: { status } }),
+      onQueryStarted: async ({ vendorId, status }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getVendors' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getVendors', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const v = draft.vendors.find(v => v._id === vendorId);
+            if (v) v.status = status;
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteVendor: build.mutation<void, string>({
       query: (vendorId) => ({ url: API.vendors.byId(vendorId), method: 'DELETE' }),
+      onQueryStarted: async (vendorId, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getVendors' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getVendors', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const idx = draft.vendors.findIndex(v => v._id === vendorId);
+            if (idx !== -1) draft.vendors.splice(idx, 1);
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Vendor', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
@@ -170,16 +227,49 @@ export const api = createApi({
 
     updateEvent: build.mutation<void, { id: string; payload: Omit<WeddingEvent, '_id'> }>({
       query: ({ id, payload }) => ({ url: API.events.byId(id), method: 'PUT', data: payload }),
+      onQueryStarted: async ({ id, payload }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getEvents' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getEvents', q.originalArgs as { page: number; limit: number; query?: string; status?: string }, draft => {
+            const ev = draft.events.find(e => e._id === id);
+            if (ev) Object.assign(ev, payload);
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     patchEventStatus: build.mutation<void, { id: string; status: WeddingEvent['status'] }>({
       query: ({ id, status }) => ({ url: API.events.status(id), method: 'PATCH', data: { status } }),
+      onQueryStarted: async ({ id, status }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getEvents' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getEvents', q.originalArgs as { page: number; limit: number; query?: string; status?: string }, draft => {
+            const ev = draft.events.find(e => e._id === id);
+            if (ev) ev.status = status;
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
     deleteEvent: build.mutation<void, string>({
       query: (id) => ({ url: API.events.byId(id), method: 'DELETE' }),
+      onQueryStarted: async (id, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getEvents' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getEvents', q.originalArgs as { page: number; limit: number; query?: string; status?: string }, draft => {
+            const idx = draft.events.findIndex(e => e._id === id);
+            if (idx !== -1) draft.events.splice(idx, 1);
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Event', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
@@ -411,12 +501,12 @@ export const api = createApi({
 
     acceptInvite: build.mutation<{ token: string }, { token: string }>({
       query: (body) => ({ url: API.settings.partnerAccept, method: "POST", data: body }),
-      invalidatesTags: ["Partner", "Settings", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
+      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
     }),
 
     removePartner: build.mutation<{ token: string }, void>({
       query: () => ({ url: API.settings.partner, method: "DELETE" }),
-      invalidatesTags: ["Partner", "Settings", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
+      invalidatesTags: ["Partner", "Guest", "Vendor", "Event", "Seating", "Budget", "Checklist", "Dashboard", "Analytics"],
     }),
 
     // ── Collaborators ─────────────────────────────────────────────────────────

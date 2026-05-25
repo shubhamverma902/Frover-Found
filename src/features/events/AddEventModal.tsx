@@ -26,9 +26,9 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
 
   const set = (k: keyof FormData, v: string | number) => {
     setForm(prev => ({ ...prev, [k]: v }));
-    if (k === 'name')  setErr('name',  String(v).trim() ? undefined : 'Required');
-    if (k === 'date')  setErr('date',  v ? undefined : 'Required');
-    if (k === 'venue') setErr('venue', String(v).trim() ? undefined : 'Required');
+    if (k === 'name'  && errors.name  !== undefined) setErr('name',  !String(v).trim() ? 'Required' : undefined);
+    if (k === 'date'  && errors.date  !== undefined) setErr('date',  v ? undefined : 'Required');
+    if (k === 'venue' && errors.venue !== undefined) setErr('venue', !String(v).trim() ? 'Required' : undefined);
   };
 
   const handleSubmit = async (e: React.SyntheticEvent) => {

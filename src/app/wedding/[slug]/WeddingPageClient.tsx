@@ -34,7 +34,7 @@ function anim(name: string, dur: string, delay = '0s', extra = ''): CSSPropertie
 interface TimeLeft { days: number; hours: number; minutes: number; seconds: number }
 
 function calcTimeLeft(target: string): TimeLeft {
-  const diff = new Date(target).getTime() - Date.now();
+  const diff = new Date(target + 'T00:00:00').getTime() - Date.now();
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   return {
     days:    Math.floor(diff / 86_400_000),

@@ -11,8 +11,9 @@ export const markAllRead = createAppAsyncThunk(
   'notifications/markAllRead',
   async (_, { dispatch, rejectWithValue }) => {
     const patch = dispatch(api.util.updateQueryData('getNotifications', undefined, draft => {
-      draft.notifications.forEach(n => { n.read = true; });
-      draft.unreadCount = 0;
+      let changed = 0;
+      draft.notifications.forEach(n => { if (!n.read) { n.read = true; changed++; } });
+      draft.unreadCount = Math.max(0, draft.unreadCount - changed);
     }));
     try {
       await markAllReadApi();

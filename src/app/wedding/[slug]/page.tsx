@@ -38,7 +38,7 @@ export default async function WeddingPage({ params }: Props) {
   if (!data) notFound();
 
   const formattedDate = data.weddingDate
-    ? new Date(data.weddingDate).toLocaleDateString('en-IN', {
+    ? new Date(data.weddingDate + 'T00:00:00').toLocaleDateString('en-IN', {
         weekday: 'long',
         year:    'numeric',
         month:   'long',

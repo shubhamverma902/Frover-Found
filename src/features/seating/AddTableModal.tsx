@@ -42,7 +42,7 @@ export const AddTableModal = ({ onSave, onClose, saving }: Props) => {
               variant="dark"
               placeholder="e.g. Head Table, Table 1"
               value={name}
-              onChange={e => { setName(e.target.value); if (nameErr) setNameErr(''); }}
+              onChange={e => { const v = e.target.value; setName(v); if (nameErr) setNameErr(v.trim() ? '' : 'Required'); }}
               onBlur={() => { if (!name.trim()) setNameErr('Required'); }}
               error={!!nameErr}
             />
