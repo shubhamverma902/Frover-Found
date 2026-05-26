@@ -106,7 +106,7 @@ const SeatingPage = () => {
           <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-1">Planning</p>
           <h1 className="text-2xl font-black text-dark dark:text-white">Seating Planner</h1>
           {!isLoading && (
-            <p className="text-xs text-dark/50 dark:text-silver/40 mt-1">
+            <p className="text-xs text-dark/50 dark:text-silver/65 mt-1">
               {assignedCount} of {allGuests.length} guests seated
               {tables.length > 0 && ` · ${totalSeats} seats across ${tables.length} table${tables.length !== 1 ? 's' : ''}`}
             </p>

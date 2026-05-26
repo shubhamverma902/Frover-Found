@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, CSSProperties } from 'react';
 
@@ -80,7 +80,7 @@ function Countdown({ targetDate }: { targetDate: string }) {
           className="flex flex-col items-center gap-2"
           style={anim('weddingFadeUp', '0.6s', `${0.9 + i * 0.08}s`)}
         >
-          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] flex items-center justify-center border border-gold/20 bg-[rgba(228,188,98,0.04)] backdrop-blur-sm">
+          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] flex items-center justify-center border border-gold/20 bg-[rgba(205,180,219,0.04)] backdrop-blur-sm">
             <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
               {pad(v)}
             </span>
@@ -115,7 +115,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 90% 60% at 50% 50%, rgba(228,188,98,0.07) 0%, transparent 65%)',
+            'radial-gradient(ellipse 90% 60% at 50% 50%, rgba(205,180,219,0.07) 0%, transparent 65%)',
         }}
         aria-hidden
       />
@@ -212,7 +212,7 @@ export function WeddingPageClient({ data, formattedDate }: Props) {
             {details.map(({ label, value }) => (
               <div
                 key={label}
-                className="flex flex-col items-center gap-2 px-3 py-5 border border-gold/12 bg-[rgba(228,188,98,0.03)] backdrop-blur-sm"
+                className="flex flex-col items-center gap-2 px-3 py-5 border border-gold/12 bg-[rgba(205,180,219,0.03)] backdrop-blur-sm"
               >
                 <span className="text-[9px] uppercase tracking-[0.3em] text-gold/50">
                   {label}

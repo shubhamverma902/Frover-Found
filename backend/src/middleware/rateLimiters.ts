@@ -2,6 +2,8 @@ import rateLimit from 'express-rate-limit';
 import MongoStore from 'rate-limit-mongo';
 import type { Request } from 'express';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 // One shared MongoDB collection for all limiters.
 // Each document carries its own expirationDate, so different windowMs values
 // coexist safely — MongoDB TTL deletes each document when expirationDate passes.
@@ -29,17 +31,21 @@ export const registerLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
   store:           makeStore(60 * 60 * 1000),
+  skip:            () => isDev,
   handler:         json429('Too many accounts created from this IP. Please wait 1 hour and try again.'),
 });
 
-// 5 attempts per IP per 15 min — brute-force login protection
+// 5 attempts per IP per 15 min — brute-force login protection.
+// skipSuccessfulRequests: correct logins don't burn the quota.
 export const loginLimiter = rateLimit({
-  windowMs:        15 * 60 * 1000,
-  max:             5,
-  standardHeaders: true,
-  legacyHeaders:   false,
-  store:           makeStore(15 * 60 * 1000),
-  handler:         json429('Too many login attempts. Please wait 15 minutes and try again.'),
+  windowMs:               15 * 60 * 1000,
+  max:                    5,
+  standardHeaders:        true,
+  legacyHeaders:          false,
+  skipSuccessfulRequests: true,
+  store:                  makeStore(15 * 60 * 1000),
+  skip:                   () => isDev,
+  handler:                json429('Too many login attempts. Please wait 15 minutes and try again.'),
 });
 
 // 5 attempts per IP per 15 min — prevents token brute-forcing on the reset form
@@ -49,6 +55,7 @@ export const resetPasswordLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
   store:           makeStore(15 * 60 * 1000),
+  skip:            () => isDev,
   handler:         json429('Too many password reset attempts. Please wait 15 minutes and try again.'),
 });
 
@@ -59,6 +66,7 @@ export const forgotPasswordLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
   store:           makeStore(60 * 60 * 1000),
+  skip:            () => isDev,
   handler:         json429('Too many password reset requests. Please wait 1 hour and try again.'),
 });
 

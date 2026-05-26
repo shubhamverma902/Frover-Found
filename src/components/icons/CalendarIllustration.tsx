@@ -1,6 +1,6 @@
-export const CalendarIllustration = () => (
+﻿export const CalendarIllustration = () => (
   <svg width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true">
-    <rect x="10" y="16" width="68" height="60" rx="2" fill="#1c2226" stroke="#E4BC62" strokeWidth="1.5" strokeOpacity="0.3"/>
+    <rect x="10" y="16" width="68" height="60" rx="2" fill="#0F0C24" stroke="#E4BC62" strokeWidth="1.5" strokeOpacity="0.3"/>
     <rect x="10" y="16" width="68" height="15" fill="#E4BC62" fillOpacity="0.09"/>
     <rect x="26" y="10" width="4" height="11" rx="2" fill="#E4BC62" fillOpacity="0.55"/>
     <rect x="58" y="10" width="4" height="11" rx="2" fill="#E4BC62" fillOpacity="0.55"/>

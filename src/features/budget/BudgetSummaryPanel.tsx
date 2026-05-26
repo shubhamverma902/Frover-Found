@@ -1,4 +1,4 @@
-import { PencilIcon } from '@/components/icons';
+﻿import { PencilIcon } from '@/components/icons';
 import { fmt } from '@/utils/format';
 
 interface BudgetSummaryPanelProps {
@@ -19,22 +19,22 @@ export const BudgetSummaryPanel = ({
   editingTotal, totalInput,
   onStartEdit, onInputChange, onCommit, onCancelEdit,
 }: BudgetSummaryPanelProps) => (
-  <div className="bg-dark p-[3px] glow-gold relative">
-    <div className="border border-gold/12 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gold/10">
+  <div className="rounded-2xl overflow-hidden glow-gold relative">
+    <div className="bg-card dark:bg-[#2A1F52] rounded-2xl border border-blush/15 dark:border-gold/12 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-blush/10 dark:divide-gold/10 overflow-hidden">
 
       {/* Total Budget — editable */}
       <div className="relative px-6 py-7 overflow-hidden group">
-        <div className="absolute top-3 right-3 text-[10px] text-silver/10">◆</div>
-        <p className="text-sm text-silver/30 mb-3">◆</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver/35">Total Budget</p>
+        <div className="absolute top-3 right-3 text-[10px] text-silver/20 dark:text-silver/10">◆</div>
+        <p className="text-sm text-silver/50 dark:text-silver/30 mb-3">◆</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver dark:text-silver/65">Total Budget</p>
         {editingTotal ? (
           <div className="flex items-center gap-2">
-            <span className="text-white text-sm">₹</span>
+            <span className="text-dark dark:text-white text-sm">₹</span>
             <input
               type="number"
               min={1}
               autoFocus
-              className="flex-1 bg-transparent border-b border-gold/60 text-white text-2xl font-black focus:outline-none pb-0.5 w-0"
+              className="flex-1 bg-transparent border-b border-gold/60 text-dark dark:text-white text-2xl font-black focus:outline-none pb-0.5 w-0"
               value={totalInput}
               onChange={e => onInputChange(e.target.value)}
               onBlur={onCommit}
@@ -47,11 +47,11 @@ export const BudgetSummaryPanel = ({
             className="flex items-center gap-2 group/btn"
             title="Click to edit total budget"
           >
-            <p className="text-4xl font-black num-pop leading-none text-white">{fmt(total)}</p>
+            <p className="text-4xl font-black num-pop leading-none text-dark dark:text-white">{fmt(total)}</p>
             <PencilIcon size={13} className="opacity-0 group-hover/btn:opacity-100 transition-opacity text-gold/50" />
           </button>
         )}
-        <p className="text-xs mt-2 text-silver/25">
+        <p className="text-xs mt-2 text-silver/50 dark:text-silver/55">
           {editingTotal ? 'Press Enter to save' : 'Click to edit'}
         </p>
       </div>
@@ -69,11 +69,11 @@ export const BudgetSummaryPanel = ({
 
       {/* Remaining */}
       <div className="relative px-6 py-7 overflow-hidden">
-        <div className="absolute top-3 right-3 text-[10px] text-silver/10">◆</div>
-        <p className="text-sm text-silver/30 mb-3">◎</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver/35">Remaining</p>
-        <p className="text-4xl font-black num-pop leading-none text-white">{fmt(remaining)}</p>
-        <p className="text-xs mt-2 text-silver/25">{100 - totalPct}% free</p>
+        <div className="absolute top-3 right-3 text-[10px] text-silver/20 dark:text-silver/10">◆</div>
+        <p className="text-sm text-silver/50 dark:text-silver/30 mb-3">◎</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2 text-silver dark:text-silver/65">Remaining</p>
+        <p className="text-4xl font-black num-pop leading-none text-dark dark:text-white">{fmt(remaining)}</p>
+        <p className="text-xs mt-2 text-silver/50 dark:text-silver/55">{100 - totalPct}% free</p>
       </div>
 
     </div>

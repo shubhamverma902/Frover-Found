@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { ModalShell } from '@/components/ui';
@@ -122,8 +122,8 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
 
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[radial-gradient(circle,rgba(228,188,98,0.12)_0%,transparent_70%)]" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[radial-gradient(circle,rgba(223,179,174,0.08)_0%,transparent_70%)]" />
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-[radial-gradient(circle,rgba(205,180,219,0.12)_0%,transparent_70%)]" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[radial-gradient(circle,rgba(216,167,177,0.08)_0%,transparent_70%)]" />
         <span className="absolute top-4 right-16 text-gold/6 text-[7rem] font-black leading-none select-none">◆</span>
       </div>
 

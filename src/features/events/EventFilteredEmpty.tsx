@@ -1,4 +1,4 @@
-interface EventFilteredEmptyProps {
+﻿interface EventFilteredEmptyProps {
   filter: string;
   onReset: () => void;
 }
@@ -9,7 +9,7 @@ export const EventFilteredEmpty = ({ filter, onReset }: EventFilteredEmptyProps)
       className="absolute inset-0 bg-cover bg-center"
       style={{ backgroundImage: "url('/images/weddings/grand-floral.jpg')" }}
     />
-    <div className="absolute inset-0 bg-gradient-to-b from-[#1c2226]/85 via-[#1c2226]/90 to-dark" />
+    <div className="absolute inset-0 bg-gradient-to-b from-[#0F0C24]/85 via-[#0F0C24]/90 to-dark" />
 
     <span className="pointer-events-none absolute top-6 left-8 text-gold/10 text-5xl animate-float select-none">◆</span>
     <span className="pointer-events-none absolute bottom-8 right-10 text-blush/10 text-3xl animate-float [animation-delay:1s] select-none">◆</span>

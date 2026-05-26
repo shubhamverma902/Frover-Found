@@ -31,15 +31,15 @@ export const CategorySection = ({ cat, filter, togglingIds, onToggleTask, onEdit
   const catPct  = cat.tasks.length > 0 ? Math.round((catDone / cat.tasks.length) * 100) : 0;
 
   return (
-    <div className="bg-card border border-silver dark:border-[#2a2f33] overflow-hidden lift shadow-crystal">
+    <div className="bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 overflow-hidden lift">
       {/* Category header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-silver dark:border-[#2a2f33] bg-gradient-to-r from-silver/15 dark:from-silver/5 via-silver/5 dark:via-transparent to-transparent">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-silver/30 dark:border-white/5 bg-gradient-to-r from-silver/15 dark:from-silver/5 via-silver/5 dark:via-transparent to-transparent">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-dark border border-gold/15 flex items-center justify-center text-lg shrink-0">
+          <div className="w-9 h-9 bg-blush/15 dark:bg-dark border border-blush/20 dark:border-gold/15 rounded-xl flex items-center justify-center text-lg shrink-0">
             {cat.icon}
           </div>
           <div>
-            <p className="text-sm font-bold text-dark dark:text-background">{cat.category}</p>
+            <p className="text-sm font-bold text-dark dark:text-white">{cat.category}</p>
             <p className="text-[10px] text-zinc-400 dark:text-silver/50">{catDone} of {cat.tasks.length} done</p>
           </div>
         </div>
@@ -47,7 +47,7 @@ export const CategorySection = ({ cat, filter, togglingIds, onToggleTask, onEdit
           <ProgressRing
             pct={catPct}
             viewSize={32} radius={12} strokeWidth={3}
-            trackColor="rgba(221,222,217,0.4)"
+            trackColor="rgba(159,134,160,0.4)"
             color="#E4BC62"
             duration="0.8s"
           />

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }: Props) => {
   }, [hydrated, isAuthenticated, router]);
 
   if (!hydrated) return (
-    <div className="min-h-screen bg-background dark:bg-[#1A1F23] flex items-center justify-center">
+    <div className="min-h-screen bg-background dark:bg-[#1E1840] flex items-center justify-center">
       <div className="w-7 h-7 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
     </div>
   );

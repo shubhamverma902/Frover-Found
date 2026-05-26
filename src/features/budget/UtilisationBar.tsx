@@ -1,4 +1,4 @@
-import { ProgressRing } from '@/components/ui';
+﻿import { ProgressRing } from '@/components/ui';
 import { fmt } from '@/utils/format';
 
 interface UtilisationBarProps {
@@ -9,13 +9,13 @@ interface UtilisationBarProps {
 }
 
 export const UtilisationBar = ({ totalPct, spent, total, remaining }: UtilisationBarProps) => (
-  <div className="bg-card border border-silver dark:border-[#2a2f33] shadow-crystal overflow-hidden">
+  <div className="bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 overflow-hidden">
     <div className="flex items-center gap-6 px-6 py-5">
       <div className="relative w-16 h-16 shrink-0">
         <ProgressRing
           pct={totalPct}
           viewSize={56} radius={22} strokeWidth={5}
-          trackColor="rgba(221,222,217,0.4)"
+          trackColor="rgba(159,134,160,0.4)"
           gradientId="budgetGrad"
           gradientStops={[
             { offset: '0%',   color: '#23292E' },
@@ -36,9 +36,9 @@ export const UtilisationBar = ({ totalPct, spent, total, remaining }: Utilisatio
             {fmt(spent)} <span className="text-zinc-400 dark:text-silver/50 font-normal">of</span> {fmt(total)}
           </p>
         </div>
-        <div className="relative h-3 bg-silver/30 dark:bg-silver/10 overflow-hidden">
+        <div className="relative h-3 bg-silver/30 dark:bg-silver/10 rounded-full overflow-hidden">
           <div className="absolute inset-0"
-            style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(221,222,217,0.5) 11px, rgba(221,222,217,0.5) 12px)' }}
+            style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(159,134,160,0.5) 11px, rgba(159,134,160,0.5) 12px)' }}
           />
           <div
             className="absolute left-0 top-0 h-full bg-gradient-to-r from-dark via-gold to-blush bar-animate"

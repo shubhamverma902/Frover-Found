@@ -31,11 +31,11 @@ export function Header() {
   }, []);
 
   const linkClass = scrolled
-    ? 'text-zinc-500 hover:text-dark'
+    ? 'text-zinc-500 dark:text-silver/60 hover:text-dark dark:hover:text-white'
     : 'text-white/80 hover:text-white';
 
   const barClass = scrolled
-    ? 'bg-white/95 backdrop-blur-md border-b border-silver shadow-sm shadow-dark/5'
+    ? 'bg-white/95 dark:bg-[#1E1840]/95 backdrop-blur-md border-b border-silver dark:border-silver/20 shadow-sm shadow-dark/5'
     : 'bg-transparent';
 
   return (
@@ -146,14 +146,14 @@ export function Header() {
         <div className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className={`border-t px-6 py-5 flex flex-col gap-4 text-sm font-medium ${
             scrolled
-              ? 'border-silver bg-white'
+              ? 'border-silver dark:border-silver/20 bg-white dark:bg-[#1E1840]'
               : 'border-white/15 bg-dark/95 backdrop-blur-md'
           }`}>
             {NAV_LINKS.map(({ href, label }) => (
               <a
                 key={href}
                 href={href}
-                className={scrolled ? 'text-zinc-500 hover:text-dark' : 'text-white/75 hover:text-white'}
+                className={scrolled ? 'text-zinc-500 dark:text-silver/60 hover:text-dark dark:hover:text-white' : 'text-white/75 hover:text-white'}
                 onClick={() => setMenuOpen(false)}
               >
                 {label}
@@ -176,7 +176,7 @@ export function Header() {
                       href={PATH.auth.login}
                       className={`text-center py-2.5 border font-medium transition-colors ${
                         scrolled
-                          ? 'border-silver text-dark hover:border-blush hover:bg-silver/30'
+                          ? 'border-silver dark:border-silver/40 text-dark dark:text-white hover:border-blush dark:hover:border-blush/60 hover:bg-silver/30 dark:hover:bg-white/5'
                           : 'border-white/25 text-white hover:border-white/50 hover:bg-white/10'
                       }`}
                       onClick={() => setMenuOpen(false)}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -72,7 +72,7 @@ const Modal = ({ onClose, children, maxWidth = 'max-w-lg', className = '', 'aria
           aria-modal="true"
           aria-label={ariaLabel}
           tabIndex={-1}
-          className={`w-full ${maxWidth} bg-dark border border-gold/25 shadow-2xl shadow-black/60 outline-none ${className}`}
+          className={`w-full ${maxWidth} bg-card dark:bg-[#2A1F52] rounded-2xl border border-blush/20 dark:border-gold/25 shadow-2xl shadow-black/30 dark:shadow-black/60 outline-none overflow-hidden ${className}`}
         >
           {children}
         </div>

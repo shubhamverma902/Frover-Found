@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { SettingsSection } from './SettingsSection';
@@ -56,7 +56,7 @@ export const ShareWeddingSection = () => {
         ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex-1 min-w-0 flex items-center gap-2 bg-zinc-100 dark:bg-[#1a1f23] border border-zinc-200 dark:border-[#2a2f33] px-3 py-2">
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-zinc-100 dark:bg-[#1E1840] border border-zinc-200 dark:border-[#3D3268] px-3 py-2">
                 <span className="text-sm text-zinc-600 dark:text-silver/70 truncate flex-1">{url}</span>
               </div>
               <button
@@ -76,7 +76,7 @@ export const ShareWeddingSection = () => {
                 Preview
               </a>
             </div>
-            <p className="text-xs text-zinc-400 dark:text-silver/40">
+            <p className="text-xs text-zinc-400 dark:text-silver/65">
               Share this link with your guests — it shows your wedding details publicly.
             </p>
           </div>

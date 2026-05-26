@@ -34,12 +34,12 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payl
   if (!active || !payload?.length) return null;
   const { name, value, color } = payload[0].payload;
   return (
-    <div className="bg-[#1c2226] border border-gold/20 px-3 py-2 shadow-xl">
+    <div className="bg-white dark:bg-[#0F0C24] rounded-xl border border-silver/30 dark:border-gold/20 px-3 py-2 shadow-xl">
       <div className="flex items-center gap-2 mb-1">
         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <span className="text-[11px] font-bold text-silver/80">{name}</span>
+        <span className="text-[11px] font-bold text-silver dark:text-silver/80">{name}</span>
       </div>
-      <p className="text-sm font-black text-white">₹{fmt(value)}</p>
+      <p className="text-sm font-black text-dark dark:text-white">₹{fmt(value)}</p>
     </div>
   );
 };
@@ -58,18 +58,18 @@ export const SpendingDonut = ({ categories, spent, total }: Props) => {
   const isEmpty = data.length === 0;
 
   return (
-    <div className="bg-dark border border-gold/12 p-6">
+    <div className="bg-card dark:bg-[#2A1F52] rounded-2xl border border-blush/15 dark:border-gold/12 p-6">
 
       {/* Section header */}
       <div className="flex items-center gap-2 mb-6">
-        <span className="text-gold/50 text-[9px]">◈</span>
-        <p className="text-[10px] font-bold text-silver/50 uppercase tracking-[0.35em]">Spend by Category</p>
+        <span className="text-blush/60 dark:text-gold/50 text-[9px]">◈</span>
+        <p className="text-[10px] font-bold text-silver dark:text-silver/50 uppercase tracking-[0.35em]">Spend by Category</p>
       </div>
 
       {isEmpty ? (
         <div className="flex flex-col items-center justify-center py-10 gap-2">
-          <span className="text-4xl text-silver/10">◎</span>
-          <p className="text-xs text-silver/30">No expenses recorded yet</p>
+          <span className="text-4xl text-silver/30 dark:text-silver/10">◎</span>
+          <p className="text-xs text-silver dark:text-silver/65">No expenses recorded yet</p>
         </div>
       ) : (
         <div className="flex flex-col lg:flex-row items-center gap-8">
@@ -98,8 +98,8 @@ export const SpendingDonut = ({ categories, spent, total }: Props) => {
 
             {/* Centre label */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-[9px] font-bold text-silver/35 uppercase tracking-[0.3em]">Spent</p>
-              <p className="text-xl font-black text-white leading-tight">₹{fmt(spent)}</p>
+              <p className="text-[9px] font-bold text-silver dark:text-silver/60 uppercase tracking-[0.3em]">Spent</p>
+              <p className="text-xl font-black text-dark dark:text-white leading-tight">₹{fmt(spent)}</p>
             </div>
           </div>
 
@@ -114,18 +114,18 @@ export const SpendingDonut = ({ categories, spent, total }: Props) => {
                 <span className="text-base shrink-0">{entry.icon}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-[11px] font-semibold text-silver/70 truncate">{entry.name}</p>
-                    <p className="text-[11px] font-black text-white shrink-0">₹{fmt(entry.value)}</p>
+                    <p className="text-[11px] font-semibold text-silver dark:text-silver/70 truncate">{entry.name}</p>
+                    <p className="text-[11px] font-black text-dark dark:text-white shrink-0">₹{fmt(entry.value)}</p>
                   </div>
                   {/* Mini bar */}
-                  <div className="mt-0.5 h-[3px] bg-silver/8 rounded-full overflow-hidden">
+                  <div className="mt-0.5 h-[3px] bg-silver/15 dark:bg-silver/8 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${entry.pct}%`, backgroundColor: entry.color, opacity: 0.7 }}
                     />
                   </div>
                 </div>
-                <span className="text-[10px] text-silver/30 shrink-0 w-7 text-right">{entry.pct}%</span>
+                <span className="text-[10px] text-silver/60 dark:text-silver/60 shrink-0 w-7 text-right">{entry.pct}%</span>
               </div>
             ))}
           </div>

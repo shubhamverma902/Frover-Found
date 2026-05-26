@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 interface GradientStop {
   offset: string;
@@ -50,7 +50,7 @@ export function ProgressRing({
   viewSize    = 64,
   radius      = 26,
   strokeWidth = 5,
-  trackColor  = 'rgba(221,222,217,0.08)',
+  trackColor  = 'rgba(159,134,160,0.08)',
   color       = '#E4BC62',
   gradientStops,
   gradientId,

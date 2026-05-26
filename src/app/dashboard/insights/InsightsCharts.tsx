@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
   ComposedChart, BarChart, Bar, Line,
@@ -17,8 +17,8 @@ const RED   = '#f87171';
 const BLUSH = '#DFB3AE';
 
 const TOOLTIP_STYLE = {
-  background:   '#1a1f23',
-  border:       '1px solid rgba(228,188,98,0.2)',
+  background:   '#1E1840',
+  border:       '1px solid rgba(205,180,219,0.2)',
   borderRadius: 0,
   fontSize:     12,
   color:        '#DDDED9',
@@ -40,7 +40,7 @@ export function BudgetBurnChart({ data }: { data: BudgetBurnPoint[] }) {
             <stop offset="95%" stopColor={GOLD} stopOpacity={0.02} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(221,222,217,0.06)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(159,134,160,0.06)" vertical={false} />
         <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={fmtINR} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={52} />
         <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => fmtINR(Number(v))} />
@@ -57,7 +57,7 @@ export function RsvpTrendChart({ data }: { data: RsvpTrendPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(221,222,217,0.06)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(159,134,160,0.06)" vertical={false} />
         <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -87,7 +87,7 @@ export function TaskVelocityChart({ data }: { data: TaskVelocityPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(221,222,217,0.06)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(159,134,160,0.06)" vertical={false} />
         <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={28} />
         <Tooltip contentStyle={TOOLTIP_STYLE} />

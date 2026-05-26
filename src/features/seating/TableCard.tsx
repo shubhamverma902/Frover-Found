@@ -29,15 +29,15 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
     <div
       ref={setNodeRef}
       className={[
-        'flex flex-col bg-dark border transition-colors min-h-[180px]',
-        isOver ? 'border-gold/60 bg-gold/5' : 'border-silver/10 hover:border-silver/20',
+        'flex flex-col bg-card dark:bg-dark rounded-2xl border transition-colors min-h-[180px]',
+        isOver ? 'border-gold/60 bg-gold/5' : 'border-silver/20 dark:border-silver/10 hover:border-silver/40 dark:hover:border-silver/20',
       ].join(' ')}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-silver/8">
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-silver/15 dark:border-silver/8">
         <ShapeIcon shape={table.shape} />
-        <p className="text-[11px] font-bold text-silver/80 flex-1 truncate">{table.name}</p>
-        <span className={`text-[10px] font-black px-1.5 py-0.5 ${over ? 'text-red-400 bg-red-900/20' : 'text-gold/60 bg-gold/8'}`}>
+        <p className="text-[11px] font-bold text-dark dark:text-silver/80 flex-1 truncate">{table.name}</p>
+        <span className={`text-[10px] font-black rounded-md px-1.5 py-0.5 ${over ? 'text-red-400 bg-red-900/20' : 'text-gold/60 bg-gold/8'}`}>
           {guests.length}/{table.capacity}
         </span>
         <button
@@ -51,9 +51,9 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
       </div>
 
       {/* Capacity bar */}
-      <div className="h-[2px] bg-silver/8">
+      <div className="h-[2px] bg-silver/8 rounded-full">
         <div
-          className={`h-full transition-all duration-500 ${over ? 'bg-red-400' : 'bg-gold/50'}`}
+          className={`h-full rounded-full transition-all duration-500 ${over ? 'bg-red-400' : 'bg-gold/50'}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
@@ -61,7 +61,7 @@ export const TableCard = ({ table, guests, onEdit, onUnassign }: Props) => {
       {/* Guest chips */}
       <div className="flex-1 p-3 flex flex-wrap gap-1.5 content-start">
         {guests.length === 0 && !isOver && (
-          <p className="text-[10px] text-silver/20 w-full text-center mt-4">Drop guests here</p>
+          <p className="text-[10px] text-silver/60 dark:text-silver/55 w-full text-center mt-4">Drop guests here</p>
         )}
         {guests.map(g => (
           <div

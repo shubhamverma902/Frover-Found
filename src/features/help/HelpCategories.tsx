@@ -1,4 +1,4 @@
-import { HELP_CATEGORIES } from '@/constants/help';
+﻿import { HELP_CATEGORIES } from '@/constants/help';
 
 interface HelpCategoriesProps {
   activeCategory: string;
@@ -19,8 +19,8 @@ export const HelpCategories = ({ activeCategory, onChange }: HelpCategoriesProps
           onClick={() => onChange(cat.title)}
           className={`group text-left p-4 border lift-deep transition-all duration-200 ${
             activeCategory === cat.title
-              ? 'bg-dark border-gold/30'
-              : 'bg-card border-silver dark:border-[#2a2f33] hover:border-blush'
+              ? 'rounded-2xl bg-blush/12 dark:bg-[#1E1840] border-blush/40 dark:border-gold/30'
+              : 'rounded-2xl bg-card border-silver dark:border-[#3D3268] hover:border-blush'
           }`}
         >
           <div className="flex items-start justify-between mb-2">
@@ -29,13 +29,13 @@ export const HelpCategories = ({ activeCategory, onChange }: HelpCategoriesProps
             </span>
             <span className={`text-[10px] font-bold border px-1.5 py-0.5 ${
               activeCategory === cat.title
-                ? 'border-gold/30 text-gold'
-                : 'border-silver dark:border-[#2a2f33] text-zinc-400 dark:text-silver/50'
+                ? 'rounded-md border-gold/30 text-gold'
+                : 'rounded-md border-silver dark:border-[#3D3268] text-zinc-400 dark:text-silver/50'
             }`}>
               {cat.count}
             </span>
           </div>
-          <p className={`text-sm font-bold ${activeCategory === cat.title ? 'text-white' : 'text-dark dark:text-background'}`}>
+          <p className={`text-sm font-bold ${activeCategory === cat.title ? 'text-blush dark:text-white' : 'text-dark dark:text-white'}`}>
             {cat.title}
           </p>
           <p className={`text-[11px] mt-0.5 leading-snug ${activeCategory === cat.title ? 'text-silver/50' : 'text-zinc-400 dark:text-silver/50'}`}>

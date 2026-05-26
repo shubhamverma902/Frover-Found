@@ -83,7 +83,7 @@ const VendorsPage = () => {
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 placeholder="Search by name, category, location…"
-                className="w-full pl-8 pr-7 py-2 text-xs bg-dark border border-silver/15 text-silver placeholder:text-silver/30 focus:outline-none focus:border-gold/50 transition-colors"
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl bg-white dark:bg-[#1E1840] border border-silver/20 dark:border-silver/20 text-dark dark:text-silver placeholder:text-silver/40 dark:placeholder:text-silver/40 focus:outline-none focus:border-blush/50 dark:focus:border-gold/50 transition-colors"
               />
               {inputValue && (
                 <button aria-label="Clear search" onClick={() => setInputValue('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-silver/40 hover:text-silver text-xs leading-none">✕</button>
@@ -94,7 +94,7 @@ const VendorsPage = () => {
           {grandTotal === 0 && <VendorsEmptyState onAddVendor={() => setAddOpen(true)} />}
 
           {grandTotal > 0 && vendors.length === 0 && (
-            <div className="flex flex-col items-center gap-3 py-16 border border-dashed border-gold/20 bg-gold/3">
+            <div className="flex flex-col items-center gap-3 py-16 rounded-2xl border border-dashed border-gold/20 bg-gold/3">
               <span className="text-3xl text-gold/20">⌕</span>
               <p className="text-sm font-bold text-silver/40">No vendors match &ldquo;{committedQuery}&rdquo;</p>
               <button onClick={() => setInputValue('')} className="text-xs text-gold/60 hover:text-gold transition-colors">Clear search</button>

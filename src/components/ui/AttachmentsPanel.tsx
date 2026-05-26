@@ -49,7 +49,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
         type="button"
         aria-label="Close preview"
         onClick={onClose}
-        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors text-sm z-10"
+        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-xl text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors text-sm z-10"
       >
         ✕
       </button>
@@ -60,7 +60,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
           type="button"
           aria-label="Previous image"
           onClick={e => { e.stopPropagation(); prev(); }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-xl text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
         >
           ‹
         </button>
@@ -75,7 +75,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
         <img
           src={att.url}
           alt={att.originalName}
-          className="max-w-[90vw] max-h-[75vh] object-contain border border-white/10 shadow-2xl"
+          className="max-w-[90vw] max-h-[75vh] object-contain rounded-lg border border-white/10 shadow-2xl"
         />
         <div className="flex items-center gap-3">
           <p className="text-xs text-white/60 truncate max-w-[40ch]">{att.originalName}</p>
@@ -105,7 +105,7 @@ const Lightbox = ({ attachments, index, onClose, onChange }: LightboxProps) => {
           type="button"
           aria-label="Next image"
           onClick={e => { e.stopPropagation(); next(); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-xl text-white/60 hover:text-white border border-white/15 hover:border-white/40 transition-colors z-10"
         >
           ›
         </button>
@@ -182,7 +182,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
         <div className="flex items-center gap-2">
           <span className="text-gold/50 text-[9px]">◈</span>
           <p className="text-[10px] font-bold text-silver/50 uppercase tracking-[0.35em]">Attachments</p>
-          <span className="text-[9px] text-silver/25 border border-silver/15 px-1.5 py-0.5 ml-0.5">
+          <span className="text-[9px] text-silver/25 rounded-md border border-silver/15 px-1.5 py-0.5 ml-0.5">
             {attachments.length}/{MAX_FILES}
           </span>
         </div>
@@ -204,7 +204,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
               handleFiles(e.dataTransfer.files);
             }}
             className={[
-              'flex flex-col items-center justify-center gap-1.5 p-5 border-2 border-dashed cursor-pointer transition-colors select-none outline-none',
+              'flex flex-col items-center justify-center gap-1.5 p-5 rounded-xl border-2 border-dashed cursor-pointer transition-colors select-none outline-none',
               isDrag
                 ? 'border-gold/50 bg-gold/5'
                 : 'border-silver/15 hover:border-silver/30 hover:bg-silver/3',
@@ -248,7 +248,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
         {attachments.length > 0 && (
           <div className="space-y-1.5">
             {attachments.map(att => (
-              <div key={att._id} className="flex items-center gap-2.5 px-3 py-2 bg-dark border border-silver/10">
+              <div key={att._id} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-dark border border-silver/10">
 
                 {/* Thumbnail / icon — clickable for images */}
                 {isImage(att.mimetype) ? (
@@ -256,7 +256,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     type="button"
                     onClick={() => openLightbox(att)}
                     aria-label={`Preview ${att.originalName}`}
-                    className="shrink-0 w-9 h-9 overflow-hidden border border-silver/10 hover:border-gold/40 transition-colors group relative"
+                    className="shrink-0 w-9 h-9 overflow-hidden rounded-lg border border-silver/10 hover:border-gold/40 transition-colors group relative"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -273,7 +273,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
                     aria-label={`Open ${att.originalName}`}
-                    className="shrink-0 w-9 h-9 flex items-center justify-center bg-red-900/20 border border-red-900/30 hover:border-red-500/50 hover:bg-red-900/30 transition-colors"
+                    className="shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-red-900/20 border border-red-900/30 hover:border-red-500/50 hover:bg-red-900/30 transition-colors"
                   >
                     <span className="text-[9px] font-black text-red-400/70 leading-none">PDF</span>
                   </a>
@@ -309,7 +309,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     <button
                       type="button"
                       onClick={() => setPendingDelete(null)}
-                      className="px-1.5 py-1 text-[10px] text-silver/40 hover:text-silver border border-silver/15 transition-colors"
+                      className="px-1.5 py-1 text-[10px] rounded-lg text-silver/40 hover:text-silver border border-silver/15 transition-colors"
                     >
                       No
                     </button>
@@ -317,7 +317,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                       type="button"
                       onClick={() => { onDelete(att._id); setPendingDelete(null); }}
                       disabled={uploading}
-                      className="px-1.5 py-1 text-[10px] font-bold text-red-400 border border-red-700/40 hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                      className="px-1.5 py-1 text-[10px] font-bold rounded-lg text-red-400 border border-red-700/40 hover:bg-red-900/20 transition-colors disabled:opacity-50"
                     >
                       Yes
                     </button>
@@ -328,7 +328,7 @@ export const AttachmentsPanel = ({ attachments, uploading, uploadError, onUpload
                     onClick={() => setPendingDelete(att._id)}
                     disabled={uploading}
                     aria-label={`Remove ${att.originalName}`}
-                    className="shrink-0 w-6 h-6 flex items-center justify-center text-silver/25 hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 text-[10px] leading-none"
+                    className="shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-silver/25 hover:text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 text-[10px] leading-none"
                   >
                     ✕
                   </button>

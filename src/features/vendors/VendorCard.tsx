@@ -13,17 +13,17 @@ interface Props {
 export const VendorCard: FC<Props> = ({ vendor: v, onViewDetail, onEdit, onBook }) => {
   const meta = STATUS_META[v.status];
   return (
-    <div className={`group bg-card border border-silver dark:border-[#2a2f33] border-l-[3px] ${meta.stripe} overflow-hidden lift-deep shadow-crystal grad-border`}>
+    <div className={`group bg-card rounded-2xl ring-1 ring-silver/20 dark:ring-white/5 border-l-[3px] ${meta.stripe} overflow-hidden lift-deep shadow-lg grad-border`}>
       <div className={`h-1 w-full ${meta.bar}`} />
 
-      <div className="flex items-stretch gap-0 border-b border-silver dark:border-[#2a2f33]">
-        <div className="w-16 bg-dark flex items-center justify-center text-3xl shrink-0 group-hover:bg-gold transition-colors duration-350 border-r border-gold/10">
+      <div className="flex items-stretch gap-0 border-b border-silver/30 dark:border-white/5">
+        <div className="w-16 bg-blush/15 dark:bg-dark flex items-center justify-center text-3xl shrink-0 group-hover:bg-gold transition-colors duration-350 border-r border-blush/15 dark:border-gold/10">
           {v.icon}
         </div>
         <div className="flex-1 px-4 py-3.5 bg-gradient-to-r from-silver/10 dark:from-silver/5 to-transparent">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-sm font-bold text-dark dark:text-background group-hover:text-blush transition-colors">
+              <p className="text-sm font-bold text-dark dark:text-white group-hover:text-blush transition-colors">
                 {v.name}
               </p>
               <p className="text-[10px] text-zinc-400 dark:text-silver/50 uppercase tracking-widest mt-0.5">{v.category}</p>
@@ -45,7 +45,7 @@ export const VendorCard: FC<Props> = ({ vendor: v, onViewDetail, onEdit, onBook 
         </div>
       </div>
 
-      <div className="px-5 py-3.5 space-y-2 border-b border-silver/50 dark:border-[#2a2f33]/50">
+      <div className="px-5 py-3.5 space-y-2 border-b border-silver/30 dark:border-white/5">
         <div className="flex items-center gap-2.5">
           <span className="text-blush text-xs w-4">✉</span>
           <span className="text-xs text-zinc-500 dark:text-silver/60 truncate">{v.contact || '—'}</span>
@@ -56,7 +56,7 @@ export const VendorCard: FC<Props> = ({ vendor: v, onViewDetail, onEdit, onBook 
         </div>
       </div>
 
-      <div className="flex gap-0 divide-x divide-silver dark:divide-[#2a2f33]">
+      <div className="flex gap-0 divide-x divide-silver/30 dark:divide-white/5">
         <button
           onClick={onViewDetail}
           className="flex-1 py-3 text-[11px] font-bold text-zinc-500 dark:text-silver/60 hover:bg-silver/15 dark:hover:bg-silver/8 hover:text-dark dark:hover:text-white transition-all duration-200"
@@ -72,7 +72,7 @@ export const VendorCard: FC<Props> = ({ vendor: v, onViewDetail, onEdit, onBook 
         {v.status !== 'booked' ? (
           <button
             onClick={onBook}
-            className="flex-1 py-3 text-[11px] font-bold text-gold bg-dark hover:bg-gold hover:text-dark transition-all duration-250"
+            className="flex-1 py-3 text-[11px] font-bold text-gold bg-subtle dark:bg-dark hover:bg-gold hover:text-dark transition-all duration-250"
           >
             Book Now ✦
           </button>

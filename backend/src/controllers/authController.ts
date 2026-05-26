@@ -12,6 +12,7 @@ import logAudit from '../utils/logAudit';
 const REFRESH_COOKIE     = 'refreshToken';
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_WINDOW_MS     = 15 * 60 * 1000; // 15 minutes
+const isDev              = process.env.NODE_ENV !== 'production';
 
 // Constant-time sentinel: ensures the null-user path runs a full bcrypt round
 // so response time cannot reveal whether an email exists in the database.
@@ -57,7 +58,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil +tokenVersion');
 
     // Locked account — check before the password comparison to avoid timing leaks
-    if (user?.lockUntil && user.lockUntil > new Date()) {
+    if (!isDev && user?.lockUntil && user.lockUntil > new Date()) {
       const minsLeft = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60_000);
       return next(new ApiError(429, `Too many failed attempts. Try again in ${minsLeft} minute${minsLeft === 1 ? '' : 's'}.`));
     }
@@ -69,7 +70,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
     if (!user || !passwordOk) {
       logAudit(req, 'auth.login.failure', user ? String(user._id) : null, { email });
-      if (user) {
+      if (!isDev && user) {
         const newAttempts = (user.loginAttempts ?? 0) + 1;
         const lock        = newAttempts >= MAX_LOGIN_ATTEMPTS;
         await User.findByIdAndUpdate(user._id, {
@@ -81,10 +82,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       return next(new ApiError(401, 'Invalid email or password'));
     }
 
-    // Successful login — clear any residual lockout state
-    if (user.loginAttempts || user.lockUntil) {
-      await User.findByIdAndUpdate(user._id, { loginAttempts: 0, lockUntil: null });
-    }
+    // Successful login — always clear any residual lockout state
+    await User.findByIdAndUpdate(user._id, { loginAttempts: 0, lockUntil: null });
 
     const id           = String(user._id);
     const accessToken  = signToken(id, user.email, user.role, user.dataOwner?.toString(), user.collaboratorRole ?? undefined);

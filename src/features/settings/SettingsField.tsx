@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+﻿import type { FC } from 'react';
 
 interface Props {
   label: string;
@@ -20,7 +20,7 @@ export const SettingsField: FC<Props> = ({ label, value, type = 'text', onChange
       onChange={e => onChange(e.target.value)}
       disabled={disabled}
       maxLength={maxLength}
-      className="w-full h-11 px-3 text-sm text-dark dark:text-background bg-card border border-silver dark:border-[#2a2f33] focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/15 transition-all duration-200 hover:border-blush disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full h-11 px-3 text-sm text-dark dark:text-white bg-card rounded-xl border border-silver dark:border-[#3D3268] focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/15 transition-all duration-200 hover:border-blush disabled:opacity-50 disabled:cursor-not-allowed"
     />
   </div>
 );

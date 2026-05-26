@@ -164,7 +164,7 @@ const OnboardingPage = () => {
           <SubmitButton loading={status === 'loading'} />
         </Form>
 
-        <p className="text-center text-xs text-zinc-300 mt-6">
+        <p className="text-center text-xs text-silver mt-6">
           You can update these details anytime from Settings.
         </p>
       </div>

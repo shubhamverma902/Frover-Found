@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { setAccessToken } from '@/api/tokenStore';
@@ -77,7 +77,7 @@ export const PartnerSection = () => {
               <p className="text-sm font-semibold text-dark dark:text-white truncate">{linked.name}</p>
               <p className="text-xs text-zinc-500 dark:text-silver/60 truncate">{linked.email}</p>
               {linked.linkedAt && (
-                <p className="text-[10px] text-zinc-400 dark:text-silver/40 mt-0.5">
+                <p className="text-[10px] text-zinc-400 dark:text-silver/65 mt-0.5">
                   Linked {new Date(linked.linkedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
               )}
@@ -120,7 +120,7 @@ export const PartnerSection = () => {
             <p className="text-xs text-zinc-500 dark:text-silver/70 mb-1">
               Invite pending for <span className="text-gold font-medium">{pending.email}</span>
             </p>
-            <p className="text-[10px] text-zinc-400 dark:text-silver/40">
+            <p className="text-[10px] text-zinc-400 dark:text-silver/65">
               Expires {new Date(pending.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -139,8 +139,8 @@ export const PartnerSection = () => {
           <p className="text-xs text-zinc-500 dark:text-silver/60">
             Share this link with <span className="text-gold font-medium">{freshInvite.email}</span>. It expires in 48 hours.
           </p>
-          <div className="flex items-center gap-2 p-3 border border-gold/20 bg-dark">
-            <p className="text-[11px] text-silver/70 flex-1 truncate font-mono">{freshInvite.inviteUrl}</p>
+          <div className="flex items-center gap-2 p-3 border border-gold/20 bg-subtle dark:bg-dark rounded-lg">
+            <p className="text-[11px] text-silver dark:text-silver/70 flex-1 truncate font-mono">{freshInvite.inviteUrl}</p>
             <button
               onClick={() => handleCopy(freshInvite.inviteUrl)}
               className="shrink-0 text-[11px] font-semibold px-3 py-1.5 border border-gold/30 text-gold hover:border-gold transition-all"
@@ -150,7 +150,7 @@ export const PartnerSection = () => {
           </div>
           <button
             onClick={() => setFreshInvite(null)}
-            className="text-[11px] text-zinc-400 dark:text-silver/40 hover:text-zinc-600 dark:hover:text-silver/70 transition-colors"
+            className="text-[11px] text-zinc-400 dark:text-silver/65 hover:text-zinc-600 dark:hover:text-silver/70 transition-colors"
           >
             Send another invite
           </button>
@@ -169,7 +169,7 @@ export const PartnerSection = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="partner@email.com"
-              className="flex-1 bg-white dark:bg-dark border border-zinc-300 dark:border-silver/20 focus:border-gold/50 px-3 py-2.5 text-sm text-dark dark:text-white placeholder:text-zinc-400 dark:placeholder:text-silver/30 outline-none transition-colors"
+              className="flex-1 bg-white dark:bg-[#2A1F52] border border-zinc-300 dark:border-silver/20 focus:border-gold/50 px-3 py-2.5 text-sm text-dark dark:text-white placeholder:text-zinc-400 dark:placeholder:text-silver/30 outline-none transition-colors"
             />
             <button
               type="submit"

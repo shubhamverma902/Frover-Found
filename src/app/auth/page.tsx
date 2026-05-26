@@ -43,16 +43,16 @@ const AuthPage = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-white px-6 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#1E1840] px-6 py-12">
         <div className="lg:hidden mb-10">
-          <Logo size="md" theme="dark" href={PATH.home} />
+          <Logo size="md" theme="auto" href={PATH.home} />
         </div>
 
         <div className="w-full max-w-sm animate-fade-in-up">
           <div className="text-center mb-8">
             <p className="text-xs font-semibold text-gold uppercase tracking-widest mb-2">Welcome</p>
-            <h1 className="text-3xl font-bold text-dark">Let&apos;s get started</h1>
-            <p className="mt-2 text-sm text-zinc-500">Login to your account or create a new one to begin planning.</p>
+            <h1 className="text-3xl font-bold text-dark dark:text-white">Let&apos;s get started</h1>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-silver/65">Login to your account or create a new one to begin planning.</p>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -64,13 +64,13 @@ const AuthPage = () => {
             </Link>
             <Link
               href={PATH.auth.login}
-              className="flex items-center justify-center w-full py-4 rounded-2xl border border-silver text-dark font-semibold text-sm hover:border-blush hover:bg-silver/30 active:scale-95 transition-all duration-200"
+              className="flex items-center justify-center w-full py-4 rounded-2xl border border-silver dark:border-silver/40 text-dark dark:text-white font-semibold text-sm hover:border-blush hover:bg-silver/30 dark:hover:border-blush/60 dark:hover:bg-white/5 active:scale-95 transition-all duration-200"
             >
               Login to my account
             </Link>
           </div>
 
-          <p className="mt-8 text-center text-xs text-zinc-400">
+          <p className="mt-8 text-center text-xs text-zinc-400 dark:text-silver/60">
             By continuing, you agree to Forever Found&apos;s{' '}
             <a href="#" className="text-blush hover:underline">Terms of Service</a>{' '}
             &amp;{' '}

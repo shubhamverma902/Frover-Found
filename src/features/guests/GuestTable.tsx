@@ -14,25 +14,25 @@ interface GuestTableProps {
 export const GuestTable = ({ guests, onEditGuest }: GuestTableProps) => {
   if (guests.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 border border-dashed border-gold/20 bg-gold/3">
+      <div className="flex flex-col items-center gap-4 py-16 rounded-2xl border border-dashed border-gold/20 bg-gold/3">
         <span className="text-4xl text-gold/20">◎</span>
         <div className="text-center">
           <p className="text-sm font-bold text-silver/40">No guests yet</p>
-          <p className="text-xs text-silver/25 mt-1">Add your first guest using the button above</p>
+          <p className="text-xs text-silver/60 dark:text-silver/50 mt-1">Add your first guest using the button above</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card border border-silver dark:border-[#2a2f33] overflow-hidden shadow-crystal">
-      <div className="grid grid-cols-[2fr_1fr_1fr_auto_auto] items-center gap-4 px-5 py-3 bg-dark border-b border-gold/10">
+    <div className="bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 overflow-hidden">
+      <div className="grid grid-cols-[2fr_1fr_1fr_auto_auto] items-center gap-4 px-5 py-3 bg-subtle dark:bg-[#2A1F52] border-b border-blush/15 dark:border-gold/10">
         {['Guest', 'RSVP', 'Meal', '+1', ''].map((h, i) => (
-          <p key={i} className="text-[9px] font-bold text-silver/35 uppercase tracking-[0.35em]">{h}</p>
+          <p key={i} className="text-[9px] font-bold text-silver dark:text-silver/35 uppercase tracking-[0.35em]">{h}</p>
         ))}
       </div>
 
-      <div className="divide-y divide-silver/40 dark:divide-[#2a2f33]">
+      <div className="divide-y divide-silver/40 dark:divide-[#3D3268]">
         {guests.map((g, i) => {
           const meta  = RSVP_META[g.rsvp];
           const avcls = AVATAR_COLORS[i % AVATAR_COLORS.length];
@@ -47,7 +47,7 @@ export const GuestTable = ({ guests, onEditGuest }: GuestTableProps) => {
                   <Initials name={g.name} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-dark dark:text-background truncate">{g.name}</p>
+                  <p className="text-sm font-semibold text-dark dark:text-white truncate">{g.name}</p>
                   <p className="text-[10px] text-zinc-400 dark:text-silver/50 truncate">{g.relation}{g.phone ? ` · ${g.phone}` : ''}</p>
                 </div>
               </div>
@@ -63,14 +63,14 @@ export const GuestTable = ({ guests, onEditGuest }: GuestTableProps) => {
 
               <div>
                 {g.plusOne
-                  ? <span className="w-6 h-6 bg-gold/15 border border-gold/30 text-gold text-[11px] font-bold flex items-center justify-center">✓</span>
+                  ? <span className="w-6 h-6 rounded-md bg-gold/15 border border-gold/30 text-gold text-[11px] font-bold flex items-center justify-center">✓</span>
                   : <span className="text-silver text-xs">—</span>
                 }
               </div>
 
               <button
                 onClick={() => onEditGuest(g)}
-                className="px-2 py-1 text-[10px] font-bold border border-zinc-300 dark:border-silver/20 text-zinc-500 dark:text-silver/50 hover:border-gold hover:text-gold hover:bg-gold/8 transition-colors whitespace-nowrap"
+                className="px-2 py-1 text-[10px] font-bold rounded-lg border border-zinc-300 dark:border-silver/20 text-zinc-500 dark:text-silver/50 hover:border-gold hover:text-gold hover:bg-gold/8 transition-colors whitespace-nowrap"
               >
                 Edit
               </button>

@@ -94,7 +94,7 @@ const userSchema = new Schema<IUser>(
     onboardingCompleted: { type: Boolean, default: false },
     weddingProfile:      { type: weddingProfileSchema, default: null },
     notificationPrefs:   { type: Map, of: Boolean, default: {} },
-    publicSlug:          { type: String, unique: true, sparse: true, default: null },
+    publicSlug:          { type: String, unique: true, sparse: true },
     linkedPartner:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     linkedAt:            { type: Date, default: null },
     pendingInviteEmail:  { type: String, default: null },

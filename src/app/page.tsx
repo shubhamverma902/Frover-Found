@@ -23,7 +23,7 @@ const Home = () => {
   const ctaLabel     = hydrated && isAuthenticated ? 'Go to Dashboard ✦' : 'Plan My Wedding ✦';
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
+    <div className="min-h-screen bg-white dark:bg-[#0f1214] text-zinc-900 dark:text-white">
       <Header />
       <main>
         <HeroSection primaryHref={primaryHref} primaryLabel={primaryLabel} />

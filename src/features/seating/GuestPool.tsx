@@ -20,16 +20,16 @@ export const GuestPool = ({ guests, total }: Props) => {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-gold/50 text-[9px]">◈</span>
         <p className="text-[10px] font-bold text-dark/50 dark:text-silver/50 uppercase tracking-[0.35em]">Unassigned</p>
-        <span className="text-[9px] text-dark/30 dark:text-silver/25 border border-dark/15 dark:border-silver/15 px-1.5 py-0.5 ml-auto">
+        <span className="text-[9px] text-dark/50 dark:text-silver/60 rounded-md border border-dark/15 dark:border-silver/20 px-1.5 py-0.5 ml-auto">
           {guests.length} / {total}
         </span>
       </div>
 
       {/* Progress */}
       {total > 0 && (
-        <div className="h-[2px] bg-silver/8 mb-4">
+        <div className="h-[2px] bg-silver/8 rounded-full mb-4">
           <div
-            className="h-full bg-gold/50 transition-all duration-500"
+            className="h-full rounded-full bg-gold/50 transition-all duration-500"
             style={{ width: `${Math.round((assigned / total) * 100)}%` }}
           />
         </div>
@@ -39,14 +39,14 @@ export const GuestPool = ({ guests, total }: Props) => {
       <div
         ref={setNodeRef}
         className={[
-          'flex-1 rounded-sm border-2 border-dashed p-3 flex flex-col gap-1.5 transition-colors min-h-[120px]',
+          'flex-1 rounded-xl border-2 border-dashed p-3 flex flex-col gap-1.5 transition-colors min-h-[120px]',
           isOver
             ? 'border-gold/50 bg-gold/5'
             : 'border-silver/10',
         ].join(' ')}
       >
         {guests.length === 0 ? (
-          <p className="text-[10px] text-dark/25 dark:text-silver/20 text-center mt-6">
+          <p className="text-[10px] text-dark/40 dark:text-silver/55 text-center mt-6">
             {total === 0 ? 'No guests added yet' : 'All guests seated ✓'}
           </p>
         ) : (
@@ -59,7 +59,7 @@ export const GuestPool = ({ guests, total }: Props) => {
         )}
       </div>
 
-      <p className="text-[9px] text-dark/25 dark:text-silver/20 mt-2 text-center">Drag guests to a table</p>
+      <p className="text-[9px] text-dark/40 dark:text-silver/55 mt-2 text-center">Drag guests to a table</p>
     </div>
   );
 };

@@ -11,7 +11,7 @@ export const EventsSummaryStrip = ({ total, confirmed, inPlanning }: EventsSumma
       { label: 'Confirmed',   value: confirmed,   color: 'from-gold/10 to-transparent',  border: 'border-b-gold' },
       { label: 'In Planning', value: inPlanning,  color: 'from-blush/10 to-transparent',  border: 'border-b-blush' },
     ].map(({ label, value, color, border }) => (
-      <div key={label} className={`stat-card bg-card border border-silver dark:border-[#2a2f33] border-b-2 ${border} px-4 py-4 text-center bg-gradient-to-b ${color} lift`}>
+      <div key={label} className={`stat-card bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 border-b-2 ${border} px-4 py-4 text-center bg-gradient-to-b ${color} lift`}>
         <p className="text-3xl font-black text-dark dark:text-white num-pop">{value}</p>
         <p className="text-[10px] text-zinc-400 dark:text-silver/50 uppercase tracking-widest mt-1">{label}</p>
       </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { SettingsSection } from './SettingsSection';
@@ -63,7 +63,7 @@ export const CollaboratorsSection = () => {
           {collaborators.map(c => {
             const meta = ROLE_LABELS[c.role];
             return (
-              <div key={c._id} className="flex items-center gap-3 px-4 py-3 border border-zinc-200 dark:border-[#2a2f33] bg-zinc-50 dark:bg-dark/30">
+              <div key={c._id} className="flex items-center gap-3 px-4 py-3 border border-zinc-200 dark:border-[#3D3268] bg-zinc-50 dark:bg-[#2A1F52]/30">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium text-dark dark:text-white truncate">
@@ -73,13 +73,13 @@ export const CollaboratorsSection = () => {
                       {meta.label}
                     </span>
                     {!c.accepted && (
-                      <span className="text-[10px] text-zinc-400 dark:text-silver/40 border border-zinc-200 dark:border-silver/15 px-1.5 py-0.5 uppercase tracking-widest">
+                      <span className="text-[10px] text-zinc-400 dark:text-silver/65 border border-zinc-200 dark:border-silver/15 px-1.5 py-0.5 uppercase tracking-widest">
                         Pending
                       </span>
                     )}
                   </div>
                   {c.accepted && c.email && (
-                    <p className="text-xs text-zinc-400 dark:text-silver/40 truncate mt-0.5">{c.email}</p>
+                    <p className="text-xs text-zinc-400 dark:text-silver/65 truncate mt-0.5">{c.email}</p>
                   )}
                 </div>
 
@@ -102,7 +102,7 @@ export const CollaboratorsSection = () => {
                 ) : (
                   <button
                     onClick={() => setConfirmId(c._id)}
-                    className="shrink-0 text-[11px] text-zinc-400 dark:text-silver/40 hover:text-blush transition-colors"
+                    className="shrink-0 text-[11px] text-zinc-400 dark:text-silver/65 hover:text-blush transition-colors"
                   >
                     Remove
                   </button>
@@ -119,7 +119,7 @@ export const CollaboratorsSection = () => {
           <p className="text-xs text-zinc-500 dark:text-silver/60">
             Share this link with <span className="text-gold font-medium">{freshInvite.email}</span> ({ROLE_LABELS[freshInvite.role].label}). Expires in 48 hours.
           </p>
-          <div className="flex items-center gap-2 p-3 border border-gold/20 bg-dark">
+          <div className="flex items-center gap-2 p-3 border border-gold/20 bg-subtle dark:bg-dark rounded-lg">
             <p className="text-[11px] text-silver/70 flex-1 truncate font-mono">{freshInvite.inviteUrl}</p>
             <button
               onClick={() => handleCopy(freshInvite.inviteUrl)}
@@ -130,7 +130,7 @@ export const CollaboratorsSection = () => {
           </div>
           <button
             onClick={() => setFreshInvite(null)}
-            className="text-[11px] text-zinc-400 dark:text-silver/40 hover:text-zinc-600 dark:hover:text-silver/70 transition-colors"
+            className="text-[11px] text-zinc-400 dark:text-silver/65 hover:text-zinc-600 dark:hover:text-silver/70 transition-colors"
           >
             Invite someone else
           </button>
@@ -155,7 +155,7 @@ export const CollaboratorsSection = () => {
                   className={`text-left px-4 py-3 border transition-all ${
                     role === r
                       ? 'border-gold/50 bg-gold/8'
-                      : 'border-zinc-200 dark:border-[#2a2f33] hover:border-zinc-300 dark:hover:border-silver/30'
+                      : 'border-zinc-200 dark:border-[#3D3268] hover:border-zinc-300 dark:hover:border-silver/30'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
@@ -177,7 +177,7 @@ export const CollaboratorsSection = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="family@email.com"
-              className="flex-1 bg-white dark:bg-dark border border-zinc-300 dark:border-silver/20 focus:border-gold/50 px-3 py-2.5 text-sm text-dark dark:text-white placeholder:text-zinc-400 dark:placeholder:text-silver/30 outline-none transition-colors"
+              className="flex-1 bg-white dark:bg-[#2A1F52] border border-zinc-300 dark:border-silver/20 focus:border-gold/50 px-3 py-2.5 text-sm text-dark dark:text-white placeholder:text-zinc-400 dark:placeholder:text-silver/30 outline-none transition-colors"
             />
             <button
               type="submit"

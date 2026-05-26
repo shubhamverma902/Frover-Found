@@ -11,7 +11,7 @@ export const OptionPill = ({ active, onClick, children, className = '' }: Option
   <button
     type="button"
     onClick={onClick}
-    className={`border transition-colors ${
+    className={`rounded-xl border transition-colors ${
       active
         ? 'border-gold/50 bg-gold/10 text-gold'
         : 'border-silver/15 text-silver/40 hover:border-silver/30'

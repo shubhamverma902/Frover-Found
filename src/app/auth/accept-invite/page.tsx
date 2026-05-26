@@ -62,17 +62,20 @@ const AcceptInvitePage = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-dark">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-gold/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-blush/5 blur-3xl pointer-events-none" />
+    <div className="relative min-h-screen bg-dark">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-gold/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-blush/5 blur-3xl pointer-events-none" />
+      </div>
 
       <div className="absolute top-6 left-8 z-20">
         <Logo size="md" theme="light" href={PATH.home} />
       </div>
 
-      <div className="relative z-10 w-full max-w-md px-5 py-8 animate-fade-in-up">
-        <div className="bg-background border border-gold/50 shadow-2xl shadow-black/70 p-1">
-          <div className="border border-gold/20 px-8 py-10 text-center">
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-5 py-20">
+      <div className="w-full max-w-md animate-fade-in-up">
+        <div className="bg-[#FFF8F0] dark:bg-[#1E1840] border border-gold/50 shadow-2xl shadow-black/70 p-1 rounded-2xl">
+          <div className="border border-gold/20 dark:border-gold/15 px-8 py-10 text-center rounded-xl">
 
             <div className="flex items-center gap-3 mb-8">
               <div className="flex-1 h-px bg-gold/40" />
@@ -81,25 +84,25 @@ const AcceptInvitePage = () => {
             </div>
 
             {stage === 'loading' && (
-              <p className="text-sm text-zinc-400">Checking invite…</p>
+              <p className="text-sm text-zinc-400 dark:text-silver/65">Checking invite…</p>
             )}
 
             {stage === 'unauthenticated' && (
               <>
                 <div className="text-4xl mb-4">♡</div>
-                <h1 className="text-2xl font-bold text-dark mb-2">You've been invited!</h1>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                <h1 className="text-2xl font-bold text-dark dark:text-white mb-2">You've been invited!</h1>
+                <p className="text-sm text-zinc-400 dark:text-silver/65 mb-6 leading-relaxed">
                   Log in (or create an account) to accept the invite and join the wedding plan.
                 </p>
                 <Link
                   href={PATH.auth.login}
-                  className="block w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 transition-all leading-[3rem]"
+                  className="block w-full h-12 bg-gold text-dark font-semibold text-sm hover:bg-gold/90 transition-all leading-[3rem] rounded-xl"
                 >
                   Log In to Accept ✦
                 </Link>
-                <p className="mt-4 text-xs text-zinc-400">
+                <p className="mt-4 text-xs text-zinc-400 dark:text-silver/65">
                   No account yet?{' '}
-                  <Link href={PATH.auth.signup} className="font-semibold text-dark hover:underline">
+                  <Link href={PATH.auth.signup} className="font-semibold text-dark dark:text-gold hover:underline">
                     Sign up →
                   </Link>
                 </p>
@@ -109,10 +112,10 @@ const AcceptInvitePage = () => {
             {stage === 'confirm' && (
               <>
                 <div className="text-4xl mb-4">{isCollab ? '👥' : '♡'}</div>
-                <h1 className="text-2xl font-bold text-dark mb-2">
+                <h1 className="text-2xl font-bold text-dark dark:text-white mb-2">
                   {isCollab ? 'Collaborator Invite' : 'Partner Invite'}
                 </h1>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                <p className="text-sm text-zinc-400 dark:text-silver/65 mb-6 leading-relaxed">
                   {isCollab
                     ? 'Accept this invite to access the wedding plan. Your role will determine what you can see and change.'
                     : "Accept this invite to link your account. You'll both share the same wedding plan, guest list, budget, and checklist."}
@@ -120,11 +123,11 @@ const AcceptInvitePage = () => {
                 <button
                   onClick={handleAccept}
                   disabled={accepting}
-                  className="w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 disabled:opacity-60 transition-all mb-3"
+                  className="w-full h-12 bg-gold text-dark font-semibold text-sm hover:bg-gold/90 disabled:opacity-60 transition-all mb-3 rounded-xl"
                 >
                   {accepting ? 'Linking…' : 'Accept & Link Accounts ✦'}
                 </button>
-                <Link href={PATH.dashboard.base} className="text-xs text-zinc-400 hover:text-zinc-600 transition-colors">
+                <Link href={PATH.dashboard.base} className="text-xs text-zinc-400 dark:text-silver/65 hover:text-zinc-600 dark:hover:text-silver transition-colors">
                   Cancel — go to my dashboard
                 </Link>
               </>
@@ -133,8 +136,8 @@ const AcceptInvitePage = () => {
             {stage === 'success' && (
               <>
                 <div className="text-4xl mb-4">✓</div>
-                <h1 className="text-2xl font-bold text-dark mb-2">Linked!</h1>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                <h1 className="text-2xl font-bold text-dark dark:text-white mb-2">Linked!</h1>
+                <p className="text-sm text-zinc-400 dark:text-silver/65 mb-6 leading-relaxed">
                   Your accounts are now linked. You're planning together.
                 </p>
                 <Link
@@ -149,13 +152,13 @@ const AcceptInvitePage = () => {
             {stage === 'error' && (
               <>
                 <div className="text-4xl mb-4">✕</div>
-                <h1 className="text-2xl font-bold text-dark mb-2">Invite Invalid</h1>
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+                <h1 className="text-2xl font-bold text-dark dark:text-white mb-2">Invite Invalid</h1>
+                <p className="text-sm text-zinc-400 dark:text-silver/65 mb-6 leading-relaxed">
                   {errMsg || 'No invite token found in this link.'}
                 </p>
                 <Link
                   href={PATH.dashboard.settings}
-                  className="block w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 transition-all leading-[3rem]"
+                  className="block w-full h-12 bg-gold text-dark font-semibold text-sm hover:bg-gold/90 transition-all leading-[3rem] rounded-xl"
                 >
                   Back to Settings
                 </Link>
@@ -168,6 +171,7 @@ const AcceptInvitePage = () => {
         <p className="mt-5 text-center text-[10px] text-white/25 tracking-[0.3em] uppercase">
           Forever Found &nbsp;·&nbsp; Weddings Across India
         </p>
+      </div>
       </div>
     </div>
   );

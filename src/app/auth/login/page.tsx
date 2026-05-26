@@ -48,26 +48,23 @@ const LoginPage = () => {
   const disabled = loading || isLocked;
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen">
 
-      {/* Full-screen background image */}
-      <Image
-        src={LOGIN_PANEL_IMAGE.src}
-        alt={LOGIN_PANEL_IMAGE.alt}
-        fill
-        sizes="100vw"
-        style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
-        priority
-        className="scale-105"
-      />
-
-      {/* Dark charcoal overlay */}
-      <div className="absolute inset-0 bg-dark/78" />
-
-      {/* Ambient glow — top right */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-gold/5 blur-3xl pointer-events-none" />
-      {/* Ambient glow — bottom left */}
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-blush/6 blur-3xl pointer-events-none" />
+      {/* Full-screen background — contained so glows don't cause scroll */}
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          src={LOGIN_PANEL_IMAGE.src}
+          alt={LOGIN_PANEL_IMAGE.alt}
+          fill
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+          priority
+          className="scale-105"
+        />
+        <div className="absolute inset-0 bg-dark/78" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-gold/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-blush/6 blur-3xl pointer-events-none" />
+      </div>
 
       {/* Logo — top left */}
       <div className="absolute top-6 left-8 z-20">
@@ -81,10 +78,11 @@ const LoginPage = () => {
         </Link>
       </div>
 
-      {/* Invitation card */}
-      <div className="relative z-10 w-full max-w-md px-5 py-8 animate-fade-in-up">
-        <div className="bg-background border border-gold/50 shadow-2xl shadow-black/70 p-1">
-          <div className="border border-gold/20 px-8 py-10">
+      {/* Scrollable content layer */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-5 py-20">
+      <div className="w-full max-w-md animate-fade-in-up">
+        <div className="bg-[#FFF8F0] dark:bg-[#1E1840] border border-gold/50 shadow-2xl shadow-black/70 p-1 rounded-2xl">
+          <div className="border border-gold/20 dark:border-gold/15 px-8 py-10 rounded-xl">
 
             {/* Top ornament */}
             <div className="flex items-center gap-3 mb-8">
@@ -95,38 +93,38 @@ const LoginPage = () => {
 
             {/* Heading */}
             <div className="text-center mb-8">
-              <p className="text-[10px] font-semibold text-zinc-400 tracking-[0.35em] uppercase mb-3">
+              <p className="text-[10px] font-semibold text-zinc-400 dark:text-silver/65 tracking-[0.35em] uppercase mb-3">
                 You are welcome back
               </p>
-              <h1 className="text-3xl font-bold text-dark leading-tight">Sign In</h1>
-              <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+              <h1 className="text-3xl font-bold text-dark dark:text-white leading-tight">Sign In</h1>
+              <p className="mt-2 text-sm text-zinc-400 dark:text-silver/65 leading-relaxed">
                 Continue planning your dream celebration.
               </p>
             </div>
 
-            {/* Lockout banner — gold/warning, no dismiss (they must wait out the window) */}
+            {/* Lockout banner */}
             {isLocked && error && (
-              <div role="alert" className="mb-5 px-4 py-3 border border-gold/50 bg-gold/8 text-xs text-dark flex items-start gap-3">
+              <div role="alert" className="mb-5 px-4 py-3 border border-gold/50 bg-gold/8 dark:bg-gold/10 text-xs text-dark dark:text-white flex items-start gap-3">
                 <span className="text-gold text-sm leading-none mt-px shrink-0">⊘</span>
                 <div>
                   <p className="font-semibold mb-0.5">Account temporarily locked</p>
-                  <p className="text-zinc-500 leading-relaxed">{error?.message}</p>
+                  <p className="text-zinc-500 dark:text-silver/65 leading-relaxed">{error?.message}</p>
                 </div>
               </div>
             )}
 
             {/* Regular error banner */}
             {!isLocked && error && (
-              <div role="alert" className="mb-5 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-dark flex items-center justify-between gap-3">
+              <div role="alert" className="mb-5 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-dark dark:text-white flex items-center justify-between gap-3">
                 <span>{error.message}</span>
-                <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-blush hover:text-dark transition-colors">✕</button>
+                <button aria-label="Dismiss error" onClick={() => dispatch(clearError())} className="shrink-0 text-blush hover:text-dark dark:hover:text-white transition-colors">✕</button>
               </div>
             )}
 
             {/* Form */}
             <Form onSubmit={handleSubmit}>
               <label className="block">
-                <span className="block text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">
+                <span className="block text-[10px] font-semibold text-zinc-400 dark:text-silver/65 uppercase tracking-widest mb-1.5">
                   Email Address
                 </span>
                 <Input
@@ -136,12 +134,12 @@ const LoginPage = () => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   width="100%"
                   height={48}
-                  className="focus:border-dark focus:ring-blush/30"
+                  className="focus:border-dark dark:focus:border-gold/60 focus:ring-blush/30 dark:focus:ring-gold/20"
                 />
               </label>
 
               <label className="block">
-                <span className="block text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">
+                <span className="block text-[10px] font-semibold text-zinc-400 dark:text-silver/65 uppercase tracking-widest mb-1.5">
                   Password
                 </span>
                 <div className="relative">
@@ -152,12 +150,12 @@ const LoginPage = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     width="100%"
                     height={48}
-                    className="focus:border-dark focus:ring-blush/30 pr-11"
+                    className="focus:border-dark dark:focus:border-gold/60 focus:ring-blush/30 dark:focus:ring-gold/20 pr-11"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-dark transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-silver/60 hover:text-dark dark:hover:text-white transition-colors"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
@@ -174,7 +172,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={disabled}
-                className="w-full h-12 bg-dark text-white font-semibold text-sm hover:bg-dark/85 active:scale-95 transition-all duration-200 tracking-wide disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
+                className="w-full h-12 bg-gold text-dark font-semibold text-sm hover:bg-gold/90 active:scale-95 transition-all duration-200 tracking-wide rounded-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 {loading ? 'Signing in…' : isLocked ? '⊛ Account Locked' : 'Sign In ❆'}
               </button>
@@ -188,19 +186,19 @@ const LoginPage = () => {
             </div>
 
             {/* Switch to signup */}
-            <p className="text-center text-sm text-zinc-400">
+            <p className="text-center text-sm text-zinc-400 dark:text-silver/65">
               New to Forever Found?{' '}
               <button
                 onClick={() => router.push(PATH.auth.signup)}
-                className="font-semibold text-dark hover:underline"
+                className="font-semibold text-dark dark:text-gold hover:underline"
               >
                 Create an account →
               </button>
             </p>
 
             {/* Testimonial pull quote */}
-            <div className="mt-7 pt-6 border-t border-silver">
-              <p className="text-xs text-zinc-400 italic text-center leading-relaxed">
+            <div className="mt-7 pt-6 border-t border-silver dark:border-silver/25">
+              <p className="text-xs text-zinc-400 dark:text-silver/60 italic text-center leading-relaxed">
                 &ldquo;{LOGIN_PANEL_TESTIMONIAL.quote}&rdquo;
               </p>
               <p className="mt-2 text-center text-[10px] font-semibold text-blush tracking-widest uppercase">
@@ -215,6 +213,7 @@ const LoginPage = () => {
         <p className="mt-5 text-center text-[10px] text-white/25 tracking-[0.3em] uppercase">
           Forever Found &nbsp;·&nbsp; Weddings Across India
         </p>
+      </div>
       </div>
     </div>
   );

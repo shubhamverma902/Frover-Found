@@ -11,7 +11,7 @@ interface TaskItemProps {
 
 export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItemProps) => (
   <li
-    className={`group flex items-center gap-4 px-5 py-3.5 border-b border-silver/50 dark:border-[#2a2f33]/50 last:border-0 transition-all duration-200 row-reveal ${
+    className={`group flex items-center gap-4 px-5 py-3.5 border-b border-silver/50 dark:border-[#3D3268]/50 last:border-0 transition-all duration-200 row-reveal ${
       task.done ? 'stripe-done' : 'stripe-hover'
     }`}
     style={{ animationDelay: `${index * 0.04}s` }}
@@ -21,12 +21,12 @@ export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItem
       type="button"
       onClick={onToggle}
       disabled={isToggling}
-      className={`w-5 h-5 shrink-0 border-2 flex items-center justify-center transition-all duration-250 ${
+      className={`w-5 h-5 shrink-0 rounded-md border-2 flex items-center justify-center transition-all duration-250 ${
         isToggling
           ? 'border-gold/40 opacity-50 cursor-not-allowed'
           : task.done
-            ? 'bg-gold border-gold shadow-[0_0_12px_rgba(228,188,98,0.45)]'
-            : 'border-silver dark:border-[#2a2f33] hover:border-gold/50'
+            ? 'bg-gold border-gold shadow-[0_0_12px_rgba(205,180,219,0.45)]'
+            : 'border-silver dark:border-[#3D3268] hover:border-gold/50'
       }`}
     >
       {task.done && (
@@ -40,14 +40,14 @@ export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItem
       className={`flex-1 text-sm transition-all duration-200 select-none ${isToggling ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
         task.done
           ? 'text-zinc-400 dark:text-zinc-500 line-through decoration-gold/40'
-          : 'text-dark dark:text-background font-medium'
+          : 'text-dark dark:text-white font-medium'
       }`}
     >
       {task.label}
     </span>
 
     {/* Due badge */}
-    <span className={`text-[10px] font-bold px-2.5 py-1 border shrink-0 transition-all ${
+    <span className={`text-[10px] font-bold rounded-lg px-2.5 py-1 border shrink-0 transition-all ${
       task.done
         ? 'bg-gold/12 border-gold/30 text-gold'
         : 'border-blush/30 text-blush'
@@ -63,7 +63,7 @@ export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItem
     <button
       type="button"
       onClick={onEdit}
-      className="w-7 h-7 shrink-0 flex items-center justify-center text-zinc-400 dark:text-silver/50 hover:text-gold hover:bg-gold/10 transition-all duration-200"
+      className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-zinc-400 dark:text-silver/50 hover:text-gold hover:bg-gold/10 transition-all duration-200"
       title="Edit task"
     >
       <PencilIcon size={12} />

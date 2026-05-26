@@ -1,4 +1,4 @@
-import { ClipboardIllustration } from '@/components/icons';
+﻿import { ClipboardIllustration } from '@/components/icons';
 
 interface ChecklistEmptyStateProps {
   onAddTask: () => void;
@@ -20,12 +20,12 @@ export const ChecklistEmptyState = ({ onAddTask }: ChecklistEmptyStateProps) => 
 
     <button
       onClick={onAddTask}
-      className="px-7 py-3 text-sm font-bold bg-dark text-gold border border-gold/30 hover:bg-gold hover:text-dark transition-all duration-200 hover:shadow-[0_4px_20px_rgba(228,188,98,0.35)]"
+      className="px-7 py-3 text-sm font-bold bg-subtle dark:bg-dark text-gold border border-gold/30 hover:bg-gold hover:text-dark transition-all duration-200 hover:shadow-[0_4px_20px_rgba(205,180,219,0.35)]"
     >
       + Add First Task
     </button>
 
-    <p className="mt-4 text-[10px] text-zinc-400/50 dark:text-silver/25 max-w-xs">
+    <p className="mt-4 text-[10px] text-zinc-400/50 dark:text-silver/55 max-w-xs">
       Tip: Tasks are organised by category — venue, catering, attire, and more
     </p>
   </div>

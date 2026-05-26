@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
@@ -11,7 +11,7 @@ import { InsightsSkeleton } from './InsightsSkeleton';
 
 // Chart components loaded client-only — Recharts uses ResizeObserver / useLayoutEffect
 // which are not available during SSR.
-const chartFallback = () => <div className="h-[220px] bg-zinc-100 dark:bg-[#1a1f23] animate-pulse" />;
+const chartFallback = () => <div className="h-[220px] bg-zinc-100 dark:bg-[#1E1840] animate-pulse" />;
 
 const BudgetBurnChart   = dynamic(() => import('./InsightsCharts').then(m => m.BudgetBurnChart),   { ssr: false, loading: chartFallback });
 const RsvpTrendChart    = dynamic(() => import('./InsightsCharts').then(m => m.RsvpTrendChart),    { ssr: false, loading: chartFallback });
@@ -35,23 +35,23 @@ function StatCard({
   label, value, sub, accent,
 }: { label: string; value: string; sub: string; accent: string }) {
   return (
-    <div className="bg-card border border-silver dark:border-[#2a2f33] p-5 relative overflow-hidden lift shadow-crystal">
+    <div className="bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 p-5 relative overflow-hidden lift">
       <div className="absolute inset-0 shimmer pointer-events-none" />
-      <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 dark:text-silver/40 mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 dark:text-silver/65 mb-2">{label}</p>
       <p className="text-3xl font-bold" style={{ color: accent }}>{value}</p>
-      <p className="text-xs text-zinc-500 dark:text-silver/40 mt-1">{sub}</p>
+      <p className="text-xs text-zinc-500 dark:text-silver/65 mt-1">{sub}</p>
     </div>
   );
 }
 
 function ChartCard({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
   return (
-    <div className="bg-card border border-silver dark:border-[#2a2f33] overflow-hidden shadow-crystal">
-      <div className="px-5 py-4 border-b border-silver dark:border-[#2a2f33] flex items-center gap-3">
-        <div className="w-1 h-4 bg-gold" />
+    <div className="bg-card rounded-2xl shadow-lg ring-1 ring-silver/20 dark:ring-white/5 overflow-hidden">
+      <div className="px-5 py-4 border-b border-silver/30 dark:border-white/5 flex items-center gap-3">
+        <div className="w-1 h-4 rounded-full bg-gold" />
         <div>
           <h2 className="text-sm font-bold text-dark dark:text-white uppercase tracking-wider">{title}</h2>
-          {sub && <p className="text-[10px] text-zinc-400 dark:text-silver/40 mt-0.5">{sub}</p>}
+          {sub && <p className="text-[10px] text-zinc-400 dark:text-silver/65 mt-0.5">{sub}</p>}
         </div>
       </div>
       <div className="px-5 py-5">{children}</div>
@@ -61,7 +61,7 @@ function ChartCard({ title, sub, children }: { title: string; sub?: string; chil
 
 function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
   if (data.length === 0) {
-    return <p className="text-sm text-zinc-400 dark:text-silver/40 py-4 text-center">No checklist categories yet.</p>;
+    return <p className="text-sm text-zinc-400 dark:text-silver/65 py-4 text-center">No checklist categories yet.</p>;
   }
   return (
     <div className="space-y-3">
@@ -77,9 +77,9 @@ function TaskCategoryProgress({ data }: { data: TaskCategoryPoint[] }) {
                 {done}/{total}
               </span>
             </div>
-            <div className="h-1.5 bg-zinc-200 dark:bg-[#2a2f33] overflow-hidden">
+            <div className="h-1.5 bg-zinc-200 dark:bg-[#3D3268] rounded-full overflow-hidden">
               <div
-                className="h-full bg-gold transition-all duration-700"
+                className="h-full rounded-full bg-gold transition-all duration-700"
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -104,18 +104,18 @@ const InsightsPage = () => {
     <div className="p-6 lg:p-8 space-y-6 page-sections">
 
       {/* Header */}
-      <div className="bg-dark p-[3px] glow-gold-strong relative">
-        <span className="absolute top-2 left-2 text-gold/25 text-[10px]">◉</span>
-        <span className="absolute top-2 right-2 text-gold/25 text-[10px]">◉</span>
-        <div className="border border-gold/20 px-6 py-5 relative overflow-hidden">
+      <div className="rounded-2xl overflow-hidden glow-gold-strong relative">
+        <span className="absolute top-2 left-2 text-gold/25 text-[10px] z-10">◉</span>
+        <span className="absolute top-2 right-2 text-gold/25 text-[10px] z-10">◉</span>
+        <div className="bg-card dark:bg-[#2A1F52] rounded-2xl border border-blush/20 dark:border-gold/20 px-6 py-5 relative overflow-hidden">
           <div className="absolute inset-0 shimmer pointer-events-none" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold pulse-dot" />
-              <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em]">Analytics</p>
+              <span className="w-1.5 h-1.5 rounded-full bg-blush dark:bg-gold pulse-dot" />
+              <p className="text-[10px] font-bold text-blush dark:text-gold uppercase tracking-[0.4em]">Analytics</p>
             </div>
-            <h1 className="text-xl font-bold text-white">Planning Insights</h1>
-            <p className="text-xs text-silver/50 mt-1">
+            <h1 className="text-xl font-bold text-dark dark:text-white">Planning Insights</h1>
+            <p className="text-xs text-silver dark:text-silver/50 mt-1">
               Budget burn, RSVP responses, and task velocity — last 8 weeks
             </p>
           </div>

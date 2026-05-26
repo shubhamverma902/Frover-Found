@@ -1,4 +1,4 @@
-interface GuestsHeaderProps {
+﻿interface GuestsHeaderProps {
   confirmed:  number;
   pending:    number;
   declined:   number;
@@ -10,18 +10,18 @@ interface GuestsHeaderProps {
 }
 
 export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting, onAddGuest, onImport, onExport }: GuestsHeaderProps) => (
-  <div className="bg-dark p-[3px] glow-gold-strong relative">
-    <span className="absolute top-2 left-2 text-gold/25 text-[10px]">◆</span>
-    <span className="absolute top-2 right-2 text-gold/25 text-[10px]">◆</span>
-    <div className="border border-gold/20 px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+  <div className="rounded-2xl overflow-hidden glow-gold-strong relative">
+    <span className="absolute top-2 left-2 text-gold/25 text-[10px] z-10">◆</span>
+    <span className="absolute top-2 right-2 text-gold/25 text-[10px] z-10">◆</span>
+    <div className="bg-card dark:bg-[#2A1F52] rounded-2xl border border-blush/20 dark:border-gold/20 px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
       <div className="absolute inset-0 shimmer pointer-events-none" />
       <div className="relative">
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-gold pulse-dot" />
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em]">Planning</p>
+          <span className="w-1.5 h-1.5 rounded-full bg-blush dark:bg-gold pulse-dot" />
+          <p className="text-[10px] font-bold text-blush dark:text-gold uppercase tracking-[0.4em]">Planning</p>
         </div>
-        <h1 className="text-xl font-bold text-white">Guest List</h1>
-        <p className="text-xs text-silver/50 mt-1">
+        <h1 className="text-xl font-bold text-dark dark:text-white">Guest List</h1>
+        <p className="text-xs text-silver dark:text-silver/50 mt-1">
           {loading ? '—' : `${confirmed} confirmed · ${pending} pending · ${declined} declined`}
         </p>
       </div>
@@ -30,7 +30,7 @@ export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting,
           <button
             onClick={onImport}
             disabled={loading}
-            className="px-4 py-2.5 text-xs font-bold border border-gold/25 text-gold/65 hover:border-gold/50 hover:text-gold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2.5 text-xs font-bold rounded-xl border border-blush/30 dark:border-gold/25 text-blush dark:text-gold/65 hover:border-blush dark:hover:border-gold/50 hover:text-blush dark:hover:text-gold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ↑ Import
           </button>
@@ -39,14 +39,14 @@ export const GuestsHeader = ({ confirmed, pending, declined, loading, exporting,
           <button
             onClick={onExport}
             disabled={loading || exporting}
-            className="px-4 py-2.5 text-xs font-bold border border-gold/25 text-gold/65 hover:border-gold/50 hover:text-gold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2.5 text-xs font-bold rounded-xl border border-blush/30 dark:border-gold/25 text-blush dark:text-gold/65 hover:border-blush dark:hover:border-gold/50 hover:text-blush dark:hover:text-gold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {exporting ? 'Exporting…' : '↓ CSV'}
           </button>
         )}
         <button
           onClick={onAddGuest}
-          className="px-5 py-2.5 text-xs font-bold bg-gold text-dark hover:bg-gold/85 transition-all hover:shadow-[0_4px_16px_rgba(228,188,98,0.45)]"
+          className="px-5 py-2.5 text-xs font-bold rounded-xl bg-blush text-white hover:bg-blush/90 transition-all hover:shadow-[0_4px_16px_rgba(216,167,177,0.45)]"
         >
           + Add Guest
         </button>

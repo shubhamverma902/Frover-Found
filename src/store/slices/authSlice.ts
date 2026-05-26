@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
-import { loginApi, registerApi, getMeApi, logoutApi, refreshTokenApi } from '@/api/auth.api';
+import { loginApi, registerApi, getMeApi, logoutApi } from '@/api/auth.api';
 import type { LoginPayload, RegisterPayload } from '@/api/auth.api';
 import { setAccessToken, getAccessToken, clearAccessToken } from '@/api/tokenStore';
+import { refreshOnce } from '@/api/pendingRefresh';
 import { submitOnboarding } from './onboardingSlice';
 import { type SliceError, extractError } from '../sliceError';
 
@@ -78,7 +79,7 @@ export const restoreAuth = createAsyncThunk(
       // On hard refresh the in-memory token is gone — use the httpOnly refresh
       // cookie to get a new access token before calling /me.
       if (!getToken()) {
-        const fresh = await refreshTokenApi();
+        const fresh = await refreshOnce();
         saveToken(fresh);
       }
       return await getMeApi();

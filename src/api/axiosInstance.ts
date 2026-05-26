@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from './tokenStore';
-import { refreshTokenApi } from './refreshToken';
+import { refreshOnce } from './pendingRefresh';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
 
@@ -162,7 +162,7 @@ axiosInstance.interceptors.response.use(
     isRefreshing    = true;
 
     try {
-      const newToken = await refreshTokenApi();
+      const newToken = await refreshOnce();
 
       setAccessToken(newToken);
       if (original.headers) original.headers['Authorization'] = `Bearer ${newToken}`;

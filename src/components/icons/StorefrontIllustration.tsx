@@ -1,6 +1,6 @@
-export const StorefrontIllustration = () => (
+﻿export const StorefrontIllustration = () => (
   <svg width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true">
-    <rect x="16" y="36" width="56" height="38" rx="1" fill="#1c2226" stroke="#E4BC62" strokeWidth="1.5" strokeOpacity="0.3"/>
+    <rect x="16" y="36" width="56" height="38" rx="1" fill="#0F0C24" stroke="#E4BC62" strokeWidth="1.5" strokeOpacity="0.3"/>
     <path d="M10 36 L44 22 L78 36Z" fill="#E4BC62" fillOpacity="0.12" stroke="#E4BC62" strokeWidth="1" strokeOpacity="0.3"/>
     <rect x="36" y="54" width="16" height="20" rx="1" fill="#E4BC62" fillOpacity="0.1" stroke="#E4BC62" strokeWidth="1" strokeOpacity="0.25"/>
     <circle cx="50" cy="64" r="1.5" fill="#E4BC62" fillOpacity="0.5"/>

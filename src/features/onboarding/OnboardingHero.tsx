@@ -10,7 +10,7 @@ export const OnboardingHero = () => (
         One-time setup
       </p>
       <h1 className="text-3xl font-bold text-dark">Tell us about your wedding</h1>
-      <p className="mt-2 text-sm text-zinc-400">
+      <p className="mt-2 text-sm text-zinc-400 dark:text-silver/70">
         We use this to personalise your planning experience. Takes under 2 minutes.
       </p>
     </div>
