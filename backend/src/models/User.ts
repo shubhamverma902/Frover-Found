@@ -8,8 +8,8 @@ export interface ICollaborator {
   email:         string;
   name?:         string;
   role:          'planner' | 'viewer';
-  inviteToken?:  string;
-  inviteExpiry?: Date;
+  inviteToken?:  string | null;
+  inviteExpiry?: Date | null;
   linkedAt?:     Date;
 }
 
@@ -58,6 +58,7 @@ export interface IUser extends Document {
   email:                string;
   password:             string;
   phone:                string;
+  plan:                 'free' | 'premium';
   role:                 'user' | 'admin';
   onboardingCompleted:  boolean;
   weddingProfile:       IWeddingProfile | null;
@@ -88,6 +89,7 @@ const userSchema = new Schema<IUser>(
     email:               { type: String,  required: true, unique: true, lowercase: true, trim: true },
     password:            { type: String,  required: true, minlength: 12, select: false },
     phone:               { type: String,  default: '', trim: true, maxlength: 30 },
+    plan:                { type: String,  enum: ['free', 'premium'], default: 'free' },
     role:                { type: String,  enum: ['user', 'admin'], default: 'user' },
     onboardingCompleted: { type: Boolean, default: false },
     weddingProfile:      { type: weddingProfileSchema, default: null },

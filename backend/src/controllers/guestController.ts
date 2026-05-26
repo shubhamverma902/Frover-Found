@@ -155,13 +155,15 @@ export const importGuests = async (req: AuthRequest, res: Response, next: NextFu
 
     const VALID_RSVP = new Set(['confirmed', 'pending', 'declined']);
     const VALID_MEAL = new Set(['Veg', 'Non-veg', 'Jain']);
-    const docs: object[] = [];
-    const errors: string[] = [];
+    const docs: object[]    = [];
+    const docRows: number[] = []; // parallel: docRows[i] = CSV row number of docs[i]
+    const errors: string[]  = [];
 
     for (let i = 0; i < rows.length; i++) {
       const row  = rows[i];
       const name = sanitize(row['name'] ?? '').trim();
       if (!name) { errors.push(`Row ${i + 2}: name is required`); continue; }
+      docRows.push(i + 2);
       docs.push({
         userId:   uid,
         name,
@@ -173,9 +175,33 @@ export const importGuests = async (req: AuthRequest, res: Response, next: NextFu
       });
     }
 
-    const inserted = await Guest.insertMany(docs, { ordered: false });
-    logActivity(uid, '👥', `Imported ${inserted.length} guests via CSV`);
-    sendSuccess(res, { imported: inserted.length, skipped: errors.length, errors }, 'Guests imported', 201);
+    let insertedCount = 0;
+    try {
+      const inserted = await Guest.insertMany(docs, { ordered: false });
+      insertedCount = inserted.length;
+    } catch (bulkErr: unknown) {
+      // ordered:false throws MongoBulkWriteError when some docs fail but still
+      // inserts the valid ones. Surface each failure as a row-level error and
+      // continue to the success response with partial results.
+      // Any other error (network, auth) re-throws to the outer catch → next(err).
+      if (
+        bulkErr instanceof Error &&
+        'writeErrors' in bulkErr &&
+        Array.isArray((bulkErr as Record<string, unknown>).writeErrors)
+      ) {
+        const bwe = bulkErr as unknown as { result: { insertedCount: number }; writeErrors: Array<{ index: number; errmsg?: string }> };
+        insertedCount = bwe.result?.insertedCount ?? 0;
+        for (const we of bwe.writeErrors) {
+          const row = docRows[we.index] ?? (we.index + 2);
+          errors.push(`Row ${row}: ${we.errmsg ?? 'Insert failed'}`);
+        }
+      } else {
+        throw bulkErr;
+      }
+    }
+
+    logActivity(uid, '👥', `Imported ${insertedCount} guests via CSV`);
+    sendSuccess(res, { imported: insertedCount, skipped: errors.length, errors }, 'Guests imported', 201);
   } catch (err) {
     next(err);
   }

@@ -12,7 +12,7 @@ export interface AuthUser {
   id?:                  string;
   name:                 string;
   email:                string;
-  plan:                 'free' | 'premium';
+  plan:                 'free' | 'premium';  // always set; existing DB users default to 'free' via toAuthUser
   onboardingCompleted?: boolean;
   collaboratorRole?:    'planner' | 'viewer' | null;
 }

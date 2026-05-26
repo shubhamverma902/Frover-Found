@@ -10,8 +10,10 @@ interface BackendUser {
   id:                  string;
   name:                string;
   email:               string;
+  plan:                'free' | 'premium';
   role:                string;
   onboardingCompleted: boolean;
+  collaboratorRole?:   'planner' | 'viewer' | null;
 }
 
 interface AuthApiData {
@@ -49,12 +51,13 @@ export interface ResetPasswordPayload {
 
 // ── API calls ────────────────────────────────────────────────
 
-const toAuthUser = (u: BackendUser, plan: AuthUser['plan'] = 'free'): AuthUser => ({
+const toAuthUser = (u: BackendUser): AuthUser => ({
   id:                  u.id,
   name:                u.name,
   email:               u.email,
-  plan,
+  plan:                u.plan ?? 'free',
   onboardingCompleted: u.onboardingCompleted,
+  collaboratorRole:    u.collaboratorRole ?? null,
 });
 
 export const loginApi = async (payload: LoginPayload): Promise<{ token: string; user: AuthUser }> => {
@@ -67,8 +70,9 @@ export const registerApi = async (payload: RegisterPayload): Promise<{ token: st
     name:     payload.name,
     email:    payload.email,
     password: payload.password,
+    plan:     payload.plan ?? 'free',
   });
-  return { token: data.data.token, user: toAuthUser(data.data.user, payload.plan ?? 'free') };
+  return { token: data.data.token, user: toAuthUser(data.data.user) };
 };
 
 export const getMeApi = async (): Promise<AuthUser> => {

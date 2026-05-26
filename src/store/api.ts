@@ -121,7 +121,14 @@ export const api = createApi({
           .filter(q => q.endpointName === 'getGuests' && q.status === 'fulfilled')
           .map(q => dispatch(api.util.updateQueryData('getGuests', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
             const idx = draft.guests.findIndex(g => g._id === guestId);
-            if (idx !== -1) draft.guests.splice(idx, 1);
+            if (idx !== -1) {
+              const [removed] = draft.guests.splice(idx, 1);
+              draft.total      = Math.max(0, draft.total - 1);
+              draft.grandTotal = Math.max(0, draft.grandTotal - 1);
+              if      (removed.rsvp === 'confirmed') draft.confirmed = Math.max(0, draft.confirmed - 1);
+              else if (removed.rsvp === 'pending')   draft.pending   = Math.max(0, draft.pending   - 1);
+              else if (removed.rsvp === 'declined')  draft.declined  = Math.max(0, draft.declined  - 1);
+            }
           })));
         try { await queryFulfilled; }
         catch { patches.forEach(p => p.undo()); }
@@ -168,7 +175,14 @@ export const api = createApi({
           .filter(q => q.endpointName === 'getVendors' && q.status === 'fulfilled')
           .map(q => dispatch(api.util.updateQueryData('getVendors', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
             const v = draft.vendors.find(v => v._id === vendorId);
-            if (v) v.status = status;
+            if (v) {
+              const prev = v.status;
+              v.status = status;
+              if (prev   === 'booked')      draft.booked      = Math.max(0, draft.booked      - 1);
+              if (prev   === 'shortlisted') draft.shortlisted = Math.max(0, draft.shortlisted - 1);
+              if (status === 'booked')      draft.booked      += 1;
+              if (status === 'shortlisted') draft.shortlisted += 1;
+            }
           })));
         try { await queryFulfilled; }
         catch { patches.forEach(p => p.undo()); }
@@ -184,7 +198,13 @@ export const api = createApi({
           .filter(q => q.endpointName === 'getVendors' && q.status === 'fulfilled')
           .map(q => dispatch(api.util.updateQueryData('getVendors', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
             const idx = draft.vendors.findIndex(v => v._id === vendorId);
-            if (idx !== -1) draft.vendors.splice(idx, 1);
+            if (idx !== -1) {
+              const [removed] = draft.vendors.splice(idx, 1);
+              draft.total      = Math.max(0, draft.total - 1);
+              draft.grandTotal = Math.max(0, draft.grandTotal - 1);
+              if      (removed.status === 'booked')      draft.booked      = Math.max(0, draft.booked      - 1);
+              else if (removed.status === 'shortlisted') draft.shortlisted = Math.max(0, draft.shortlisted - 1);
+            }
           })));
         try { await queryFulfilled; }
         catch { patches.forEach(p => p.undo()); }

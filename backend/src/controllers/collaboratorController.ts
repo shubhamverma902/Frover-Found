@@ -91,8 +91,8 @@ export const acceptCollaboratorInvite = async (req: AuthRequest, res: Response, 
       collab.userId       = me._id as Types.ObjectId;
       collab.name         = me.name;
       collab.linkedAt     = now;
-      collab.inviteToken  = undefined;
-      collab.inviteExpiry = undefined;
+      collab.inviteToken  = null;
+      collab.inviteExpiry = null;
       await owner.save({ session });
 
       await User.findByIdAndUpdate(me._id, {

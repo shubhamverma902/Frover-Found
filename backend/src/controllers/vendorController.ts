@@ -14,6 +14,18 @@ import { parsePage } from '../utils/parsePage';
 
 const MAX_ATTACHMENTS = 5;
 
+// Parses and clamps rating to the valid [1, 5] integer range.
+// Returns `fallback` when val is absent (create path).
+// Throws a 422 ApiError when val is present but not a finite number (caught by the controller's try-catch).
+function toRating(val: unknown, fallback?: number): number {
+  if (val === undefined || val === null || val === '') {
+    return fallback ?? (() => { throw new ApiError(422, 'Rating must be a number between 1 and 5'); })();
+  }
+  const n = Number(val);
+  if (!Number.isFinite(n)) throw new ApiError(422, 'Rating must be a number between 1 and 5');
+  return Math.min(5, Math.max(1, Math.round(n)));
+}
+
 // GET /api/v1/vendors?page=1&limit=10&q=florals
 export const getVendors = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -70,7 +82,7 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
       contact:  sanitize(contact),
       location: sanitize(location),
       status:   status   ?? 'pending',
-      rating:   Number(rating) || 3,
+      rating:   toRating(rating, 3),
       notes:    sanitize(notes),
     });
 
@@ -98,7 +110,7 @@ export const updateVendor = async (req: AuthRequest, res: Response, next: NextFu
         contact:  sanitizeOpt(contact),
         location: sanitizeOpt(location),
         status,
-        rating:   Number(rating),
+        rating:   toRating(rating),
         notes:    sanitizeOpt(notes),
       },
       { new: true, runValidators: true }

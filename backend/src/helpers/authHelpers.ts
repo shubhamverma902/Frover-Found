@@ -51,6 +51,7 @@ export const userPayload = (user: InstanceType<typeof User>) => ({
   id:                  String(user._id),
   name:                user.name,
   email:               user.email,
+  plan:                user.plan,
   role:                user.role,
   onboardingCompleted: user.onboardingCompleted,
   collaboratorRole:    user.collaboratorRole ?? null,

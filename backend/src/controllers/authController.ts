@@ -31,12 +31,12 @@ const setRefreshCookie = (res: Response, token: string) =>
 
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, plan } = req.body;
 
     const existing = await User.findOne({ email });
     if (existing) return next(new ApiError(409, 'Email already in use'));
 
-    const user         = await User.create({ name, email, password });
+    const user         = await User.create({ name, email, password, plan: plan === 'premium' ? 'premium' : 'free' });
     const id           = String(user._id);
     const accessToken  = signToken(id, user.email, user.role);
     // New accounts start at version 0 — tokenVersion field default
