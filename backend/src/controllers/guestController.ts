@@ -231,6 +231,32 @@ export const exportGuests = async (req: AuthRequest, res: Response, next: NextFu
   }
 };
 
+// PUT /api/v1/guests/:id
+export const updateGuest = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { name, relation, phone, rsvp, meal, plusOne } = req.body;
+
+    const guest = await Guest.findOneAndUpdate(
+      { _id: req.params.id, userId: ownerId(req) },
+      {
+        name:     sanitize(name),
+        relation: sanitize(relation ?? ''),
+        phone:    sanitize(phone    ?? ''),
+        rsvp:     rsvp   ?? 'pending',
+        meal:     meal   ?? 'Veg',
+        plusOne:  Boolean(plusOne),
+      },
+      { new: true, runValidators: true }
+    );
+    if (!guest) return next(new ApiError(404, 'Guest not found'));
+
+    logActivity(ownerId(req), '👤', `Guest updated: ${guest.name}`);
+    sendSuccess(res, { guest: serializeGuest(guest) });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // DELETE /api/v1/guests/:id
 export const deleteGuest = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {

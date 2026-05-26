@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ModalShell } from '@/components/ui';
-import { Button, Input, FieldLabel } from '@/components/elements';
+import { Button, Input, FieldLabel, OptionPill } from '@/components/elements';
 import { useCreateVendorMutation } from '@/store/api';
 import type { Vendor } from '@/types/vendor';
 
@@ -75,19 +75,10 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             <div className="grid grid-cols-2 gap-1.5">
               {CATEGORY_ICONS.map(opt => (
-                <button
-                  key={opt.label}
-                  type="button"
-                  onClick={() => handleCategoryChange(opt.label)}
-                  className={`flex items-center gap-2 px-3 py-2 border text-xs font-semibold transition-colors ${
-                    category === opt.label
-                      ? 'border-gold/50 bg-gold/10 text-gold'
-                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
-                  }`}
-                >
+                <OptionPill key={opt.label} active={category === opt.label} onClick={() => handleCategoryChange(opt.label)} className="flex items-center gap-2 px-3 py-2 text-xs font-semibold">
                   <span>{opt.icon}</span>
                   <span>{opt.label}</span>
-                </button>
+                </OptionPill>
               ))}
             </div>
           </div>
@@ -107,18 +98,9 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             <FieldLabel>Status</FieldLabel>
             <div className="flex gap-2">
               {STATUS_OPTIONS.map(opt => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setStatus(opt)}
-                  className={`flex-1 px-3 py-2 text-[11px] font-bold border capitalize transition-colors ${
-                    status === opt
-                      ? 'border-gold/50 bg-gold/10 text-gold'
-                      : 'border-silver/15 text-silver/40 hover:border-silver/30'
-                  }`}
-                >
+                <OptionPill key={opt} active={status === opt} onClick={() => setStatus(opt)} className="flex-1 px-3 py-2 text-[11px] font-bold capitalize">
                   {opt}
-                </button>
+                </OptionPill>
               ))}
             </div>
           </div>

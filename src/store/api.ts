@@ -26,7 +26,7 @@ import {
   WeddingEventSchema,
 } from "@/api/schemas";
 import type { GuestsData } from "@/api/guests.api";
-import type { CreateGuestPayload } from "@/api/guests.api";
+import type { CreateGuestPayload, UpdateGuestPayload } from "@/api/guests.api";
 import type { VendorsData } from "@/api/vendors.api";
 import type { VendorPayload } from "@/api/vendors.api";
 import type { EventsData } from "@/api/events.api";
@@ -94,6 +94,33 @@ export const api = createApi({
 
     createGuest: build.mutation<void, CreateGuestPayload>({
       query: (body) => ({ url: API.guests.base, method: 'POST', data: body }),
+      invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
+    }),
+
+    updateGuest: build.mutation<void, { guestId: string; payload: UpdateGuestPayload }>({
+      query: ({ guestId, payload }) => ({ url: API.guests.byId(guestId), method: 'PUT', data: payload }),
+      onQueryStarted: async ({ guestId, payload }, { dispatch, getState, queryFulfilled }) => {
+        const qs = (getState() as Record<string, { queries?: Record<string, ApiQueryEntry> }>)[api.reducerPath]?.queries ?? {};
+        const patches = Object.values(qs)
+          .filter(q => q.endpointName === 'getGuests' && q.status === 'fulfilled')
+          .map(q => dispatch(api.util.updateQueryData('getGuests', q.originalArgs as { page: number; limit: number; query?: string }, draft => {
+            const g = draft.guests.find(g => g._id === guestId);
+            if (g) {
+              const prev = g.rsvp;
+              Object.assign(g, payload);
+              if (prev !== payload.rsvp) {
+                if (prev         === 'confirmed') draft.confirmed = Math.max(0, draft.confirmed - 1);
+                if (prev         === 'pending')   draft.pending   = Math.max(0, draft.pending   - 1);
+                if (prev         === 'declined')  draft.declined  = Math.max(0, draft.declined  - 1);
+                if (payload.rsvp === 'confirmed') draft.confirmed += 1;
+                if (payload.rsvp === 'pending')   draft.pending   += 1;
+                if (payload.rsvp === 'declined')  draft.declined  += 1;
+              }
+            }
+          })));
+        try { await queryFulfilled; }
+        catch { patches.forEach(p => p.undo()); }
+      },
       invalidatesTags: [{ type: 'Guest', id: 'LIST' }, 'Dashboard', 'Analytics'],
     }),
 
@@ -578,6 +605,7 @@ export const api = createApi({
 export const {
   useGetGuestsQuery,
   useCreateGuestMutation,
+  useUpdateGuestMutation,
   usePatchGuestRsvpMutation,
   useDeleteGuestMutation,
   useGetVendorsQuery,

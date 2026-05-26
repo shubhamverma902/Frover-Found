@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ModalShell } from '@/components/ui';
-import { Button, Input, FieldLabel } from '@/components/elements';
+import { Button, Input, FieldLabel, OptionPill } from '@/components/elements';
 import type { SeatingTable } from '@/types/seating';
 
 interface Props {
@@ -59,20 +59,10 @@ export const EditTableModal = ({ table, onSave, onDelete, onClose, saving }: Pro
             <FieldLabel>Shape</FieldLabel>
             <div className="flex gap-2">
               {(['round', 'rectangular'] as const).map(s => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setShape(s)}
-                  className={[
-                    'flex-1 flex items-center justify-center gap-2 px-3 py-2.5 border text-[11px] font-bold capitalize transition-colors',
-                    shape === s
-                      ? 'border-gold/50 bg-gold/10 text-gold'
-                      : 'border-silver/15 text-silver/40 hover:border-silver/30',
-                  ].join(' ')}
-                >
+                <OptionPill key={s} active={shape === s} onClick={() => setShape(s)} className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-[11px] font-bold capitalize">
                   <span>{s === 'round' ? '●' : '■'}</span>
                   {s}
-                </button>
+                </OptionPill>
               ))}
             </div>
           </div>

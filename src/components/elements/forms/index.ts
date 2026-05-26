@@ -1,4 +1,6 @@
 export { Button } from "./button";
+export { CheckRow } from "./check-row";
+export { OptionPill } from "./option-pill";
 export type { ButtonProps } from "./button";
 export { Checkbox } from "./checkbox";
 export { FieldLabel } from "./label";

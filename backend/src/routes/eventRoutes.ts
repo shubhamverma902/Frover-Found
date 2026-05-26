@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import { body } from 'express-validator';
 import { requireWrite } from '../helpers/authHelpers';
 import { uploadAttachmentLimiter } from '../middleware/rateLimiters';
+import validate from '../middleware/validate';
 import {
   getEvents,
   createEvent,
@@ -17,12 +19,23 @@ import ApiError from '../utils/ApiError';
 const router = Router();
 const upload = makeUpload('events');
 
+const eventBody = [
+  body('name').trim().notEmpty().withMessage('Event name is required'),
+  body('date').notEmpty().withMessage('Date is required'),
+  body('time').notEmpty().withMessage('Time is required'),
+  body('venue').notEmpty().withMessage('Venue is required'),
+  body('guests').isInt({ min: 0 }).withMessage('Guests must be a non-negative integer'),
+  body('status').isIn(['confirmed', 'planning', 'pending']).withMessage('Invalid status'),
+];
+
 router.use(protect);
 
 router.get('/',             getEvents);
-router.post('/',            requireWrite, createEvent);
-router.put('/:id',          requireWrite, updateEvent);
-router.patch('/:id/status', requireWrite, patchEventStatus);
+router.post('/',            requireWrite, eventBody, validate, createEvent);
+router.put('/:id',          requireWrite, eventBody, validate, updateEvent);
+router.patch('/:id/status', requireWrite, [
+  body('status').isIn(['confirmed', 'planning', 'pending']).withMessage('Invalid status'),
+], validate, patchEventStatus);
 router.delete('/:id',       requireWrite, deleteEvent);
 
 // Attachment routes — multer error converted to ApiError so the client gets JSON

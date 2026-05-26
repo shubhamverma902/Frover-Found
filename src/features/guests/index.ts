@@ -1,4 +1,5 @@
 export { default as AddGuestModal    } from './AddGuestModal';
+export { default as EditGuestModal   } from './EditGuestModal';
 export { default as GuestRsvpModal   } from './GuestRsvpModal';
 export { default as ImportGuestModal } from './ImportGuestModal';
 export { GuestsHeader     } from './GuestsHeader';

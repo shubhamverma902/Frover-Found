@@ -25,6 +25,8 @@ export interface CreateGuestPayload {
   plusOne:  boolean;
 }
 
+export type UpdateGuestPayload = CreateGuestPayload;
+
 export const fetchGuestsApi = async (page = 1, limit = 10, signal?: AbortSignal): Promise<GuestsData> => {
   const { data } = await axiosInstance.get<ApiResponse<GuestsData>>(API.guests.base, {
     params: { page, limit },
@@ -44,6 +46,11 @@ export const patchGuestRsvpApi = async (guestId: string, rsvp: Guest['rsvp']): P
     { rsvp }
   );
   return parseResponse(GuestSchema, data.data.guest, 'patchGuestRsvpApi');
+};
+
+export const updateGuestApi = async (guestId: string, payload: UpdateGuestPayload): Promise<Guest> => {
+  const { data } = await axiosInstance.put<ApiResponse<{ guest: Guest }>>(API.guests.byId(guestId), payload);
+  return parseResponse(GuestSchema, data.data.guest, 'updateGuestApi');
 };
 
 export const deleteGuestApi = async (guestId: string): Promise<void> => {

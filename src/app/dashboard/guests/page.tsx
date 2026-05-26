@@ -6,7 +6,7 @@ import { getAccessToken } from '@/api/tokenStore';
 import { useGetGuestsQuery } from '@/store/api';
 import {
   AddGuestModal,
-  GuestRsvpModal,
+  EditGuestModal,
   ImportGuestModal,
   GuestsHeader,
   GuestStatCards,
@@ -34,7 +34,7 @@ const GuestsPage = () => {
   // Modal / transient state
   const [addOpen,    setAddOpen]    = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const [rsvpGuest,  setRsvpGuest]  = useState<Guest | null>(null);
+  const [editGuest,  setEditGuest]  = useState<Guest | null>(null);
   const [exporting,  setExporting]  = useState(false);
 
   // Debounce input → URL (also resets page to 1)
@@ -121,9 +121,15 @@ const GuestsPage = () => {
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
 
-      {addOpen    && <AddGuestModal    onClose={() => setAddOpen(false)} onSuccess={() => { setAddOpen(false); goToPage(1); }} />}
+      {addOpen   && <AddGuestModal  onClose={() => setAddOpen(false)} onSuccess={() => { setAddOpen(false); goToPage(1); }} />}
       {importOpen && <ImportGuestModal onClose={() => setImportOpen(false)} />}
-      {rsvpGuest  && <GuestRsvpModal  guest={rsvpGuest} onClose={() => setRsvpGuest(null)} />}
+      {editGuest && (
+        <EditGuestModal
+          guest={editGuest}
+          onClose={() => setEditGuest(null)}
+          onDeleted={() => setEditGuest(null)}
+        />
+      )}
 
       <GuestsHeader
         confirmed={confirmed}
@@ -181,7 +187,7 @@ const GuestsPage = () => {
               </div>
             </div>
 
-            <GuestTable guests={guests} onEditGuest={setRsvpGuest} />
+            <GuestTable guests={guests} onEditGuest={setEditGuest} />
 
             {totalPages > 1 && (
               <GuestPagination
