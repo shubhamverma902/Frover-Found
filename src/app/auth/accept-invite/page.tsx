@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/layout';
 import { PATH } from '@/constants/path';
+import { PENDING_INVITE_TOKEN_KEY } from '@/constants/auth';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectIsAuthenticated, selectHydrated, restoreAuth } from '@/store/slices/authSlice';
 import { useAcceptInviteMutation, useAcceptCollaboratorInviteMutation } from '@/store/api';
@@ -41,7 +42,7 @@ const AcceptInvitePage = () => {
   // Side-effect only: save token to sessionStorage so login/signup can redirect back
   useEffect(() => {
     if (hydrated && !isAuthenticated && token) {
-      sessionStorage.setItem('pendingInviteToken', token);
+      sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
     }
   }, [hydrated, isAuthenticated, token]);
 

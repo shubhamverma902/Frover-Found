@@ -1,22 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 import { SIDEBAR_NAV } from '@/constants/navigation';
 import { PATH } from '@/constants/path';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { selectUser } from '@/store/slices/authSlice';
-import {
-  fetchOnboarding,
-  selectWeddingProfile,
-  selectOnboardingCompleted,
-  selectOnboardingStatus,
-} from '@/store/slices/onboardingSlice';
+import type { AuthUser } from '@/store/slices/authSlice';
+import type { WeddingProfile } from '@/types/onboarding';
 
 interface SidebarProps {
-  open?: boolean;
+  open?:          boolean;
+  user:           AuthUser | null;
+  profile:        WeddingProfile | null;
+  onboardingDone: boolean;
 }
 
 const getInitials = (name: string) =>
@@ -28,21 +24,8 @@ const daysUntil = (dateStr: string): number =>
 const formatDate = (dateStr: string): string =>
   new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-export function Sidebar({ open }: SidebarProps) {
-  const pathname  = usePathname();
-  const dispatch  = useAppDispatch();
-
-  const user              = useAppSelector(selectUser);
-  const profile           = useAppSelector(selectWeddingProfile);
-  const onboardingDone    = useAppSelector(selectOnboardingCompleted);
-  const onboardingStatus  = useAppSelector(selectOnboardingStatus);
-
-  // Fetch onboarding data on mount if authenticated but profile not in store yet
-  useEffect(() => {
-    if (user && !profile && onboardingStatus === 'idle') {
-      dispatch(fetchOnboarding());
-    }
-  }, [user, profile, onboardingStatus, dispatch]);
+export function Sidebar({ open, user, profile, onboardingDone }: SidebarProps) {
+  const pathname = usePathname();
 
   const initials  = user ? getInitials(user.name) : '?';
   const planLabel = user?.plan === 'premium' ? 'Premium' : 'Free';
@@ -74,7 +57,6 @@ export function Sidebar({ open }: SidebarProps) {
         <div className="mx-4 mt-4">
           {countdown ? (
             <div className="px-4 py-3 bg-gold/10 border border-gold/20">
-              {/* Couple names */}
               {profile?.partner1 && profile?.partner2 && (
                 <p className="text-[10px] font-semibold text-gold/70 truncate mb-1">
                   {profile.partner1} &amp; {profile.partner2}
@@ -99,7 +81,6 @@ export function Sidebar({ open }: SidebarProps) {
                   <p className="text-[11px] text-silver/40 mt-0.5">{countdown.date}</p>
                 </>
               )}
-              {/* City + style chips */}
               {(profile?.city || profile?.style) && (
                 <div className="flex flex-wrap gap-1 mt-2">
                   {profile.city && (
@@ -116,7 +97,6 @@ export function Sidebar({ open }: SidebarProps) {
               )}
             </div>
           ) : onboardingDone === false && user ? (
-            /* Onboarding not completed — nudge */
             <Link
               href={PATH.onboarding}
               className="flex flex-col px-4 py-3 bg-blush/10 border border-blush/25 hover:bg-blush/15 transition-colors"
@@ -129,7 +109,6 @@ export function Sidebar({ open }: SidebarProps) {
               </p>
             </Link>
           ) : (
-            /* Loading / skeleton */
             <div className="px-4 py-3 bg-gold/5 border border-gold/10 animate-pulse">
               <div className="h-2 w-16 bg-gold/20 rounded mb-2" />
               <div className="h-5 w-20 bg-silver/10 rounded mb-1" />

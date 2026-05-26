@@ -72,7 +72,7 @@ export const VendorSchema = z.object({
   contact:     z.string(),
   location:    z.string(),
   status:      z.enum(['booked', 'shortlisted', 'pending']),
-  rating:      z.number(),
+  rating:      z.number().int().min(1).max(5),
   notes:       z.string(),
   attachments: z.array(AttachmentSchema).optional(),
 });

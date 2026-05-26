@@ -7,11 +7,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { DASHBOARD_ACTIONS, toggleDashboardTask } from '@/store/slices/dashboardSlice';
 import { useGetDashboardQuery, useToggleTaskMutation } from '@/store/api';
 import { DashboardSkeleton } from '@/features/dashboard/DashboardSkeleton';
-
-const fmt = (n: number) =>
-  n >= 1_00_000 ? `₹${(n / 1_00_000).toFixed(1)}L` :
-  n >= 1_000    ? `₹${(n / 1_000).toFixed(0)}K`    :
-  `₹${n}`;
+import { fmt } from '@/utils/format';
 
 const DashboardPage = () => {
   const dispatch = useAppDispatch();

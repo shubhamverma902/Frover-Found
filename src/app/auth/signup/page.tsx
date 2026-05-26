@@ -8,7 +8,7 @@ import { Logo } from '@/components/layout';
 import { PATH } from '@/constants/path';
 import { Checkbox, Form, Input, Radio } from '@/components/elements';
 import { EyeIcon, EyeOffIcon } from '@/components/icons';
-import { SIGNUP_PANEL_IMAGE } from '@/constants/auth';
+import { SIGNUP_PANEL_IMAGE, PENDING_INVITE_TOKEN_KEY } from '@/constants/auth';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { signupUser, clearError, selectIsAuthenticated, selectUser, selectAuthStatus, selectAuthError } from '@/store/slices/authSlice';
 
@@ -53,9 +53,9 @@ const SignupPage = () => {
   // If arriving from a collaborator invite, skip onboarding and go accept the invite
   useEffect(() => {
     if (!isAuthenticated) return;
-    const pendingToken = sessionStorage.getItem('pendingInviteToken');
+    const pendingToken = sessionStorage.getItem(PENDING_INVITE_TOKEN_KEY);
     if (pendingToken) {
-      sessionStorage.removeItem('pendingInviteToken');
+      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
       router.push(`${PATH.auth.acceptInvite}?token=${pendingToken}&type=collab`);
       return;
     }

@@ -8,7 +8,7 @@ import { Logo } from '@/components/layout';
 import { PATH } from '@/constants/path';
 import { Form, Input } from '@/components/elements';
 import { EyeIcon, EyeOffIcon } from '@/components/icons';
-import { LOGIN_PANEL_IMAGE, LOGIN_PANEL_TESTIMONIAL } from '@/constants/auth';
+import { LOGIN_PANEL_IMAGE, LOGIN_PANEL_TESTIMONIAL, PENDING_INVITE_TOKEN_KEY } from '@/constants/auth';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginUser, clearError, selectIsAuthenticated, selectUser, selectAuthStatus, selectAuthError, selectAuthErrorCode } from '@/store/slices/authSlice';
 
@@ -30,9 +30,9 @@ const LoginPage = () => {
   // Redirect: if a pending invite was saved before login, go accept it first
   useEffect(() => {
     if (!isAuthenticated) return;
-    const pendingToken = sessionStorage.getItem('pendingInviteToken');
+    const pendingToken = sessionStorage.getItem(PENDING_INVITE_TOKEN_KEY);
     if (pendingToken) {
-      sessionStorage.removeItem('pendingInviteToken');
+      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
       router.push(`${PATH.auth.acceptInvite}?token=${pendingToken}`);
       return;
     }

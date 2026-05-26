@@ -27,6 +27,11 @@ export interface VendorPayload {
   notes:    string;
 }
 
+const clampRating = (p: VendorPayload): VendorPayload => ({
+  ...p,
+  rating: Math.min(5, Math.max(1, Math.round(p.rating))),
+});
+
 export const fetchVendorsApi = async (page = 1, limit = 10, signal?: AbortSignal): Promise<VendorsData> => {
   const { data } = await axiosInstance.get<ApiResponse<VendorsData>>(API.vendors.base, {
     params: { page, limit },
@@ -36,12 +41,12 @@ export const fetchVendorsApi = async (page = 1, limit = 10, signal?: AbortSignal
 };
 
 export const createVendorApi = async (payload: VendorPayload): Promise<Vendor> => {
-  const { data } = await axiosInstance.post<ApiResponse<{ vendor: Vendor }>>(API.vendors.base, payload);
+  const { data } = await axiosInstance.post<ApiResponse<{ vendor: Vendor }>>(API.vendors.base, clampRating(payload));
   return parseResponse(VendorSchema, data.data.vendor, 'createVendorApi');
 };
 
 export const updateVendorApi = async (vendorId: string, payload: VendorPayload): Promise<Vendor> => {
-  const { data } = await axiosInstance.put<ApiResponse<{ vendor: Vendor }>>(API.vendors.byId(vendorId), payload);
+  const { data } = await axiosInstance.put<ApiResponse<{ vendor: Vendor }>>(API.vendors.byId(vendorId), clampRating(payload));
   return parseResponse(VendorSchema, data.data.vendor, 'updateVendorApi');
 };
 

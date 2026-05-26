@@ -2,19 +2,23 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { PATH } from '@/constants/path';
 import { HEADER_MENU_ITEMS } from '@/constants/navigation';
 import { ThemeToggle } from '@/components/ui';
 import { MenuIcon, ArrowLeftIcon, BellIcon, ChevronDownIcon, LogoutIcon } from '@/components/icons';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logoutUser, selectUser } from '@/store/slices/authSlice';
-import { selectWeddingProfile } from '@/store/slices/onboardingSlice';
-import { markAllRead } from '@/store/slices/notificationsSlice';
-import { useGetNotificationsQuery } from '@/store/api';
+import type { AuthUser } from '@/store/slices/authSlice';
+import type { WeddingProfile } from '@/types/onboarding';
+import type { AppNotification } from '@/api/notifications.api';
 
 interface AppHeaderProps {
-  onMenuClick?: () => void;
+  onMenuClick?:   () => void;
+  user:           AuthUser | null;
+  profile:        WeddingProfile | null;
+  notifications:  AppNotification[];
+  unreadCount:    number;
+  notifLoading:   boolean;
+  onLogout:       () => void;
+  onMarkAllRead:  () => void;
 }
 
 const getInitials = (name: string) =>
@@ -28,23 +32,22 @@ const daysUntil = (dateStr: string): number => {
 const formatShortDate = (dateStr: string): string =>
   new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-export function AppHeader({ onMenuClick }: AppHeaderProps) {
-  const router   = useRouter();
-  const dispatch = useAppDispatch();
-  const user     = useAppSelector(selectUser);
-  const profile  = useAppSelector(selectWeddingProfile);
-
-  const { data: notifData, isLoading: notifLoading } = useGetNotificationsQuery(undefined, { pollingInterval: 60_000 });
-  const notifications = notifData?.notifications ?? [];
-  const unreadCount   = notifData?.unreadCount ?? 0;
-
+export function AppHeader({
+  onMenuClick,
+  user,
+  profile,
+  notifications,
+  unreadCount,
+  notifLoading,
+  onLogout,
+  onMarkAllRead,
+}: AppHeaderProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen,   setNotifOpen]   = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef    = useRef<HTMLDivElement>(null);
 
-  // close profile dropdown on outside click
   useEffect(() => {
     if (!profileOpen) return;
     const h = (e: MouseEvent) => {
@@ -54,7 +57,6 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
     return () => document.removeEventListener('mousedown', h);
   }, [profileOpen]);
 
-  // close notification dropdown on outside click
   useEffect(() => {
     if (!notifOpen) return;
     const h = (e: MouseEvent) => {
@@ -64,21 +66,16 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
     return () => document.removeEventListener('mousedown', h);
   }, [notifOpen]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    router.push(PATH.home);
-  };
-
   const handleBellClick = () => {
     const opening = !notifOpen;
     setNotifOpen(opening);
-    if (opening && unreadCount > 0) dispatch(markAllRead());
+    if (opening && unreadCount > 0) onMarkAllRead();
   };
 
-  const initials          = user ? getInitials(user.name) : '?';
-  const firstName         = user?.name.split(' ')[0] ?? 'Guest';
-  const planLabel         = user?.plan === 'premium' ? 'Premium' : 'Free';
-  const weddingCountdown  = profile?.weddingDate
+  const initials         = user ? getInitials(user.name) : '?';
+  const firstName        = user?.name.split(' ')[0] ?? 'Guest';
+  const planLabel        = user?.plan === 'premium' ? 'Premium' : 'Free';
+  const weddingCountdown = profile?.weddingDate
     ? { days: daysUntil(profile.weddingDate), date: formatShortDate(profile.weddingDate) }
     : null;
 
@@ -149,7 +146,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                 </div>
                 {notifications.length > 0 && (
                   <button
-                    onClick={() => dispatch(markAllRead())}
+                    onClick={onMarkAllRead}
                     className="text-[9px] font-bold text-gold/60 hover:text-gold uppercase tracking-widest transition-colors"
                   >
                     Mark all read
@@ -323,7 +320,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
                   <span className="text-gold">✦</span>
                 </button>
                 <button
-                  onClick={handleLogout}
+                  onClick={onLogout}
                   className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold border border-blush/30 text-blush hover:bg-blush/10 transition-colors"
                 >
                   <LogoutIcon size={13} />

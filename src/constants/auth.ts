@@ -1,3 +1,10 @@
+// sessionStorage key used to carry an invite token across the login/signup redirect.
+// Flow: unauthenticated user lands on /accept-invite → token saved here → redirected to
+// login or signup → after auth the token is read, removed, and used to resume the invite.
+// sessionStorage is intentional: survives same-tab navigation, cleared on tab close, and
+// never appears in the URL bar or server access logs the way a query param would.
+export const PENDING_INVITE_TOKEN_KEY = 'pendingInviteToken';
+
 // ── Types ────────────────────────────────────────────────
 
 export interface AuthPanelStat {
