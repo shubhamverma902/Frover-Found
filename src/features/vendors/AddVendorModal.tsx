@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateVendorMutation } from '@/store/api';
 import type { Vendor } from '@/types/vendor';
@@ -30,11 +30,11 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
   const [nameError, setNameError] = useState('');
   const [category,  setCategory]  = useState(CATEGORY_ICONS[0].label);
   const [icon,      setIcon]      = useState(CATEGORY_ICONS[0].icon);
-  const [contact,  setContact]  = useState('');
-  const [location, setLocation] = useState('');
-  const [status,   setStatus]   = useState<Vendor['status']>('pending');
-  const [rating,   setRating]   = useState(3);
-  const [notes,    setNotes]    = useState('');
+  const [contact,   setContact]   = useState('');
+  const [location,  setLocation]  = useState('');
+  const [status,    setStatus]    = useState<Vendor['status']>('pending');
+  const [rating,    setRating]    = useState(3);
+  const [notes,     setNotes]     = useState('');
 
   const handleCategoryChange = (label: string) => {
     setCategory(label);
@@ -51,24 +51,16 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Add vendor" className="flex flex-col max-h-[90svh]">
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Vendors</p>
-          <h2 className="text-base font-bold text-white">Add Vendor</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
+    <ModalShell onClose={onClose} eyebrow="Vendors" title="Add Vendor" aria-label="Add vendor">
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
             <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
             <div className="flex-1 h-px bg-gold/15" />
           </div>
 
-          {/* Name */}
           <div>
             <FieldLabel>Vendor Name <span className="text-blush">*</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Floral Dreams by Sunita"
@@ -79,7 +71,6 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             {nameError && <p className="text-xs text-red-400 mt-1">{nameError}</p>}
           </div>
 
-          {/* Category */}
           <div>
             <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             <div className="grid grid-cols-2 gap-1.5">
@@ -101,7 +92,6 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             </div>
           </div>
 
-          {/* Contact & Location */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <FieldLabel>Contact</FieldLabel>
@@ -113,7 +103,6 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             </div>
           </div>
 
-          {/* Status */}
           <div>
             <FieldLabel>Status</FieldLabel>
             <div className="flex gap-2">
@@ -134,7 +123,6 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             </div>
           </div>
 
-          {/* Rating */}
           <div>
             <FieldLabel>Rating</FieldLabel>
             <div className="flex gap-1.5">
@@ -152,21 +140,20 @@ const AddVendorModal = ({ onClose }: AddVendorModalProps) => {
             </div>
           </div>
 
-          {/* Notes */}
           <div>
             <FieldLabel>Notes <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input variant="dark" placeholder="e.g. Spoke with Sunita, price negotiable" value={notes} maxLength={2000} onChange={e => setNotes(e.target.value)} />
           </div>
-        </div>
 
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!name.trim() || mutating}>
             {mutating ? 'Adding…' : 'Add Vendor ✦'}
           </Button>
-        </div>
-      </form>
-    </Modal>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

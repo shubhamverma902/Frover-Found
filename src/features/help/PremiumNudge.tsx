@@ -1,3 +1,5 @@
+import { Button } from '@/components/elements';
+
 export const PremiumNudge = () => (
   <div className="bg-dark p-1">
     <div className="border border-gold/20 px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -8,9 +10,7 @@ export const PremiumNudge = () => (
           Premium members get dedicated support with response times under 2 hours.
         </p>
       </div>
-      <button className="shrink-0 px-6 py-2.5 text-xs font-semibold bg-gold text-dark hover:bg-gold/90 transition-colors whitespace-nowrap">
-        Upgrade ✦
-      </button>
+      <Button variant="gold-cta" className="shrink-0">Upgrade ✦</Button>
     </div>
   </div>
 );

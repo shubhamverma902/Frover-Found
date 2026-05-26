@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon } from '@/components/icons';
 import { useUpdateAllocatedMutation, useDeleteExpenseMutation, useGetBudgetQuery } from '@/store/api';
@@ -57,29 +57,23 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
     : 0;
   const over = previewPct > 100;
 
+  const unsavedBadge = allocatedChanged && (
+    <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
+      Unsaved
+    </span>
+  );
+
   return (
-    <Modal onClose={onClose} aria-label="Edit budget category" className="flex flex-col max-h-[90svh]">
+    <ModalShell
+      onClose={onClose}
+      eyebrow="Budget"
+      title="Edit Category"
+      aria-label="Edit budget category"
+      headerSlot={unsavedBadge}
+    >
+      <ModalShell.Form onSubmit={handleSave}>
+        <ModalShell.Body className="pb-2 space-y-5">
 
-      {/* Header — fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Budget</p>
-          <h2 className="text-base font-bold text-white">Edit Category</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          {allocatedChanged && (
-            <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
-              Unsaved
-            </span>
-          )}
-          <Button variant="close" onClick={onClose}>✕</Button>
-        </div>
-      </div>
-
-      <form onSubmit={handleSave} className="flex flex-col min-h-0 flex-1">
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-5">
-
-          {/* Category identity + stats */}
           <div className="flex items-center gap-3 p-4 bg-gold/8 border border-gold/20">
             <span className="text-2xl leading-none">{cat.icon}</span>
             <div className="flex-1 min-w-0">
@@ -99,14 +93,12 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
             </span>
           </div>
 
-          {/* Ornament */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
             <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
             <div className="flex-1 h-px bg-gold/15" />
           </div>
 
-          {/* Allocated budget */}
           <div>
             <FieldLabel>Allocated Budget (₹) <span className="text-blush">*</span></FieldLabel>
             <Input
@@ -124,7 +116,6 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
               error={!!allocatedError}
             />
             {allocatedError && <p className="text-xs text-red-400 mt-1">{allocatedError}</p>}
-            {/* Live preview bar */}
             {allocatedChanged && Number(allocated) > 0 && (
               <div className="mt-2 space-y-1.5">
                 <div className="relative h-2 bg-silver/15 overflow-hidden">
@@ -151,7 +142,6 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
             )}
           </div>
 
-          {/* Expense list */}
           <div>
             <FieldLabel as="p">Expenses ({cat.expenses.length})</FieldLabel>
             {cat.expenses.length === 0 ? (
@@ -162,28 +152,14 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
             ) : (
               <div className="border border-silver/15 overflow-hidden">
                 {cat.expenses.map((exp, i) => (
-                  <div
-                    key={exp._id}
-                    className={`${i > 0 ? 'border-t border-silver/10' : ''}`}
-                  >
+                  <div key={exp._id} className={`${i > 0 ? 'border-t border-silver/10' : ''}`}>
                     {deleteId === exp._id ? (
                       <div className="flex items-center gap-2 px-4 py-3 bg-red-950/30 border-l-2 border-red-700/50">
                         <p className="flex-1 text-xs text-red-300/80">Remove {fmt(exp.amount)}?</p>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteId(null)}
-                          className="px-2.5 py-1 text-[11px] font-semibold border border-silver/20 text-silver/50 hover:text-white transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteExpense(exp._id)}
-                          disabled={deletingExpense}
-                          className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
-                        >
+                        <Button variant="cancel-sm" type="button" onClick={() => setDeleteId(null)}>Cancel</Button>
+                        <Button variant="danger" type="button" onClick={() => handleDeleteExpense(exp._id)} disabled={deletingExpense}>
                           {deletingExpense ? '…' : 'Delete'}
-                        </button>
+                        </Button>
                       </div>
                     ) : (
                       <div className="group/exp flex items-center gap-3 px-4 py-3 hover:bg-silver/5 transition-colors">
@@ -205,7 +181,6 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
                     )}
                   </div>
                 ))}
-                {/* Total row */}
                 <div className="flex items-center justify-between px-4 py-2.5 bg-gold/8 border-t border-gold/15">
                   <p className="text-[10px] font-bold text-silver/40 uppercase tracking-widest">Total Spent</p>
                   <p className="text-sm font-black text-gold">{fmt(cat.spent)}</p>
@@ -214,15 +189,15 @@ const EditCategoryModal = ({ categoryName, onClose }: EditCategoryModalProps) =>
             )}
           </div>
 
-        </div>
-
-        {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Close</Button>
-          <Button variant="gold" type="submit" disabled={!allocatedChanged || mutating}>{mutating ? 'Saving…' : 'Save Changes ✦'}</Button>
-        </div>
-      </form>
-    </Modal>
+          <Button variant="gold" type="submit" disabled={!allocatedChanged || mutating}>
+            {mutating ? 'Saving…' : 'Save Changes ✦'}
+          </Button>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
 import { useUpdateTaskMutation, useDeleteTaskMutation, useGetChecklistQuery } from '@/store/api';
@@ -55,44 +55,34 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
     } catch { }
   };
 
+  const unsavedBadge = hasChanges && (
+    <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
+      Unsaved
+    </span>
+  );
+
   return (
-    <Modal onClose={onClose} aria-label="Edit task" className="flex flex-col max-h-[90svh]">
+    <ModalShell
+      onClose={onClose}
+      eyebrow="Planning"
+      title="Edit Task"
+      aria-label="Edit task"
+      headerSlot={unsavedBadge}
+    >
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
-      {/* Header — fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Planning</p>
-          <h2 className="text-base font-bold text-white">Edit Task</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          {hasChanges && (
-            <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
-              Unsaved
-            </span>
-          )}
-          <Button variant="close" onClick={onClose}>✕</Button>
-        </div>
-      </div>
-
-      {/* Form — scrollable body + fixed footer */}
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
-
-          {/* Current task pill */}
           <div className="flex items-center gap-2.5 px-3 py-2 bg-gold/8 border border-gold/20 w-fit max-w-full">
             <span className="text-gold text-[10px]">◆</span>
             <span className="text-[11px] font-semibold text-gold truncate">{task.label}</span>
           </div>
 
-          {/* Ornament */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
             <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
             <div className="flex-1 h-px bg-gold/15" />
           </div>
 
-          {/* Task label */}
           <div>
             <FieldLabel>Task <span className="text-blush">*</span></FieldLabel>
             <Input
@@ -106,7 +96,6 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
             {labelError && <p className="text-xs text-red-400 mt-1">{labelError}</p>}
           </div>
 
-          {/* Due */}
           <div>
             <FieldLabel>Due</FieldLabel>
             <Input
@@ -117,7 +106,6 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
             />
           </div>
 
-          {/* Category */}
           <div>
             <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             <div className="flex flex-col gap-1.5">
@@ -150,27 +138,15 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
             </div>
           </div>
 
-          {/* Delete zone */}
           <div className="border border-red-900/30 bg-red-950/20 px-4 py-3">
             <p className="text-[10px] font-bold text-red-400/70 uppercase tracking-widest mb-2">Danger Zone</p>
             {confirmDelete ? (
               <div className="flex items-center gap-2">
                 <p className="text-xs text-red-300/80 flex-1">Remove this task permanently?</p>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(false)}
-                  className="px-3 py-1.5 text-[11px] font-semibold border border-silver/20 text-silver/50 hover:text-white transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="px-3 py-1.5 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
-                >
+                <Button variant="cancel-sm" type="button" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+                <Button variant="danger" type="button" onClick={handleDelete} disabled={deleting}>
                   {deleting ? '…' : 'Yes, Delete'}
-                </button>
+                </Button>
               </div>
             ) : (
               <button
@@ -184,16 +160,15 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
             )}
           </div>
 
-        </div>
-
-        {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
-          <Button variant="gold" type="submit" disabled={!hasChanges || mutating}>{mutating ? 'Saving…' : 'Save Changes ✦'}</Button>
-        </div>
-
-      </form>
-    </Modal>
+          <Button variant="gold" type="submit" disabled={!hasChanges || mutating}>
+            {mutating ? 'Saving…' : 'Save Changes ✦'}
+          </Button>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

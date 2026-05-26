@@ -1,9 +1,8 @@
-import axiosInstance from './axiosInstance';
+﻿import axiosInstance from './axiosInstance';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { NotificationsDataSchema } from './schemas';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface AppNotification {
   _id:  string;

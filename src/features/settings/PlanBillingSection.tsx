@@ -3,6 +3,7 @@ import { selectUser } from '@/store/slices/authSlice';
 import { Logo } from '@/components/layout';
 import { PLAN_FEATURES } from '@/constants/settings';
 import { SettingsSection } from './SettingsSection';
+import { Button } from '@/components/elements';
 
 export const PlanBillingSection = () => {
   const user    = useAppSelector(selectUser);
@@ -27,9 +28,9 @@ export const PlanBillingSection = () => {
           </p>
         </div>
         {!premium && (
-          <button className="relative shrink-0 px-6 py-2.5 text-xs font-semibold bg-gold text-dark hover:bg-gold/90 hover:shadow-[0_4px_14px_rgba(228,188,98,0.4)] transition-all whitespace-nowrap">
+          <Button variant="gold-cta" className="shrink-0">
             Upgrade ✦
-          </button>
+          </Button>
         )}
       </div>
     </div>

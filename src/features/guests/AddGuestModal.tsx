@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateGuestMutation } from '@/store/api';
 import type { Guest } from '@/types/guest';
@@ -24,10 +24,10 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
   const [name,      setName]      = useState('');
   const [nameError, setNameError] = useState('');
   const [relation,  setRelation]  = useState('');
-  const [phone,    setPhone]    = useState('');
-  const [rsvp,     setRsvp]     = useState<Guest['rsvp']>('pending');
-  const [meal,     setMeal]     = useState<Guest['meal']>('Veg');
-  const [plusOne,  setPlusOne]  = useState(false);
+  const [phone,     setPhone]     = useState('');
+  const [rsvp,      setRsvp]      = useState<Guest['rsvp']>('pending');
+  const [meal,      setMeal]      = useState<Guest['meal']>('Veg');
+  const [plusOne,   setPlusOne]   = useState(false);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -39,28 +39,16 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Add guest" className="flex flex-col max-h-[90svh]">
+    <ModalShell onClose={onClose} eyebrow="Guests" title="Add Guest" aria-label="Add guest">
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Guests</p>
-          <h2 className="text-base font-bold text-white">Add Guest</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
-
-          {/* Ornament */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
             <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
             <div className="flex-1 h-px bg-gold/15" />
           </div>
 
-          {/* Name */}
           <div>
             <FieldLabel>Name <span className="text-blush">*</span></FieldLabel>
             <Input
@@ -74,7 +62,6 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             {nameError && <p className="text-xs text-red-400 mt-1">{nameError}</p>}
           </div>
 
-          {/* Relation */}
           <div>
             <FieldLabel>Relation <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input
@@ -85,7 +72,6 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             />
           </div>
 
-          {/* Phone */}
           <div>
             <FieldLabel>Phone <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span></FieldLabel>
             <Input
@@ -96,7 +82,6 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             />
           </div>
 
-          {/* RSVP */}
           <div>
             <FieldLabel>RSVP Status</FieldLabel>
             <div className="flex gap-2">
@@ -117,7 +102,6 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             </div>
           </div>
 
-          {/* Meal */}
           <div>
             <FieldLabel>Meal Preference</FieldLabel>
             <div className="flex gap-2">
@@ -138,7 +122,6 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             </div>
           </div>
 
-          {/* Plus One */}
           <div>
             <button
               type="button"
@@ -158,17 +141,15 @@ const AddGuestModal = ({ onClose, onSuccess }: AddGuestModalProps) => {
             </button>
           </div>
 
-        </div>
-
-        {/* Footer */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!name.trim() || mutating}>
             {mutating ? 'Adding…' : 'Add Guest ✦'}
           </Button>
-        </div>
-      </form>
-    </Modal>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

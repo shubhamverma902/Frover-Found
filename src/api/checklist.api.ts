@@ -1,10 +1,9 @@
 ﻿import axiosInstance from './axiosInstance';
 import type { ChecklistCategory } from '@/types/checklist';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { ChecklistCategorySchema, ChecklistResponseSchema } from './schemas';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export const fetchChecklistApi = async (signal?: AbortSignal): Promise<ChecklistCategory[]> => {
   const { data } = await axiosInstance.get<ApiResponse<{ categories: ChecklistCategory[] }>>(API.checklist.base, { signal });

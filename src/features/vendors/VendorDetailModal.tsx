@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button } from '@/components/elements';
 import { StarIcon } from '@/components/icons';
 import { usePatchVendorStatusMutation } from '@/store/api';
@@ -25,18 +25,9 @@ const VendorDetailModal = ({ vendor, onClose, onEdit }: VendorDetailModalProps) 
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Vendor details" className="flex flex-col max-h-[90svh]">
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Vendors</p>
-          <h2 className="text-base font-bold text-white">Vendor Details</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
+    <ModalShell onClose={onClose} eyebrow="Vendors" title="Vendor Details" aria-label="Vendor details">
+      <ModalShell.Body className="pb-6 space-y-5">
 
-      <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-6 space-y-5">
-
-        {/* Identity block */}
         <div className="flex items-stretch gap-0 border border-gold/20 overflow-hidden">
           <div className={`w-16 bg-dark flex items-center justify-center text-3xl shrink-0 border-r border-gold/10 ${meta.bar} bg-gradient-to-b`}>
             <span className="text-3xl">{vendor.icon}</span>
@@ -61,14 +52,12 @@ const VendorDetailModal = ({ vendor, onClose, onEdit }: VendorDetailModalProps) 
           </div>
         </div>
 
-        {/* Ornament */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-gold/15" />
           <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
           <div className="flex-1 h-px bg-gold/15" />
         </div>
 
-        {/* Details */}
         <div className="space-y-3">
           <DetailRow icon="✉" label="Contact" value={vendor.contact || '—'} />
           <DetailRow icon="◎" label="Location" value={vendor.location || '—'} />
@@ -79,10 +68,9 @@ const VendorDetailModal = ({ vendor, onClose, onEdit }: VendorDetailModalProps) 
             </div>
           )}
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+      </ModalShell.Body>
+      <ModalShell.Footer>
         <Button variant="cancel" type="button" onClick={onEdit}>Edit ✎</Button>
         {vendor.status !== 'booked' ? (
           <Button variant="gold" type="button" disabled={mutating} onClick={handleBook}>
@@ -93,8 +81,8 @@ const VendorDetailModal = ({ vendor, onClose, onEdit }: VendorDetailModalProps) 
             ✓ Confirmed Booking
           </div>
         )}
-      </div>
-    </Modal>
+      </ModalShell.Footer>
+    </ModalShell>
   );
 };
 

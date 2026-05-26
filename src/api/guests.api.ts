@@ -1,10 +1,9 @@
 ﻿import axiosInstance from './axiosInstance';
 import type { Guest } from '@/types/guest';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { GuestsDataSchema, GuestSchema } from './schemas';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface GuestsData {
   guests:     Guest[];

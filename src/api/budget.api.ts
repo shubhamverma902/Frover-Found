@@ -1,10 +1,9 @@
 ﻿import axiosInstance from './axiosInstance';
 import type { BudgetCategory } from '@/types/budget';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { BudgetDataSchema, BudgetCategorySchema } from './schemas';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface BudgetData {
   total:      number;

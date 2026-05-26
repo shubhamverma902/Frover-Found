@@ -1,5 +1,11 @@
 import type { ZodType } from 'zod';
 
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data:    T;
+}
+
 export function parseResponse<T>(schema: ZodType<T>, data: unknown, label: string): T {
   const result = schema.safeParse(data);
   if (result.success) return result.data;

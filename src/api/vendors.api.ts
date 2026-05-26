@@ -1,11 +1,10 @@
 ﻿import axiosInstance from './axiosInstance';
 import type { Vendor } from '@/types/vendor';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { VendorsDataSchema, VendorSchema } from './schemas';
 import { validateAttachment } from '@/utils/validate';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface VendorsData {
   vendors:     Vendor[];

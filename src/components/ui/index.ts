@@ -5,3 +5,4 @@ export type { CarouselImage, CarouselProps } from './Carousel';
 export { ProgressRing } from './ProgressRing';
 export { ThemeToggle } from './ThemeToggle';
 export { default as Modal } from './Modal';
+export { ModalShell } from './ModalShell';

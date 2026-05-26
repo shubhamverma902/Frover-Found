@@ -1,12 +1,7 @@
 import axiosInstance from './axiosInstance';
 import type { WeddingProfile } from '@/types/onboarding';
 import { API } from '@/constants/api';
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data:    T;
-}
+import type { ApiResponse } from './parse';
 
 interface OnboardingData {
   onboardingCompleted: boolean;

@@ -1,11 +1,10 @@
 ﻿import axiosInstance from './axiosInstance';
 import type { WeddingEvent } from '@/types/event';
 import { API } from '@/constants/api';
-import { parseResponse } from './parse';
+import { parseResponse, type ApiResponse } from './parse';
 import { EventsDataSchema, WeddingEventSchema } from './schemas';
 import { validateAttachment } from '@/utils/validate';
 
-interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 export interface EventsData {
   events:     WeddingEvent[];

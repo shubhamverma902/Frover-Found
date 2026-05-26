@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
 import { AttachmentsPanel } from '@/components/ui';
@@ -21,9 +21,9 @@ interface EditEventModalProps {
 }
 
 const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
-  const [updateEvent,          { isLoading: saving }]       = useUpdateEventMutation();
-  const [deleteEvent,          { isLoading: deleting }]     = useDeleteEventMutation();
-  const [addEventAttachment,   { isLoading: uploadingFile }] = useAddEventAttachmentMutation();
+  const [updateEvent,           { isLoading: saving }]       = useUpdateEventMutation();
+  const [deleteEvent,           { isLoading: deleting }]     = useDeleteEventMutation();
+  const [addEventAttachment,    { isLoading: uploadingFile }] = useAddEventAttachmentMutation();
   const [removeEventAttachment, { isLoading: removingFile }] = useRemoveEventAttachmentMutation();
   const uploading = uploadingFile || removingFile;
 
@@ -38,9 +38,8 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [errors,        setErrors]        = useState<{ name?: string; date?: string; venue?: string }>({});
-
-  const [attachments,  setAttachments]  = useState<Attachment[]>(event.attachments ?? []);
-  const [uploadError,  setUploadError]  = useState('');
+  const [attachments,   setAttachments]   = useState<Attachment[]>(event.attachments ?? []);
+  const [uploadError,   setUploadError]   = useState('');
 
   const initialAttachmentIds = (event.attachments ?? []).map(a => a._id).join(',');
 
@@ -106,8 +105,20 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
     }
   };
 
+  const unsavedBadge = hasChanges && (
+    <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
+      Unsaved
+    </span>
+  );
+
   return (
-    <Modal onClose={onClose} aria-label="Edit event" className="flex flex-col max-h-[90svh] relative">
+    <ModalShell
+      onClose={onClose}
+      eyebrow="Planning"
+      title="Edit Event"
+      aria-label="Edit event"
+      headerSlot={unsavedBadge}
+    >
 
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -116,25 +127,8 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
         <span className="absolute top-4 right-16 text-gold/6 text-[7rem] font-black leading-none select-none">◆</span>
       </div>
 
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Planning</p>
-          <h2 className="text-base font-bold text-white">Edit Event</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          {hasChanges && (
-            <span className="text-[10px] font-semibold text-blush border border-blush/30 px-2 py-0.5 uppercase tracking-widest">
-              Unsaved
-            </span>
-          )}
-          <Button variant="close" onClick={onClose}>✕</Button>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
           <div className="flex items-center gap-2.5 px-3 py-2 bg-gold/8 border border-gold/20 w-fit">
             <span className="text-gold text-[10px]">◆</span>
@@ -223,7 +217,6 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
               value={form.desc} maxLength={2000} onChange={e => set('desc', e.target.value)} />
           </div>
 
-          {/* Attachments */}
           <div className="pt-1 border-t border-silver/10">
             <AttachmentsPanel
               attachments={attachments}
@@ -234,20 +227,15 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
             />
           </div>
 
-          {/* Danger zone */}
           <div className="border border-red-900/30 bg-red-950/20 px-4 py-3">
             <p className="text-[10px] font-bold text-red-400/70 uppercase tracking-widest mb-2">Danger Zone</p>
             {confirmDelete ? (
               <div className="flex items-center gap-2">
                 <p className="text-xs text-red-300/80 flex-1">Remove this event permanently?</p>
-                <button type="button" onClick={() => setConfirmDelete(false)}
-                  className="px-3 py-1.5 text-[11px] font-semibold border border-silver/20 text-silver/50 hover:text-white transition-colors">
-                  Cancel
-                </button>
-                <button type="button" onClick={handleDelete} disabled={deleting}
-                  className="px-3 py-1.5 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60">
+                <Button variant="cancel-sm" type="button" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+                <Button variant="danger" type="button" onClick={handleDelete} disabled={deleting}>
                   {deleting ? '…' : 'Yes, Delete'}
-                </button>
+                </Button>
               </div>
             ) : (
               <button type="button" onClick={() => setConfirmDelete(true)}
@@ -258,17 +246,15 @@ const EditEventModal = ({ event, onClose }: EditEventModalProps) => {
             )}
           </div>
 
-        </div>
-
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={!hasChanges || saving || uploading}>
             {saving ? 'Saving…' : 'Save Changes ✦'}
           </Button>
-        </div>
-
-      </form>
-    </Modal>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

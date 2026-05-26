@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateEventMutation } from '@/store/api';
 import type { WeddingEvent } from '@/types/event';
@@ -47,7 +47,7 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Add new event" className="flex flex-col max-h-[90svh] relative">
+    <ModalShell onClose={onClose} eyebrow="Planning" title="Add New Event" aria-label="Add new event">
 
       {/* Decorative background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -56,18 +56,8 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
         <span className="absolute top-4 right-16 text-gold/6 text-[7rem] font-black leading-none select-none">◆</span>
       </div>
 
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Planning</p>
-          <h2 className="text-base font-bold text-white">Add New Event</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
@@ -137,17 +127,15 @@ const AddEventModal = ({ onClose }: AddEventModalProps) => {
               value={form.desc} maxLength={2000} onChange={e => set('desc', e.target.value)} />
           </div>
 
-        </div>
-
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
           <Button variant="gold" type="submit" disabled={loading}>
             {loading ? 'Saving…' : 'Add Event ✦'}
           </Button>
-        </div>
-
-      </form>
-    </Modal>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

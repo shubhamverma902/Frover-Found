@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button } from '@/components/elements';
 import { useImportGuestsMutation } from '@/store/api';
 
@@ -10,9 +10,9 @@ interface ImportGuestModalProps {
 }
 
 const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
-  const fileInputRef              = useRef<HTMLInputElement>(null);
-  const [file,    setFile]        = useState<File | null>(null);
-  const [result,  setResult]      = useState<{ imported: number; skipped: number; errors: string[] } | null>(null);
+  const fileInputRef                  = useRef<HTMLInputElement>(null);
+  const [file,    setFile]            = useState<File | null>(null);
+  const [result,  setResult]          = useState<{ imported: number; skipped: number; errors: string[] } | null>(null);
   const [importGuests, { isLoading }] = useImportGuestsMutation();
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,33 +44,21 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Import guests">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Guests</p>
-          <h2 className="text-base font-bold text-white">Import from CSV</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
-
+    <ModalShell onClose={onClose} eyebrow="Guests" title="Import from CSV" aria-label="Import guests">
       <form onSubmit={handleSubmit} className="px-6 pt-5 pb-6 space-y-5">
 
-        {/* Ornament */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-gold/15" />
           <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
           <div className="flex-1 h-px bg-gold/15" />
         </div>
 
-        {/* Format note */}
         <div className="text-xs text-silver/50 space-y-1">
           <p>Required column: <span className="text-gold/70">name</span></p>
           <p>Optional: <span className="text-silver/70">relation, phone, rsvp, meal, plusOne</span></p>
           <p>Valid rsvp: confirmed / pending / declined &nbsp;·&nbsp; meal: Veg / Non-veg / Jain</p>
         </div>
 
-        {/* Drop zone / file input */}
         <div
           onClick={() => fileInputRef.current?.click()}
           className="relative flex flex-col items-center justify-center gap-2 px-4 py-8 border border-dashed border-gold/25 cursor-pointer hover:border-gold/50 transition-colors group"
@@ -90,7 +78,6 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
           )}
         </div>
 
-        {/* Result summary */}
         {result && (
           <div className={`px-4 py-3 border text-xs space-y-1 ${result.imported > 0 ? 'border-gold/30 bg-gold/5' : 'border-red-500/30 bg-red-500/5'}`}>
             <p className="font-bold text-gold">
@@ -105,7 +92,6 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex gap-3">
           <button
             type="button"
@@ -120,8 +106,9 @@ const ImportGuestModal = ({ onClose }: ImportGuestModalProps) => {
             {isLoading ? 'Importing…' : 'Import ✦'}
           </Button>
         </div>
+
       </form>
-    </Modal>
+    </ModalShell>
   );
 };
 

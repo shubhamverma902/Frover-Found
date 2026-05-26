@@ -1,4 +1,5 @@
 import { CONTACT_OPTIONS } from '@/constants/help';
+import { Button } from '@/components/elements';
 
 export const ContactOptions = () => (
   <div>
@@ -16,9 +17,7 @@ export const ContactOptions = () => (
             <p className="mt-1.5 text-xs text-silver/50 leading-relaxed">{opt.desc}</p>
           </div>
           <div className="mt-auto space-y-2">
-            <button className="w-full py-2.5 text-xs font-semibold bg-gold text-dark hover:bg-gold/90 transition-colors">
-              {opt.cta}
-            </button>
+            <Button variant="gold-cta" className="w-full">{opt.cta}</Button>
             <p className="text-center text-[10px] text-silver/30">{opt.note}</p>
           </div>
         </div>

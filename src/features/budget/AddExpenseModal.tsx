@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { CheckIcon } from '@/components/icons';
 import { useAddExpenseMutation, useGetBudgetQuery } from '@/store/api';
@@ -40,21 +40,10 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
   };
 
   return (
-    <Modal onClose={onClose} aria-label="Add expense" className="flex flex-col max-h-[90svh]">
+    <ModalShell onClose={onClose} eyebrow="Budget" title="Add Expense" aria-label="Add expense">
+      <ModalShell.Form onSubmit={handleSubmit}>
+        <ModalShell.Body>
 
-      {/* Header — fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Budget</p>
-          <h2 className="text-base font-bold text-white">Add Expense</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-        <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-2 space-y-4">
-
-          {/* API error */}
           {submitErr && (
             <div role="alert" className="flex items-center justify-between gap-3 px-4 py-3 border border-blush/50 bg-blush/10 text-xs text-blush">
               <span>{submitErr}</span>
@@ -62,14 +51,12 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
             </div>
           )}
 
-          {/* Ornament */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gold/15" />
             <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
             <div className="flex-1 h-px bg-gold/15" />
           </div>
 
-          {/* Category */}
           <div>
             <FieldLabel>Category <span className="text-blush">*</span></FieldLabel>
             {categories.length === 0 && (
@@ -110,7 +97,6 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
             </div>
           </div>
 
-          {/* Amount */}
           <div>
             <FieldLabel>Amount (₹) <span className="text-blush">*</span></FieldLabel>
             <Input
@@ -137,7 +123,6 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
             )}
           </div>
 
-          {/* Note */}
           <div>
             <FieldLabel>
               Note <span className="text-silver/30 normal-case tracking-normal font-normal">(optional)</span>
@@ -150,15 +135,15 @@ const AddExpenseModal = ({ onClose }: AddExpenseModalProps) => {
             />
           </div>
 
-        </div>
-
-        {/* Footer — fixed */}
-        <div className="flex-shrink-0 flex gap-3 px-6 py-4 border-t border-gold/10">
+        </ModalShell.Body>
+        <ModalShell.Footer>
           <Button variant="cancel" type="button" onClick={onClose}>Cancel</Button>
-          <Button variant="gold" type="submit" disabled={!category || !amount || Number(amount) <= 0 || mutating}>{mutating ? 'Saving…' : 'Record Expense ✦'}</Button>
-        </div>
-      </form>
-    </Modal>
+          <Button variant="gold" type="submit" disabled={!category || !amount || Number(amount) <= 0 || mutating}>
+            {mutating ? 'Saving…' : 'Record Expense ✦'}
+          </Button>
+        </ModalShell.Footer>
+      </ModalShell.Form>
+    </ModalShell>
   );
 };
 

@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
 import type { AuthUser } from '@/store/slices/authSlice';
 import { API } from '@/constants/api';
+import type { ApiResponse } from './parse';
 export { refreshTokenApi } from './refreshToken';
 
 // ── Shapes returned by the backend ───────────────────────────
@@ -16,12 +17,6 @@ interface BackendUser {
 interface AuthApiData {
   token: string;
   user:  BackendUser;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data:    T;
 }
 
 // ── Request payloads ─────────────────────────────────────────

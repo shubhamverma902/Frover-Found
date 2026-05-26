@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/ui/Modal';
+import { ModalShell } from '@/components/ui';
 import { Button } from '@/components/elements';
 import { usePatchGuestRsvpMutation, useDeleteGuestMutation } from '@/store/api';
 import { RSVP_META } from '@/constants/guests';
@@ -15,8 +15,8 @@ interface GuestRsvpModalProps {
 const RSVP_OPTIONS: Guest['rsvp'][] = ['confirmed', 'pending', 'declined'];
 
 const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
-  const [patchRsvp,    { isLoading: patching }] = usePatchGuestRsvpMutation();
-  const [deleteGuest,  { isLoading: deleting }] = useDeleteGuestMutation();
+  const [patchRsvp,   { isLoading: patching }] = usePatchGuestRsvpMutation();
+  const [deleteGuest, { isLoading: deleting }] = useDeleteGuestMutation();
   const mutating = patching || deleting;
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -42,20 +42,9 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
   })();
 
   return (
-    <Modal onClose={onClose} aria-label="Update RSVP status" className="flex flex-col max-h-[90svh]">
+    <ModalShell onClose={onClose} eyebrow="Guest" title="Update RSVP" aria-label="Update RSVP status">
+      <ModalShell.Body className="pb-6 space-y-5">
 
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-gold/15">
-        <div>
-          <p className="text-[10px] font-bold text-gold uppercase tracking-[0.4em] mb-0.5">Guest</p>
-          <h2 className="text-base font-bold text-white">Update RSVP</h2>
-        </div>
-        <Button variant="close" onClick={onClose}>✕</Button>
-      </div>
-
-      <div className="overflow-y-auto flex-1 min-h-0 px-6 pt-5 pb-6 space-y-5">
-
-        {/* Guest identity */}
         <div className="flex items-center gap-4 p-4 bg-gold/8 border border-gold/20">
           <div className="w-10 h-10 rounded-full bg-gold text-dark flex items-center justify-center text-sm font-black shrink-0">
             {initials}
@@ -69,14 +58,12 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
           </span>
         </div>
 
-        {/* Ornament */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-gold/15" />
           <span className="text-gold/30 text-[10px] tracking-[0.4em]">◆ ◆ ◆</span>
           <div className="flex-1 h-px bg-gold/15" />
         </div>
 
-        {/* RSVP options */}
         <div className="space-y-2">
           <p className="text-[10px] font-bold text-silver/40 uppercase tracking-widest mb-3">Set RSVP Status</p>
           {RSVP_OPTIONS.map(opt => {
@@ -104,26 +91,14 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
           })}
         </div>
 
-        {/* Danger zone */}
         <div className="pt-2 border-t border-silver/10">
           {confirmDelete ? (
             <div className="flex items-center gap-2 px-4 py-3 bg-red-950/30 border border-red-700/30">
               <p className="flex-1 text-xs text-red-300/80">Remove {guest.name}? This cannot be undone.</p>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="px-2.5 py-1 text-[11px] font-semibold border border-silver/20 text-silver/50 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={mutating}
-                className="px-2.5 py-1 text-[11px] font-bold bg-red-700 text-white hover:bg-red-600 transition-colors disabled:opacity-60"
-              >
+              <Button variant="cancel-sm" type="button" onClick={() => setConfirmDelete(false)}>Cancel</Button>
+              <Button variant="danger" type="button" onClick={handleDelete} disabled={mutating}>
                 {deleting ? '…' : 'Yes, Remove'}
-              </button>
+              </Button>
             </div>
           ) : (
             <button
@@ -137,8 +112,8 @@ const GuestRsvpModal = ({ guest, onClose }: GuestRsvpModalProps) => {
           )}
         </div>
 
-      </div>
-    </Modal>
+      </ModalShell.Body>
+    </ModalShell>
   );
 };
 
