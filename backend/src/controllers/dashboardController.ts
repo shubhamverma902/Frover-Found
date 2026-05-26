@@ -15,7 +15,7 @@ import { fmtRelative, fmtDateLong } from '../helpers/dateHelpers';
 
 interface ChecklistFacet {
   stats:    { total: number; done: number }[];
-  upcoming: { _id: Types.ObjectId; label: string; due: string; done: boolean; categoryIcon: string }[];
+  upcoming: { _id: Types.ObjectId; label: string; due: Date | null; done: boolean; categoryIcon: string }[];
 }
 
 interface StatusCount { _id: string; count: number; }
@@ -44,7 +44,7 @@ export const getDashboard = async (req: AuthRequest, res: Response, next: NextFu
             }},
           ],
           upcoming: [
-            { $match: { 'tasks.done': false, 'tasks.due': { $gt: '' } } },
+            { $match: { 'tasks.done': false, 'tasks.due': { $ne: null } } },
             { $project: {
               _id:          '$tasks._id',
               label:        '$tasks.label',
@@ -90,12 +90,12 @@ export const getDashboard = async (req: AuthRequest, res: Response, next: NextFu
 
     // Upcoming: sort by due string in JS (format may vary), take first 6
     const upcomingTasks = (facet?.upcoming ?? [])
-      .sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
+      .sort((a, b) => a.due!.getTime() - b.due!.getTime())
       .slice(0, 6)
       .map(t => ({
         _id:          String(t._id),
         label:        t.label,
-        due:          t.due,
+        due:          t.due ? t.due.toISOString() : null,
         done:         false as const,
         categoryIcon: t.categoryIcon,
       }));

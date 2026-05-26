@@ -73,9 +73,10 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
     if (notes?.length   > 2000) return next(new ApiError(422, 'Notes must not exceed 2000 characters'));
     if (contact?.length > 200)  return next(new ApiError(422, 'Contact must not exceed 200 characters'));
     if (location?.length > 200) return next(new ApiError(422, 'Location must not exceed 200 characters'));
+    const uid = ownerId(req);
 
     const vendor = await Vendor.create({
-      userId: ownerId(req),
+      userId: uid,
       icon:     sanitize(icon) || '🏢',
       category: sanitize(category),
       name:     sanitize(name),
@@ -86,7 +87,7 @@ export const createVendor = async (req: AuthRequest, res: Response, next: NextFu
       notes:    sanitize(notes),
     });
 
-    logActivity(ownerId(req), vendor.icon, `Vendor added: ${vendor.name} (${vendor.category})`);
+    logActivity(uid, vendor.icon, `Vendor added: ${vendor.name} (${vendor.category})`);
     sendSuccess(res, { vendor: serializeVendor(vendor) }, 'Vendor added', 201);
   } catch (err) { next(err); }
 };
@@ -126,14 +127,15 @@ export const patchVendorStatus = async (req: AuthRequest, res: Response, next: N
     const { status } = req.body;
     if (!['booked', 'shortlisted', 'pending'].includes(status))
       return next(new ApiError(422, 'Invalid status'));
+    const uid = ownerId(req);
 
     const vendor = await Vendor.findOneAndUpdate(
-      { _id: req.params.id, userId: ownerId(req) },
+      { _id: req.params.id, userId: uid },
       { status },
       { new: true }
     );
     if (!vendor) return next(new ApiError(404, 'Vendor not found'));
-    if (status === 'booked') logActivity(ownerId(req), vendor.icon, `Vendor booked: ${vendor.name}`);
+    if (status === 'booked') logActivity(uid, vendor.icon, `Vendor booked: ${vendor.name}`);
     sendSuccess(res, { vendor: serializeVendor(vendor) });
   } catch (err) { next(err); }
 };

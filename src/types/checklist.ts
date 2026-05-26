@@ -2,7 +2,7 @@ export interface ChecklistTask {
   _id:   string;
   done:  boolean;
   label: string;
-  due:   string;
+  due:   string | null;
 }
 
 export interface ChecklistCategory {

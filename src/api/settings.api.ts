@@ -29,6 +29,7 @@ export interface SettingsData {
   profile:       ProfileData;
   wedding:       WeddingData | null;
   notifications: NotificationPref[];
+  publicSlug:    string | null;
 }
 
 export const fetchSettingsApi = async (signal?: AbortSignal): Promise<SettingsData> => {

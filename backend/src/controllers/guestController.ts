@@ -109,9 +109,10 @@ export const createGuest = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const { name, relation, phone, rsvp, meal, plusOne } = req.body;
     if (!name?.trim()) return next(new ApiError(422, 'Guest name is required'));
+    const uid = ownerId(req);
 
     const guest = await Guest.create({
-      userId: ownerId(req),
+      userId: uid,
       name:     sanitize(name),
       relation: sanitize(relation),
       phone:    sanitize(phone),
@@ -120,7 +121,7 @@ export const createGuest = async (req: AuthRequest, res: Response, next: NextFun
       plusOne:  Boolean(plusOne),
     });
 
-    logActivity(ownerId(req), '👤', `Guest added: ${guest.name}`);
+    logActivity(uid, '👤', `Guest added: ${guest.name}`);
     sendSuccess(res, { guest: serializeGuest(guest) }, 'Guest added', 201);
   } catch (err) {
     next(err);
@@ -133,14 +134,14 @@ export const patchGuestRsvp = async (req: AuthRequest, res: Response, next: Next
     const { rsvp } = req.body;
     if (!['confirmed', 'pending', 'declined'].includes(rsvp))
       return next(new ApiError(422, 'Invalid RSVP value'));
+    const uid = ownerId(req);
 
     const guest = await Guest.findOneAndUpdate(
-      { _id: req.params.id, userId: ownerId(req) },
+      { _id: req.params.id, userId: uid },
       { rsvp },
       { new: true }
     );
     if (!guest) return next(new ApiError(404, 'Guest not found'));
-    const uid = ownerId(req);
     if (rsvp === 'confirmed') logActivity(uid, '✉', `${guest.name} confirmed attendance`);
     if (rsvp === 'declined')  logActivity(uid, '✉', `${guest.name} declined invitation`);
     sendSuccess(res, { guest: serializeGuest(guest) });
@@ -235,9 +236,10 @@ export const exportGuests = async (req: AuthRequest, res: Response, next: NextFu
 export const updateGuest = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, relation, phone, rsvp, meal, plusOne } = req.body;
+    const uid = ownerId(req);
 
     const guest = await Guest.findOneAndUpdate(
-      { _id: req.params.id, userId: ownerId(req) },
+      { _id: req.params.id, userId: uid },
       {
         name:     sanitize(name),
         relation: sanitize(relation ?? ''),
@@ -250,7 +252,7 @@ export const updateGuest = async (req: AuthRequest, res: Response, next: NextFun
     );
     if (!guest) return next(new ApiError(404, 'Guest not found'));
 
-    logActivity(ownerId(req), '👤', `Guest updated: ${guest.name}`);
+    logActivity(uid, '👤', `Guest updated: ${guest.name}`);
     sendSuccess(res, { guest: serializeGuest(guest) });
   } catch (err) {
     next(err);

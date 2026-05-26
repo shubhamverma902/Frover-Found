@@ -52,7 +52,11 @@ export const TaskItem = ({ task, index, isToggling, onToggle, onEdit }: TaskItem
         ? 'bg-gold/12 border-gold/30 text-gold'
         : 'border-blush/30 text-blush'
     }`}>
-      {task.done ? '✓ Done' : task.due}
+      {task.done
+        ? '✓ Done'
+        : task.due
+          ? new Date(task.due).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+          : 'No date'}
     </span>
 
     {/* Edit button */}

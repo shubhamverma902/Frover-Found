@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { SettingsSection } from './SettingsSection';
-import { useGeneratePublicSlugMutation } from '@/store/api';
+import { useGeneratePublicSlugMutation, useGetSettingsQuery } from '@/store/api';
 
 export const ShareWeddingSection = () => {
+  const { data: settings } = useGetSettingsQuery();
   const [generateSlug, { isLoading }] = useGeneratePublicSlugMutation();
-  const [slug,  setSlug]  = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [localSlug, setLocalSlug] = useState<string | null>(null);
+  const [error,     setError]     = useState<string | null>(null);
+  const [copied,    setCopied]    = useState(false);
 
+  const slug = localSlug ?? settings?.publicSlug ?? null;
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const url = slug ? `${origin}/wedding/${slug}` : null;
 
@@ -17,7 +19,7 @@ export const ShareWeddingSection = () => {
     setError(null);
     try {
       const result = await generateSlug().unwrap();
-      setSlug(result.slug);
+      setLocalSlug(result.slug);
     } catch {
       setError('Could not generate link. Please try again.');
     }

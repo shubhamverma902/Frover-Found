@@ -28,7 +28,7 @@ export const ChecklistTaskSchema = z.object({
   _id:   z.string(),
   done:  z.boolean(),
   label: z.string(),
-  due:   z.string(),
+  due:   z.string().nullable(),
 });
 
 export const ChecklistCategorySchema = z.object({
@@ -163,6 +163,7 @@ export const SettingsDataSchema = z.object({
   profile:       ProfileDataSchema,
   wedding:       WeddingDataSchema.nullable(),
   notifications: z.array(NotificationPrefSchema),
+  publicSlug:    z.string().nullable(),
 });
 
 // Notifications
@@ -203,7 +204,7 @@ export const DashboardStatsDataSchema = z.object({
 export const DashboardTaskSchema = z.object({
   _id:          z.string(),
   label:        z.string(),
-  due:          z.string(),
+  due:          z.string().nullable(),
   done:         z.boolean(),
   categoryIcon: z.string(),
 });

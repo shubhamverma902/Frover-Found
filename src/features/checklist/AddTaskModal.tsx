@@ -25,7 +25,7 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
     if (!label.trim()) { setLabelError('Required'); return; }
     if (!category) return;
     try {
-      await createTask({ label: label.trim(), due: due.trim() || 'No due date', category }).unwrap();
+      await createTask({ label: label.trim(), due: due || null, category }).unwrap();
       onClose();
     } catch { }
   };
@@ -59,7 +59,7 @@ const AddTaskModal = ({ onClose }: AddTaskModalProps) => {
             <FieldLabel>Due</FieldLabel>
             <Input
               variant="dark"
-              placeholder="e.g. Due in 30 days"
+              type="date"
               value={due}
               onChange={e => setDue(e.target.value)}
             />

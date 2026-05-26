@@ -3,7 +3,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 export interface ITask {
   _id:         Types.ObjectId;
   label:       string;
-  due:         string;
+  due:         Date | null;
   done:        boolean;
   completedAt?: Date;
 }
@@ -20,7 +20,7 @@ export interface IChecklistCategory extends Document {
 const taskSchema = new Schema<ITask>(
   {
     label:       { type: String,  required: true, trim: true },
-    due:         { type: String,  default: '' },
+    due:         { type: Date,    default: null },
     done:        { type: Boolean, default: false },
     completedAt: { type: Date,    default: null },
   },

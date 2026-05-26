@@ -22,6 +22,16 @@ const json429 = (msg: string) => (_req: Request, res: any) =>
 
 // ── IP-based limiters (unauthenticated routes) ────────────────────────────────
 
+// 10 new accounts per IP per hour — prevents automated account farming
+export const registerLimiter = rateLimit({
+  windowMs:        60 * 60 * 1000,
+  max:             10,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  store:           makeStore(60 * 60 * 1000),
+  handler:         json429('Too many accounts created from this IP. Please wait 1 hour and try again.'),
+});
+
 // 5 attempts per IP per 15 min — brute-force login protection
 export const loginLimiter = rateLimit({
   windowMs:        15 * 60 * 1000,
@@ -30,6 +40,16 @@ export const loginLimiter = rateLimit({
   legacyHeaders:   false,
   store:           makeStore(15 * 60 * 1000),
   handler:         json429('Too many login attempts. Please wait 15 minutes and try again.'),
+});
+
+// 5 attempts per IP per 15 min — prevents token brute-forcing on the reset form
+export const resetPasswordLimiter = rateLimit({
+  windowMs:        15 * 60 * 1000,
+  max:             5,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  store:           makeStore(15 * 60 * 1000),
+  handler:         json429('Too many password reset attempts. Please wait 15 minutes and try again.'),
 });
 
 // 3 requests per IP per hour — prevents email enumeration via reset endpoint

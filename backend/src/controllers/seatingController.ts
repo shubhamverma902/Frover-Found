@@ -62,16 +62,17 @@ export const assignGuest = async (req: AuthRequest, res: Response, next: NextFun
   try {
     const { guestId, tableId } = req.body as { guestId: string; tableId: string | null };
     if (!guestId) return next(new ApiError(400, 'guestId is required'));
+    const uid = ownerId(req);
 
     // Remove guest from every table they're currently in
     await SeatingTable.updateMany(
-      { userId: ownerId(req), guestIds: guestId },
+      { userId: uid, guestIds: guestId },
       { $pull: { guestIds: guestId } }
     );
 
     // Add to target table (if provided)
     if (tableId) {
-      const target = await SeatingTable.findOne({ _id: tableId, userId: ownerId(req) });
+      const target = await SeatingTable.findOne({ _id: tableId, userId: uid });
       if (!target) return next(new ApiError(404, 'Target table not found'));
       if (!target.guestIds.includes(guestId)) {
         target.guestIds.push(guestId);
@@ -79,7 +80,7 @@ export const assignGuest = async (req: AuthRequest, res: Response, next: NextFun
       }
     }
 
-    const tables = await SeatingTable.find({ userId: ownerId(req) }).sort({ createdAt: 1 });
+    const tables = await SeatingTable.find({ userId: uid }).sort({ createdAt: 1 });
     sendSuccess(res, { tables: tables.map(serialize) });
   } catch (err) { next(err); }
 };

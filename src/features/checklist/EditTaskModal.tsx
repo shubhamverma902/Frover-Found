@@ -23,13 +23,14 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
 
   const [label,         setLabel]         = useState(task.label);
   const [labelError,    setLabelError]    = useState('');
-  const [due,           setDue]           = useState(task.due);
+  const [due,           setDue]           = useState(task.due ? task.due.slice(0, 10) : '');
   const [category,      setCategory]      = useState(initialCategory);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const initialDue = task.due ? task.due.slice(0, 10) : '';
   const hasChanges =
     label.trim() !== task.label ||
-    due.trim()   !== task.due   ||
+    due           !== initialDue ||
     category     !== initialCategory;
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
@@ -40,7 +41,7 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
       await updateTask({
         taskId: task._id,
         label: label.trim(),
-        due: due.trim() || 'No due date',
+        due: due || null,
         originalCategory: initialCategory,
         category,
       }).unwrap();
@@ -100,7 +101,7 @@ const EditTaskModal = ({ task, category: initialCategory, onClose }: EditTaskMod
             <FieldLabel>Due</FieldLabel>
             <Input
               variant="dark"
-              placeholder="e.g. Due in 30 days"
+              type="date"
               value={due}
               onChange={e => setDue(e.target.value)}
             />

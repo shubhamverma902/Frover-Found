@@ -9,7 +9,7 @@ import { type SliceError, extractError } from '../sliceError';
 // ── Types ────────────────────────────────────────────────────
 
 export interface AuthUser {
-  id?:                  string;
+  id:                   string;
   name:                 string;
   email:                string;
   plan:                 'free' | 'premium';  // always set; existing DB users default to 'free' via toAuthUser

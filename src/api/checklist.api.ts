@@ -11,7 +11,7 @@ export const fetchChecklistApi = async (signal?: AbortSignal): Promise<Checklist
 };
 
 export const createTaskApi = async (
-  payload: { category: string; label: string; due: string }
+  payload: { category: string; label: string; due: string | null }
 ): Promise<ChecklistCategory> => {
   const { data } = await axiosInstance.post<ApiResponse<{ category: ChecklistCategory }>>(API.checklist.tasks, payload);
   return parseResponse(ChecklistCategorySchema, data.data.category, 'createTaskApi');
@@ -24,7 +24,7 @@ export const toggleTaskApi = async (taskId: string): Promise<ChecklistCategory> 
 
 export const updateTaskApi = async (
   taskId: string,
-  payload: { label: string; due: string; category: string; originalCategory: string }
+  payload: { label: string; due: string | null; category: string; originalCategory: string }
 ): Promise<ChecklistCategory[]> => {
   const { data } = await axiosInstance.put<ApiResponse<{ categories: ChecklistCategory[] }>>(API.checklist.task(taskId), payload);
   return parseResponse(ChecklistResponseSchema, data.data, 'updateTaskApi').categories;

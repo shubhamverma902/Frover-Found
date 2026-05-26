@@ -39,6 +39,7 @@ export const getSettings = async (req: AuthRequest, res: Response, next: NextFun
         guestCount:  wp.guestCount,
       } : null,
       notifications,
+      publicSlug: user.publicSlug ?? null,
     });
   } catch (err) { next(err); }
 };

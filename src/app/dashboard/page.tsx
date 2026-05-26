@@ -228,7 +228,7 @@ const DashboardPage = () => {
                       : 'border-blush/40 text-blush'
                   }`}>
                     {task.due
-                      ? new Date(task.due + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                      ? new Date(task.due).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
                       : 'No date'}
                   </span>
                 </li>

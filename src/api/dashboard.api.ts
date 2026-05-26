@@ -27,7 +27,7 @@ export interface DashboardStatsData {
 export interface DashboardTask {
   _id:          string;
   label:        string;
-  due:          string;
+  due:          string | null;
   done:         boolean;
   categoryIcon: string;
 }

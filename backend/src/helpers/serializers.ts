@@ -38,7 +38,7 @@ export const serializeChecklistCategory = (cat: InstanceType<typeof ChecklistCat
   tasks:    cat.tasks.map(t => ({
     _id:   String(t._id),
     label: t.label,
-    due:   t.due,
+    due:   t.due ? t.due.toISOString() : null,
     done:  t.done,
   })),
 });
