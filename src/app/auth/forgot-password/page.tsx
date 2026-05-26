@@ -8,21 +8,20 @@ import { PATH } from '@/constants/path';
 import { Form, Input } from '@/components/elements';
 import { LOGIN_PANEL_IMAGE } from '@/constants/auth';
 import { forgotPasswordApi } from '@/api/auth.api';
-import type { ForgotPasswordResult } from '@/api/auth.api';
 
 const ForgotPasswordPage = () => {
   const [email,   setEmail]   = useState('');
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState<string | null>(null);
-  const [result,  setResult]  = useState<ForgotPasswordResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sent,  setSent]  = useState(false);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const data = await forgotPasswordApi({ email });
-      setResult(data);
+      await forgotPasswordApi({ email });
+      setSent(true);
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Something went wrong. Please try again.');
     } finally {
@@ -65,35 +64,19 @@ const ForgotPasswordPage = () => {
               <div className="flex-1 h-px bg-gold/40" />
             </div>
 
-            {result ? (
+            {sent ? (
               <div className="text-center animate-fade-in-up">
                 <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center mx-auto mb-5">
                   <span className="text-gold text-2xl">✉</span>
                 </div>
-                <h1 className="text-2xl font-bold text-dark mb-2">Reset Link Ready</h1>
+                <h1 className="text-2xl font-bold text-dark mb-2">Check Your Inbox</h1>
                 <p className="text-sm text-zinc-400 leading-relaxed mb-6">
-                  Your password reset link has been generated. Use it within 1 hour.
+                  If <span className="font-medium text-dark">{email}</span> is registered, you&rsquo;ll receive a
+                  reset link shortly. The link expires in 1 hour.
                 </p>
-
-                <div className="bg-subtle border border-silver px-4 py-3 text-left mb-6">
-                  <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">
-                    Reset Link
-                  </p>
-                  <a
-                    href={result.resetUrl}
-                    className="text-xs text-dark break-all hover:text-gold transition-colors font-mono leading-relaxed"
-                  >
-                    {result.resetUrl}
-                  </a>
-                  <p className="text-[10px] text-zinc-300 mt-2">
-                    Expires at {new Date(result.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-
-                <p className="text-xs text-zinc-300 italic mb-6">
-                  Note: Once email delivery is configured, this link will be sent to your inbox automatically.
+                <p className="text-xs text-zinc-300 leading-relaxed mb-6">
+                  No email? Check your spam folder or try again with a different address.
                 </p>
-
                 <Link
                   href={PATH.auth.login}
                   className="text-sm font-semibold text-dark hover:underline"

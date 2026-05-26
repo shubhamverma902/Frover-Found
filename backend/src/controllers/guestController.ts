@@ -50,8 +50,14 @@ function parseCsv(text: string): Record<string, string>[] {
   return result;
 }
 
+// Formula-injection guard: Excel/Sheets treat cells starting with =+-@ as formulas.
+// Prefixing with a tab neutralises them — the tab is invisible in spreadsheet view
+// but breaks formula parsing, and is valid inside a quoted CSV field (RFC 4180).
+const FORMULA_PREFIX_RE = /^[=+\-@]/;
+
 function csvEscape(v: string): string {
-  return `"${v.replace(/"/g, '""')}"`;
+  const safe = FORMULA_PREFIX_RE.test(v) ? `\t${v}` : v;
+  return `"${safe.replace(/"/g, '""')}"`;
 }
 
 // GET /api/v1/guests?page=1&limit=10&q=alice

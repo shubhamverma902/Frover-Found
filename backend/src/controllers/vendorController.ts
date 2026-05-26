@@ -162,7 +162,7 @@ export const addVendorAttachment = async (req: AuthRequest, res: Response, next:
     if (vendor.attachments.length >= MAX_ATTACHMENTS)
       return next(new ApiError(400, `Maximum ${MAX_ATTACHMENTS} attachments allowed`));
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BACKEND_URL!;
     vendor.attachments.push({
       filename:     req.file.filename,
       originalName: req.file.originalname,

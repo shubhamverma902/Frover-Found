@@ -12,6 +12,8 @@ const REQUIRED_ENV_VARS = [
   'JWT_SECRET',
   'JWT_REFRESH_SECRET',
   'CLIENT_URL',
+  'BACKEND_URL',
+  'FRONTEND_URL',
 ] as const;
 
 const missing = REQUIRED_ENV_VARS.filter(v => !process.env[v]);

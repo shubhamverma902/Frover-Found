@@ -183,7 +183,7 @@ export const addEventAttachment = async (req: AuthRequest, res: Response, next: 
     if (event.attachments.length >= MAX_ATTACHMENTS)
       return next(new ApiError(400, `Maximum ${MAX_ATTACHMENTS} attachments allowed`));
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BACKEND_URL!;
     event.attachments.push({
       filename:     req.file.filename,
       originalName: req.file.originalname,

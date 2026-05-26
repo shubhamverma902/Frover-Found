@@ -165,7 +165,6 @@ axiosInstance.interceptors.response.use(
       const newToken = await refreshTokenApi();
 
       setAccessToken(newToken);
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       if (original.headers) original.headers['Authorization'] = `Bearer ${newToken}`;
 
       flushQueue(null, newToken);

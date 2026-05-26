@@ -39,11 +39,6 @@ export interface ForgotPasswordPayload {
   email: string;
 }
 
-export interface ForgotPasswordResult {
-  resetUrl:  string;
-  expiresAt: string;
-}
-
 export interface ResetPasswordPayload {
   token:    string;
   password: string;
@@ -86,9 +81,8 @@ export const logoutApi = async (): Promise<void> => {
   await axiosInstance.post(API.auth.logout, {}, { withCredentials: true });
 };
 
-export const forgotPasswordApi = async (payload: ForgotPasswordPayload): Promise<ForgotPasswordResult> => {
-  const { data } = await axiosInstance.post<ApiResponse<ForgotPasswordResult>>(API.auth.forgotPassword, payload);
-  return data.data;
+export const forgotPasswordApi = async (payload: ForgotPasswordPayload): Promise<void> => {
+  await axiosInstance.post(API.auth.forgotPassword, payload);
 };
 
 export const resetPasswordApi = async (payload: ResetPasswordPayload): Promise<void> => {

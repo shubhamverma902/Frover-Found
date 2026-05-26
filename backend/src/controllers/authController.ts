@@ -155,8 +155,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 };
 
 // POST /api/v1/auth/forgot-password
-// Always responds 200 regardless of whether the email exists to prevent enumeration.
-// In production, send resetUrl via email instead of returning it in the response.
+// Always responds 200 with the same message regardless of whether the email exists
+// to prevent both existence enumeration (different messages) and timing attacks.
+// TODO: replace the logger.info line below with an email send (Nodemailer / Resend / SendGrid).
+const RESET_SENT_MSG = 'If that email is registered, a reset link has been sent';
+
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email } = req.body;
@@ -164,7 +167,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
     if (!user) {
       logAudit(req, 'auth.password_reset_request', null, { email });
-      sendSuccess(res, null, 'If that email is registered, a reset link has been sent');
+      sendSuccess(res, null, RESET_SENT_MSG);
       return;
     }
 
@@ -177,11 +180,12 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       passwordResetExpiry: expiry,
     });
 
-    logAudit(req, 'auth.password_reset_request', String(user._id));
     const appUrl   = process.env.FRONTEND_URL ?? 'http://localhost:3000';
     const resetUrl = `${appUrl}/auth/reset-password?token=${rawToken}`;
 
-    sendSuccess(res, { resetUrl, expiresAt: expiry.toISOString() }, 'Password reset link generated');
+    // TODO: await sendEmail({ to: user.email, subject: 'Reset your password', resetUrl, expiry });
+    logAudit(req, 'auth.password_reset_request', String(user._id), { resetUrl });
+    sendSuccess(res, null, RESET_SENT_MSG);
   } catch (err) {
     next(err);
   }
