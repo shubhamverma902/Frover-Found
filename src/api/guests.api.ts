@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { Guest } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { Guest } from '@/types/guest';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { GuestsDataSchema, GuestSchema } from './schemas';

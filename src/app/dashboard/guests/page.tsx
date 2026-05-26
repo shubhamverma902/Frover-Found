@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -15,7 +15,7 @@ import {
   GuestPagination,
   GuestsSkeleton,
 } from '@/features/guests';
-import type { Guest } from '@/constants/dashboard-pages';
+import type { Guest } from '@/types/guest';
 import { API } from '@/constants/api';
 
 const PAGE_LIMIT = 10;

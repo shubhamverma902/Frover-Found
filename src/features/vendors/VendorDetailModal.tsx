@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import Modal from '@/components/ui/Modal';
 import { Button } from '@/components/elements';
 import { StarIcon } from '@/components/icons';
 import { usePatchVendorStatusMutation } from '@/store/api';
 import { STATUS_META } from '@/constants/vendors';
-import type { Vendor } from '@/constants/dashboard-pages';
+import type { Vendor } from '@/types/vendor';
 
 interface VendorDetailModalProps {
   vendor:   Vendor;

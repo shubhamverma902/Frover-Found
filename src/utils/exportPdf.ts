@@ -1,4 +1,5 @@
-import type { Guest, ChecklistCategory } from '@/constants/dashboard-pages';
+import type { Guest } from '@/types/guest';
+import type { ChecklistCategory } from '@/types/checklist';
 
 type RGB = [number, number, number];
 

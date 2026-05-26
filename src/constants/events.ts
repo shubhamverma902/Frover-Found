@@ -1,4 +1,4 @@
-import type { WeddingEvent } from './dashboard-pages';
+import type { WeddingEvent } from '@/types/event';
 
 export const STATUS_META: Record<string, {
   label: string; dot: string; badge: string; bar: string; stripe: string; glow: string; gradFrom: string; gradOrb: string;

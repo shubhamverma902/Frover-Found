@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { Vendor } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { Vendor } from '@/types/vendor';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { VendorsDataSchema, VendorSchema } from './schemas';

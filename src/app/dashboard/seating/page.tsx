@@ -25,7 +25,8 @@ import {
   AddTableModal,
   EditTableModal,
 } from '@/features/seating';
-import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
+import type { SeatingTable } from '@/types/seating';
+import type { Guest } from '@/types/guest';
 
 const SeatingPage = () => {
   const [createTable, { isLoading: creatingTable }] = useCreateTableMutation();

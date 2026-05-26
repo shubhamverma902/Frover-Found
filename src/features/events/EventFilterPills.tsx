@@ -1,4 +1,4 @@
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+﻿import type { WeddingEvent } from '@/types/event';
 
 export type EventFilter = 'all' | WeddingEvent['status'];
 

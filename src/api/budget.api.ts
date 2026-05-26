@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { BudgetCategory } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { BudgetCategory } from '@/types/budget';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { BudgetDataSchema, BudgetCategorySchema } from './schemas';

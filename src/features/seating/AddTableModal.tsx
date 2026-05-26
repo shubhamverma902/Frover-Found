@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
-import type { SeatingTable } from '@/constants/dashboard-pages';
+import type { SeatingTable } from '@/types/seating';
 
 interface Props {
   onSave:  (payload: { name: string; capacity: number; shape: SeatingTable['shape'] }) => void;

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateVendorMutation } from '@/store/api';
-import type { Vendor } from '@/constants/dashboard-pages';
+import type { Vendor } from '@/types/vendor';
 
 const CATEGORY_ICONS: { label: string; icon: string }[] = [
   { label: 'Decoration',    icon: '🌸' },

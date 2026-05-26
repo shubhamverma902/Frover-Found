@@ -1,4 +1,4 @@
-import type { Guest } from '@/constants/dashboard-pages';
+﻿import type { Guest } from '@/types/guest';
 import { RSVP_META, AVATAR_COLORS } from '@/constants/guests';
 
 const Initials = ({ name }: { name: string }) => {

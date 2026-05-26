@@ -1,4 +1,4 @@
-import type { ChecklistTask } from '@/constants/dashboard-pages';
+﻿import type { ChecklistTask } from '@/types/checklist';
 import { ProgressRing } from '@/components/ui';
 import { TaskItem } from './TaskItem';
 import type { Filter } from './FilterTabs';

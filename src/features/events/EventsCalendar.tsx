@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+import type { WeddingEvent } from '@/types/event';
 import { STATUS_META } from '@/constants/events';
 import { toDisplayTime } from '@/utils/dateTime';
 

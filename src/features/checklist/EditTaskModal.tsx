@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { TrashIcon, CheckIcon } from '@/components/icons';
 import { useUpdateTaskMutation, useDeleteTaskMutation, useGetChecklistQuery } from '@/store/api';
-import type { ChecklistTask } from '@/constants/dashboard-pages';
+import type { ChecklistTask } from '@/types/checklist';
 
 interface EditTaskModalProps {
   task:     ChecklistTask;

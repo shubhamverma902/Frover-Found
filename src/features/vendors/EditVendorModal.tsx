@@ -10,7 +10,8 @@ import {
   useAddVendorAttachmentMutation,
   useRemoveVendorAttachmentMutation,
 } from '@/store/api';
-import type { Vendor, Attachment } from '@/constants/dashboard-pages';
+import type { Vendor } from '@/types/vendor';
+import type { Attachment } from '@/types/attachment';
 
 const CATEGORY_ICONS: { label: string; icon: string }[] = [
   { label: 'Decoration',    icon: '🌸' },

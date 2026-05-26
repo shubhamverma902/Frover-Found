@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { WeddingEvent } from '@/types/event';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { EventsDataSchema, WeddingEventSchema } from './schemas';

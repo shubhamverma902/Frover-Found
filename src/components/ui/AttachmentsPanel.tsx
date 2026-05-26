@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import type { Attachment } from '@/constants/dashboard-pages';
+import type { Attachment } from '@/types/attachment';
 import { ATTACHMENT_ALLOWED_TYPES, ATTACHMENT_MAX_BYTES } from '@/utils/validate';
 
 const MAX_FILES = 5;

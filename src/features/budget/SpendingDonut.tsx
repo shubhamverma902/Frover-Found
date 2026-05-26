@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import type { BudgetCategory } from '@/constants/dashboard-pages';
+import type { BudgetCategory } from '@/types/budget';
 import { fmt } from '@/utils/format';
 
 // Palette that complements the gold/dark theme

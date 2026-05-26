@@ -1,7 +1,7 @@
-import type { FC } from 'react';
+﻿import type { FC } from 'react';
 import { STATUS_META } from '@/constants/vendors';
 import { CheckIcon, StarIcon } from '@/components/icons';
-import type { Vendor } from '@/constants/dashboard-pages';
+import type { Vendor } from '@/types/vendor';
 
 interface Props {
   vendor: Vendor;

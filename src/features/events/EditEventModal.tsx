@@ -11,7 +11,8 @@ import {
   useAddEventAttachmentMutation,
   useRemoveEventAttachmentMutation,
 } from '@/store/api';
-import type { WeddingEvent, Attachment } from '@/constants/dashboard-pages';
+import type { WeddingEvent } from '@/types/event';
+import type { Attachment } from '@/types/attachment';
 import { STATUS_OPTIONS } from '@/constants/events';
 
 interface EditEventModalProps {

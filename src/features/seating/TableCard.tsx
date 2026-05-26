@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import type { SeatingTable, Guest } from '@/constants/dashboard-pages';
+import type { SeatingTable } from '@/types/seating';
+import type { Guest } from '@/types/guest';
 import { GuestChip } from './GuestChip';
 
 const ShapeIcon = ({ shape }: { shape: SeatingTable['shape'] }) =>

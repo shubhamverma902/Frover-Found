@@ -1,4 +1,4 @@
-import type { ChecklistTask } from '@/constants/dashboard-pages';
+﻿import type { ChecklistTask } from '@/types/checklist';
 import { CheckIcon, PencilIcon } from '@/components/icons';
 
 interface TaskItemProps {

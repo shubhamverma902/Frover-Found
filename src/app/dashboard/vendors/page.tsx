@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -14,7 +14,7 @@ import {
   VendorCard,
 } from '@/features/vendors';
 import { Pagination } from '@/components/ui';
-import type { Vendor } from '@/constants/dashboard-pages';
+import type { Vendor } from '@/types/vendor';
 
 const PAGE_LIMIT = 10;
 

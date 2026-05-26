@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useDroppable } from '@dnd-kit/core';
-import type { Guest } from '@/constants/dashboard-pages';
+import type { Guest } from '@/types/guest';
 import { GuestChip } from './GuestChip';
 
 interface Props {

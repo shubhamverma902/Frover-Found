@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { exportChecklistPDF } from '@/utils/exportPdf';
@@ -15,7 +15,7 @@ import {
   ChecklistEmptyState,
 } from '@/features/checklist';
 import type { Filter } from '@/features/checklist';
-import type { ChecklistTask } from '@/constants/dashboard-pages';
+import type { ChecklistTask } from '@/types/checklist';
 
 const ChecklistPage = () => {
   const [toggleTask]  = useToggleTaskMutation();

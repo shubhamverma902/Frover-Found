@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { ChecklistCategory } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { ChecklistCategory } from '@/types/checklist';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { ChecklistCategorySchema, ChecklistResponseSchema } from './schemas';

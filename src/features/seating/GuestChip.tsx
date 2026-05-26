@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import type { Guest } from '@/constants/dashboard-pages';
+import type { Guest } from '@/types/guest';
 
 const RSVP_DOT: Record<Guest['rsvp'], string> = {
   confirmed: 'bg-emerald-400',

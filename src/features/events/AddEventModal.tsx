@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateEventMutation } from '@/store/api';
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+import type { WeddingEvent } from '@/types/event';
 
 type FormData = Omit<WeddingEvent, '_id'>;
 

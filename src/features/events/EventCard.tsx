@@ -1,4 +1,4 @@
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+﻿import type { WeddingEvent } from '@/types/event';
 import { STATUS_META } from '@/constants/events';
 import { CheckIcon } from '@/components/icons';
 import { toDisplayDate, toDisplayTime } from '@/utils/dateTime';

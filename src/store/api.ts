@@ -2,14 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQueryWithRetry } from "./axiosBaseQuery";
 import type { AxiosBaseQueryError } from "./axiosBaseQuery";
 import { API } from "@/constants/api";
-import type {
-  Guest,
-  Vendor,
-  WeddingEvent,
-  SeatingTable,
-  BudgetCategory,
-  ChecklistCategory,
-} from "@/constants/dashboard-pages";
+import type { Guest } from "@/types/guest";
+import type { Vendor } from "@/types/vendor";
+import type { WeddingEvent } from "@/types/event";
+import type { SeatingTable } from "@/types/seating";
+import type { BudgetCategory } from "@/types/budget";
+import type { ChecklistCategory } from "@/types/checklist";
 import { parseResponse } from "@/api/parse";
 import {
   GuestsDataSchema,

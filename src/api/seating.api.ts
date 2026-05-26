@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
-import type { SeatingTable } from '@/constants/dashboard-pages';
+﻿import axiosInstance from './axiosInstance';
+import type { SeatingTable } from '@/types/seating';
 import { API } from '@/constants/api';
 import { parseResponse } from './parse';
 import { SeatingTableSchema, SeatingTablesResponseSchema } from './schemas';

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Button, Input, FieldLabel } from '@/components/elements';
 import { useCreateGuestMutation } from '@/store/api';
-import type { Guest } from '@/constants/dashboard-pages';
+import type { Guest } from '@/types/guest';
 
 interface AddGuestModalProps {
   onClose: () => void;

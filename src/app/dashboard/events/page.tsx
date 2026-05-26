@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -17,7 +17,7 @@ import {
 } from '@/features/events';
 import { Pagination } from '@/components/ui';
 import type { EventFilter } from '@/features/events';
-import type { WeddingEvent } from '@/constants/dashboard-pages';
+import type { WeddingEvent } from '@/types/event';
 
 const PAGE_LIMIT = 20;
 
