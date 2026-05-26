@@ -14,3 +14,8 @@ export { SearchIcon    } from './SearchIcon';
 export { StarIcon      } from './StarIcon';
 export { SunIcon       } from './SunIcon';
 export { TrashIcon     } from './TrashIcon';
+
+export { StorefrontIllustration  } from './StorefrontIllustration';
+export { CalendarIllustration    } from './CalendarIllustration';
+export { ClipboardIllustration   } from './ClipboardIllustration';
+export { BudgetWheelIllustration } from './BudgetWheelIllustration';
