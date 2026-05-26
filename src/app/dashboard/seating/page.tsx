@@ -24,6 +24,7 @@ import {
   TableCard,
   AddTableModal,
   EditTableModal,
+  SeatingSkeleeton,
 } from '@/features/seating';
 import type { SeatingTable } from '@/types/seating';
 import type { Guest } from '@/types/guest';
@@ -120,20 +121,7 @@ const SeatingPage = () => {
         </button>
       </div>
 
-      {isLoading && (
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-          <div className="space-y-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-10 bg-dark animate-pulse" />
-            ))}
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-40 bg-dark animate-pulse" />
-            ))}
-          </div>
-        </div>
-      )}
+      {isLoading && <SeatingSkeleeton />}
 
       {!isLoading && allGuests.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">

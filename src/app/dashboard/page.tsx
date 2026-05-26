@@ -6,6 +6,7 @@ import { PATH } from '@/constants/path';
 import { useAppDispatch } from '@/store/hooks';
 import { DASHBOARD_ACTIONS, toggleDashboardTask } from '@/store/slices/dashboardSlice';
 import { useGetDashboardQuery, useToggleTaskMutation } from '@/store/api';
+import { DashboardSkeleton } from '@/features/dashboard/DashboardSkeleton';
 
 const fmt = (n: number) =>
   n >= 1_00_000 ? `₹${(n / 1_00_000).toFixed(1)}L` :
@@ -38,6 +39,8 @@ const DashboardPage = () => {
     { value: `${STATS.guestsConfirmed}`, unit: `/ ${STATS.guestsTotal}`, label: 'Guests confirmed',   accent: false },
   ] : [];
 
+  if (loading) return <DashboardSkeleton />;
+
   return (
     <div className="p-6 lg:p-8 space-y-8 page-sections">
 
@@ -62,12 +65,7 @@ const DashboardPage = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-gold pulse-dot" />
                 <p className="text-[10px] font-semibold text-gold uppercase tracking-[0.4em]">Welcome back</p>
               </div>
-              {loading ? (
-                <div className="space-y-2 animate-pulse">
-                  <div className="h-9 w-64 bg-silver/15 rounded" />
-                  <div className="h-4 w-48 bg-silver/10 rounded" />
-                </div>
-              ) : USER ? (
+              {USER ? (
                 <>
                   <h1 className="text-3xl lg:text-4xl font-bold text-white leading-tight">
                     {USER.name}
@@ -90,13 +88,9 @@ const DashboardPage = () => {
 
             <div className="shrink-0 border border-gold/20 bg-gold/5 px-6 py-4 text-center">
               <p className="text-[9px] font-bold text-gold/60 uppercase tracking-[0.4em] mb-1">Days Until</p>
-              {loading ? (
-                <div className="h-12 w-16 bg-silver/15 rounded animate-pulse mx-auto" />
-              ) : (
-                <p className="text-5xl font-black text-gold leading-none num-pop">
-                  {STATS?.daysLeft ?? '—'}
-                </p>
-              )}
+              <p className="text-5xl font-black text-gold leading-none num-pop">
+                {STATS?.daysLeft ?? '—'}
+              </p>
               <p className="text-[10px] text-silver/40 uppercase tracking-widest mt-1">days to go</p>
             </div>
           </div>
@@ -126,11 +120,7 @@ const DashboardPage = () => {
 
       {/* ── Stats row ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
-        {loading
-          ? [...Array(4)].map((_, i) => (
-              <div key={i} className="h-20 bg-silver/10 rounded animate-pulse" />
-            ))
-          : statsRow.map((s) => (
+        {statsRow.map((s) => (
               <div
                 key={s.label}
                 className={`relative stat-card border p-5 lift grad-border ${
@@ -193,7 +183,7 @@ const DashboardPage = () => {
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-5 bg-gold" />
               <h2 className="text-sm font-bold text-dark dark:text-white uppercase tracking-widest">Upcoming Tasks</h2>
-              {!loading && totalTasks > 0 && (
+              {totalTasks > 0 && (
                 <span className="text-[10px] text-silver/40">{doneTasks}/{totalTasks}</span>
               )}
             </div>
@@ -205,17 +195,7 @@ const DashboardPage = () => {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="divide-y divide-silver/40 dark:divide-[#2a2f33]">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-3.5 animate-pulse">
-                  <div className="w-5 h-5 bg-silver/15 rounded shrink-0" />
-                  <div className="flex-1 h-3 bg-silver/10 rounded" />
-                  <div className="w-20 h-3 bg-silver/10 rounded" />
-                </div>
-              ))}
-            </div>
-          ) : TASKS.length === 0 ? (
+          {TASKS.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12">
               <span className="text-3xl text-gold/40 dark:text-gold/20">✓</span>
               <p className="text-sm font-bold text-zinc-400 dark:text-silver/30">All clear — no pending tasks</p>
@@ -269,19 +249,7 @@ const DashboardPage = () => {
           </div>
 
           <div className="relative px-6 py-4 flex-1">
-            {loading ? (
-              <div className="space-y-4 animate-pulse">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-silver/15 rounded shrink-0" />
-                    <div className="flex-1 space-y-1.5 pt-1">
-                      <div className="h-3 bg-silver/10 rounded w-3/4" />
-                      <div className="h-2.5 bg-silver/8 rounded w-1/3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : ACTIVITY.length === 0 ? (
+            {ACTIVITY.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-10">
                 <span className="text-3xl text-blush/50 dark:text-blush/20">◎</span>
                 <p className="text-xs text-zinc-400 dark:text-silver/30 text-center leading-relaxed">
