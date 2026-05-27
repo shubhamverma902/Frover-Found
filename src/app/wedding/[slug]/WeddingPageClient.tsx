@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, CSSProperties } from 'react';
 
@@ -12,25 +12,31 @@ export interface WeddingData {
   style:       string;
 }
 
-// Fixed positions so there's no hydration mismatch
-const SPARKLES: Array<{ top: string; left: string; delay: string; dur: string }> = [
-  { top: '7%',  left: '5%',   delay: '0s',    dur: '7s'   },
-  { top: '11%', left: '91%',  delay: '1.8s',  dur: '6.5s' },
-  { top: '32%', left: '2%',   delay: '3.3s',  dur: '5.5s' },
-  { top: '52%', left: '96%',  delay: '0.6s',  dur: '8s'   },
-  { top: '71%', left: '6%',   delay: '2.2s',  dur: '6s'   },
+const T = {
+  bg:     '#FFF8F0',
+  fg:     '#2A1F52',
+  mid:    '#5E548E',
+  gold:   '#CDB4DB',
+  blush:  '#D8A7B1',
+  silver: '#9F86A0',
+} as const;
+
+const SPARKLES = [
+  { top: '8%',  left: '5%',   delay: '0s',    dur: '7s'   },
+  { top: '14%', left: '91%',  delay: '1.8s',  dur: '6.5s' },
+  { top: '34%', left: '2%',   delay: '3.3s',  dur: '5.5s' },
+  { top: '54%', left: '97%',  delay: '0.6s',  dur: '8s'   },
+  { top: '72%', left: '6%',   delay: '2.2s',  dur: '6s'   },
   { top: '87%', left: '89%',  delay: '4.2s',  dur: '7.5s' },
-  { top: '24%', left: '48%',  delay: '1.1s',  dur: '9s'   },
+  { top: '22%', left: '46%',  delay: '1.1s',  dur: '9s'   },
   { top: '63%', left: '53%',  delay: '5.3s',  dur: '6s'   },
-  { top: '43%', left: '93%',  delay: '2.8s',  dur: '7s'   },
-  { top: '81%', left: '38%',  delay: '3.9s',  dur: '5s'   },
+  { top: '44%', left: '95%',  delay: '2.8s',  dur: '7s'   },
+  { top: '80%', left: '38%',  delay: '3.9s',  dur: '5s'   },
+  { top: '11%', left: '28%',  delay: '0.5s',  dur: '8.5s' },
+  { top: '91%', left: '19%',  delay: '2.1s',  dur: '6.2s' },
 ];
 
-function anim(name: string, dur: string, delay = '0s', extra = ''): CSSProperties {
-  return { animation: `${name} ${dur} ease-out ${delay} both ${extra}` };
-}
-
-// ── Countdown ──────────────────────────────────────────────────────────────────
+// ── Countdown ────────────────────────────────────────────────────────────────
 interface TimeLeft { days: number; hours: number; minutes: number; seconds: number }
 
 function calcTimeLeft(target: string): TimeLeft {
@@ -45,20 +51,17 @@ function calcTimeLeft(target: string): TimeLeft {
 }
 
 function Countdown({ targetDate }: { targetDate: string }) {
-  const [time, setTime] = useState<TimeLeft | null>(null);
+  const [time, setTime] = useState<TimeLeft>(() => calcTimeLeft(targetDate));
 
   useEffect(() => {
-    setTime(calcTimeLeft(targetDate));
-    const id = setInterval(() => setTime(calcTimeLeft(targetDate)), 1000);
+    const id = setInterval(() => setTime(calcTimeLeft(targetDate)), 1_000);
     return () => clearInterval(id);
   }, [targetDate]);
-
-  if (!time) return null;
 
   const isPast = Object.values(time).every(v => v === 0);
   if (isPast) {
     return (
-      <p className="text-sm tracking-widest uppercase text-gold/70">
+      <p style={{ fontSize: 10, letterSpacing: '0.5em', color: T.mid, textTransform: 'uppercase' }}>
         Today is the day ✦
       </p>
     );
@@ -66,206 +69,182 @@ function Countdown({ targetDate }: { targetDate: string }) {
 
   const pad = (n: number) => String(n).padStart(2, '0');
   const units = [
-    { v: time.days,    l: 'Days'  },
-    { v: time.hours,   l: 'Hours' },
-    { v: time.minutes, l: 'Mins'  },
-    { v: time.seconds, l: 'Secs'  },
+    { v: time.days,    l: 'Days' },
+    { v: time.hours,   l: 'Hrs'  },
+    { v: time.minutes, l: 'Min'  },
+    { v: time.seconds, l: 'Sec'  },
   ];
 
   return (
-    <div className="flex items-end justify-center gap-3 sm:gap-5">
-      {units.map(({ v, l }, i) => (
-        <div
-          key={l}
-          className="flex flex-col items-center gap-2"
-          style={anim('weddingFadeUp', '0.6s', `${0.9 + i * 0.08}s`)}
-        >
-          <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] flex items-center justify-center border border-gold/20 bg-[rgba(205,180,219,0.04)] backdrop-blur-sm">
-            <span className="text-2xl sm:text-3xl font-bold text-white tabular-nums tracking-tight">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+      {units.map(({ v, l }) => (
+        <div key={l} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'relative', width: 68, height: 68 }}>
+            <div style={{ position: 'absolute', inset: 0, border: `1px solid ${T.gold}`, background: 'rgba(205,180,219,0.06)', borderRadius: 3 }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, borderRadius: '3px 3px 0 0', background: `linear-gradient(to right, transparent, ${T.blush}, transparent)`, opacity: 0.45 }} />
+            <span
+              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 300, color: T.fg, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}
+              suppressHydrationWarning
+            >
               {pad(v)}
             </span>
           </div>
-          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-gold/50">
-            {l}
-          </span>
+          <span style={{ fontSize: 7, letterSpacing: '0.4em', color: T.silver, textTransform: 'uppercase' }}>{l}</span>
         </div>
       ))}
     </div>
   );
 }
 
-// ── Main client component ──────────────────────────────────────────────────────
-interface Props {
-  data:          WeddingData;
-  formattedDate: string | null;
-}
+// ── Main ─────────────────────────────────────────────────────────────────────
+interface Props { data: WeddingData; formattedDate: string | null }
 
 export function WeddingPageClient({ data, formattedDate }: Props) {
+  // visible starts false — opacity:0 on all items (cream bg hides the gap).
+  // setTimeout(100) gives the browser one full paint cycle to commit the
+  // initial hidden state before we start the opacity transition.
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Pure opacity fade — no translateY, so elements never visually overlap
+  // with siblings during the cascade. Layout stays completely stable.
+  const fade = (delay: number, dur = 0.85): CSSProperties => ({
+    opacity:    visible ? 1 : 0,
+    transition: `opacity ${dur}s ease ${delay}s`,
+  });
+
   const details = [
     formattedDate && { label: 'Date',     value: formattedDate },
     data.venue    && { label: 'Venue',    value: data.venue    },
     data.city     && { label: 'Location', value: data.city     },
   ].filter(Boolean) as { label: string; value: string }[];
 
+  const labelStyle: CSSProperties = {
+    fontSize: 7, letterSpacing: '0.5em',
+    color: T.silver, textTransform: 'uppercase',
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0c0e] flex flex-col items-center justify-center px-6 py-20">
+    <div style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden', display: 'flex', flexDirection: 'column', background: T.bg }}>
 
-      {/* Central ambient glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 60% at 50% 50%, rgba(205,180,219,0.07) 0%, transparent 65%)',
-        }}
-        aria-hidden
-      />
+      {/* ── Atmospheric glows ─────────────────────────────────────────────── */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} aria-hidden>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(205,180,219,0.18) 0%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', top: '-6rem', right: '-6rem', width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(216,167,177,0.18) 0%, transparent 65%)' }} />
+        <div style={{ position: 'absolute', bottom: '-6rem', left: '-6rem', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(159,134,160,0.12) 0%, transparent 65%)' }} />
+      </div>
 
-      {/* Floating sparkle particles */}
+      {/* ── Sparkles — CSS loop, always visible ──────────────────────────── */}
       {SPARKLES.map((s, i) => (
-        <span
-          key={i}
-          className="absolute text-gold text-xs pointer-events-none select-none"
-          style={{
-            top:       s.top,
-            left:      s.left,
-            animation: `sparkleRise ${s.dur} ease-in-out ${s.delay} infinite`,
-          }}
-          aria-hidden
-        >
-          ✦
-        </span>
+        <span key={i} aria-hidden style={{
+          position: 'fixed', top: s.top, left: s.left, zIndex: 1,
+          fontSize: 9, color: T.blush, opacity: 0.4,
+          pointerEvents: 'none', userSelect: 'none',
+          animationName: 'sparkleRise',
+          animationDuration: s.dur,
+          animationDelay: s.delay,
+          animationTimingFunction: 'ease-in-out',
+          animationIterationCount: 'infinite',
+        }}>✦</span>
       ))}
 
-      {/* Corner ornaments */}
-      {(['top-6 left-6 border-t border-l', 'top-6 right-6 border-t border-r',
-         'bottom-6 left-6 border-b border-l', 'bottom-6 right-6 border-b border-r'] as const).map((cls, i) => (
-        <div key={i} className={`absolute w-10 h-10 sm:w-14 sm:h-14 border-gold/15 pointer-events-none ${cls}`} aria-hidden />
-      ))}
+      {/* ── Corner ornaments ──────────────────────────────────────────────── */}
+      <div aria-hidden style={{ position: 'fixed', top: 24, left: 24, width: 44, height: 44, borderTop: `1px solid ${T.gold}`, borderLeft: `1px solid ${T.gold}`, opacity: 0.5, pointerEvents: 'none', zIndex: 1 }} />
+      <div aria-hidden style={{ position: 'fixed', top: 24, right: 24, width: 44, height: 44, borderTop: `1px solid ${T.gold}`, borderRight: `1px solid ${T.gold}`, opacity: 0.5, pointerEvents: 'none', zIndex: 1 }} />
+      <div aria-hidden style={{ position: 'fixed', bottom: 24, left: 24, width: 44, height: 44, borderBottom: `1px solid ${T.gold}`, borderLeft: `1px solid ${T.gold}`, opacity: 0.5, pointerEvents: 'none', zIndex: 1 }} />
+      <div aria-hidden style={{ position: 'fixed', bottom: 24, right: 24, width: 44, height: 44, borderBottom: `1px solid ${T.gold}`, borderRight: `1px solid ${T.gold}`, opacity: 0.5, pointerEvents: 'none', zIndex: 1 }} />
 
-      {/* ── Content ── */}
-      <div className="relative z-10 w-full max-w-xl text-center">
+      {/* ── Content ──────────────────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '7rem 2rem', textAlign: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        {/* Eyebrow */}
-        <p
-          className="text-[10px] uppercase tracking-[0.45em] text-gold/60 mb-10"
-          style={anim('weddingFadeUp', '0.7s', '0.1s')}
-        >
-          You are cordially invited
-        </p>
+          {/* Eyebrow */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: '100%', ...fade(0.1) }}>
+            <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${T.gold})` }} />
+            <p style={{ ...labelStyle, letterSpacing: '0.6em', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              You are cordially invited
+            </p>
+            <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${T.gold})` }} />
+          </div>
 
-        {/* Partner 1 */}
-        <div style={anim('weddingFadeUp', '0.8s', '0.3s')}>
-          <h1 className="text-5xl sm:text-[72px] font-bold tracking-tight text-white leading-none">
+          {/* Partner 1 */}
+          <h1 style={{ marginTop: 44, fontSize: 'clamp(48px,12vw,84px)', fontWeight: 700, fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1, color: T.fg, ...fade(0.3) }}>
             {data.partner1}
           </h1>
-        </div>
 
-        {/* Ampersand ring */}
-        <div
-          className="my-5 sm:my-7 flex justify-center"
-          style={anim('weddingFadeUp', '0.8s', '0.5s')}
-        >
-          <div className="relative flex items-center justify-center">
-            {/* Outer ring */}
-            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-gold/20" />
-            {/* Inner ring */}
-            <div className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-gold/10" />
-            {/* Symbol */}
-            <span
-              className="relative text-4xl sm:text-5xl font-bold text-gold z-10"
-              style={{ animation: 'goldGlow 3s ease-in-out infinite' }}
-            >
-              &amp;
-            </span>
+          {/* Ampersand */}
+          <div style={{ margin: '32px 0', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 96, height: 96, ...fade(0.48) }}>
+            <div style={{
+              position: 'absolute', width: 84, height: 84, borderRadius: '50%',
+              border: `1px solid ${T.gold}`, opacity: 0.55,
+              animationName: 'breathe', animationDuration: '5s',
+              animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite',
+            }} />
+            <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', border: `1px solid ${T.blush}`, opacity: 0.3 }} />
+            <span style={{
+              position: 'relative', zIndex: 1, fontSize: 44, fontWeight: 700, color: T.mid,
+              animationName: 'goldGlow', animationDuration: '4s',
+              animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite',
+            }}>&amp;</span>
           </div>
-        </div>
 
-        {/* Partner 2 */}
-        <div style={anim('weddingFadeUp', '0.8s', '0.7s')}>
-          <h1 className="text-5xl sm:text-[72px] font-bold tracking-tight text-white leading-none">
+          {/* Partner 2 */}
+          <h1 style={{ fontSize: 'clamp(48px,12vw,84px)', fontWeight: 700, fontStyle: 'italic', letterSpacing: '-0.02em', lineHeight: 1, color: T.fg, ...fade(0.64) }}>
             {data.partner2}
           </h1>
-        </div>
 
-        {/* Expanding divider */}
-        <div
-          className="mt-10 mb-10 flex items-center gap-4"
-          style={anim('weddingFadeUp', '0.6s', '0.9s')}
-        >
-          <div
-            className="flex-1 h-px bg-gradient-to-r from-transparent to-gold/35 origin-right"
-            style={anim('expandWidth', '1.1s', '1s')}
-          />
-          <span className="text-gold/60 text-sm shrink-0">✦</span>
-          <div
-            className="flex-1 h-px bg-gradient-to-l from-transparent to-gold/35 origin-left"
-            style={anim('expandWidth', '1.1s', '1s')}
-          />
-        </div>
-
-        {/* Detail cards */}
-        {details.length > 0 && (
-          <div
-            className={`grid gap-3 mb-12 ${details.length === 3 ? 'grid-cols-3' : details.length === 2 ? 'grid-cols-2' : 'grid-cols-1 max-w-xs mx-auto'}`}
-            style={anim('weddingFadeUp', '0.7s', '1s')}
-          >
-            {details.map(({ label, value }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-2 px-3 py-5 border border-gold/12 bg-[rgba(205,180,219,0.03)] backdrop-blur-sm"
-              >
-                <span className="text-[9px] uppercase tracking-[0.3em] text-gold/50">
-                  {label}
-                </span>
-                <span className="text-xs sm:text-sm text-white/75 font-medium leading-snug text-center">
-                  {value}
-                </span>
-              </div>
-            ))}
+          {/* Divider */}
+          <div style={{ margin: '44px 0', width: '100%', display: 'flex', alignItems: 'center', gap: 14, ...fade(0.8) }}>
+            <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${T.blush})`, opacity: 0.45 }} />
+            <span style={{ color: T.blush, fontSize: 10, flexShrink: 0, opacity: 0.65 }}>✦</span>
+            <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${T.blush})`, opacity: 0.45 }} />
           </div>
-        )}
 
-        {/* Countdown */}
-        {data.weddingDate && (
-          <div style={anim('weddingFadeUp', '0.7s', '1.15s')}>
-            <p className="text-[9px] uppercase tracking-[0.35em] text-gold/40 mb-6">
-              Counting down
-            </p>
-            <Countdown targetDate={data.weddingDate} />
+          {/* Details */}
+          {details.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'center', width: '100%', ...fade(0.95) }}>
+              {details.map(({ label, value }, i) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, flex: 1, padding: '0 20px', ...(i > 0 ? { borderLeft: `1px solid ${T.gold}` } : {}) }}>
+                  <span style={labelStyle}>{label}</span>
+                  <span style={{ fontSize: 13, color: T.fg, fontWeight: 400, lineHeight: 1.5, opacity: 0.75 }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Countdown */}
+          {data.weddingDate && (
+            <div style={fade(1.1)}>
+              <p style={{ marginTop: 48, marginBottom: 24, ...labelStyle }}>Counting down</p>
+              <Countdown targetDate={data.weddingDate} />
+            </div>
+          )}
+
+          {/* Style badge */}
+          {data.style && (
+            <div style={{ marginTop: 48, ...fade(1.25) }}>
+              <span style={{ padding: '8px 28px', border: `1px solid ${T.gold}`, fontSize: 8, letterSpacing: '0.5em', color: T.mid, textTransform: 'uppercase', borderRadius: 2 }}>
+                {data.style}
+              </span>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div style={{ marginTop: 64, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, ...fade(1.38) }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 160 }}>
+              <div style={{ flex: 1, height: 1, background: T.blush, opacity: 0.25 }} />
+              <span style={{ color: T.blush, fontSize: 8, opacity: 0.55 }}>✦</span>
+              <div style={{ flex: 1, height: 1, background: T.blush, opacity: 0.25 }} />
+            </div>
+            <p style={{ marginTop: 4, ...labelStyle, opacity: 0.55 }}>Planned with</p>
+            <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.45em', color: T.mid, textTransform: 'uppercase', opacity: 0.65 }}>Forever Found</p>
           </div>
-        )}
 
-        {/* Style badge */}
-        {data.style && (
-          <div
-            className="mt-8"
-            style={anim('weddingFadeUp', '0.6s', '1.3s')}
-          >
-            <span className="inline-block px-5 py-1.5 border border-gold/20 text-gold/60 text-[10px] uppercase tracking-[0.35em]">
-              {data.style}
-            </span>
-          </div>
-        )}
-
-        {/* Footer divider */}
-        <div
-          className="mt-14 flex items-center gap-4"
-          style={anim('weddingFadeUp', '0.5s', '1.4s')}
-        >
-          <div className="flex-1 h-px bg-gold/10" />
-          <span className="text-gold/30 text-xs">✦</span>
-          <div className="flex-1 h-px bg-gold/10" />
         </div>
-
-        {/* Branding */}
-        <div
-          className="mt-6 space-y-1"
-          style={anim('weddingFadeUp', '0.5s', '1.5s')}
-        >
-          <p className="text-[9px] uppercase tracking-[0.45em] text-white/15">Planned with</p>
-          <p className="text-[11px] font-bold tracking-[0.4em] uppercase text-white/25">Forever Found</p>
-        </div>
-
       </div>
     </div>
   );
